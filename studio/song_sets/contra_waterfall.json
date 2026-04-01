@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Contra",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "07WaterfallofBloodshedStage3"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 8 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/13272_Thin_Swell_17613.reapnes-data",
+      "description": "Thin Swell 17613 (1 notes)",
+      "notes": "Tags: pulse, short, swell, looping, thin"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/13273_Thin_Swell_17614.reapnes-data",
+      "description": "Thin Swell 17614 (1 notes)",
+      "notes": "Tags: pulse, short, swell, looping, thin"
+    }
+  }
+}

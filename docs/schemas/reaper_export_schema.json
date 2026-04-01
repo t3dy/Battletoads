@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nesmusiclab.local/schemas/reaper-export/v0.1.0",
+  "title": "NES Music Lab — REAPER Export Metadata",
+  "description": "Schema for REAPER-oriented export metadata. Describes automation suggestions, channel mappings, and template hints for importing NES music into REAPER DAW.",
+  "type": "object",
+  "required": ["schema_version", "metadata", "tracks"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["source_analysis", "generated_at"],
+      "properties": {
+        "source_analysis": {
+          "type": "string",
+          "description": "Path or reference to the analysis JSON this export was derived from."
+        },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "tempo_bpm": { "type": ["number", "null"] },
+        "time_signature": { "type": ["string", "null"] }
+      }
+    },
+    "tracks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/track" }
+    },
+    "markers": {
+      "type": "array",
+      "description": "REAPER markers for song sections, loop points, etc.",
+      "items": { "$ref": "#/$defs/marker" }
+    },
+    "regions": {
+      "type": "array",
+      "description": "REAPER regions for song sections.",
+      "items": { "$ref": "#/$defs/region" }
+    }
+  },
+  "$defs": {
+    "track": {
+      "type": "object",
+      "required": ["name", "nes_channel", "midi_file"],
+      "properties": {
+        "name": { "type": "string" },
+        "nes_channel": { "enum": ["pulse1", "pulse2", "triangle", "noise", "dpcm"] },
+        "midi_file": {
+          "type": "string",
+          "description": "Relative path to the MIDI file for this track."
+        },
+        "midi_channel": { "type": "integer", "minimum": 0, "maximum": 15 },
+        "automation": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/automation_lane" }
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "automation_lane": {
+      "type": "object",
+      "required": ["parameter", "points"],
+      "properties": {
+        "parameter": {
+          "enum": [
+            "volume",
+            "duty_cycle",
+            "pitch_bend",
+            "noise_mode",
+            "dpcm_sample_trigger",
+            "sweep_enable",
+            "sweep_period",
+            "sweep_direction",
+            "custom"
+          ]
+        },
+        "parameter_name": { "type": "string" },
+        "points": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/automation_point" }
+        }
+      }
+    },
+    "automation_point": {
+      "type": "object",
+      "required": ["time_seconds", "value"],
+      "properties": {
+        "time_seconds": { "type": "number", "minimum": 0.0 },
+        "value": { "type": "number" },
+        "shape": {
+          "enum": ["linear", "step", "bezier"],
+          "default": "step"
+        }
+      }
+    },
+    "marker": {
+      "type": "object",
+      "required": ["time_seconds", "label"],
+      "properties": {
+        "time_seconds": { "type": "number", "minimum": 0.0 },
+        "label": { "type": "string" },
+        "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+      }
+    },
+    "region": {
+      "type": "object",
+      "required": ["start_seconds", "end_seconds", "label"],
+      "properties": {
+        "start_seconds": { "type": "number", "minimum": 0.0 },
+        "end_seconds": { "type": "number", "minimum": 0.0 },
+        "label": { "type": "string" },
+        "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+      }
+    }
+  }
+}

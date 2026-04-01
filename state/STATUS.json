@@ -1,0 +1,44 @@
+{
+  "last_updated": "2026-03-31",
+  "session": "day4",
+  "pipeline_status": {
+    "nsf_extraction": "WORKING",
+    "midi_generation": "WORKING",
+    "rpp_generation": "WORKING — full Console_Test.rpp structure",
+    "synth_file_playback": "BROKEN — Console ignores CC11/CC12",
+    "synth_keyboard_play": "WORKING — ADSR envelopes + Keyboard Mode",
+    "batch_processing": "WORKING — 50 games, 1099 MIDIs"
+  },
+  "critical_blocker": {
+    "id": "CC_HANDLING_MISSING",
+    "description": "ReapNES_Console.jsfx does not read CC11 (volume) or CC12 (duty). File playback uses ADSR instead of ground-truth per-frame envelopes.",
+    "impact": "ALL 1099 projects have wrong volume envelopes during file playback",
+    "fix": "Port lp_cc_active[] system from ReapNES_APU.jsfx into Console @block section (~30 lines)",
+    "layer": "synth_interpretation",
+    "blocks": ["file_playback_fidelity", "mario_regression"]
+  },
+  "known_regressions": [
+    {
+      "game": "Super_Mario_Bros",
+      "symptom": "Wrong noises, missing melodic elements, no drums compared to previous APU-based projects",
+      "cause": "Switched from APU (reads CC11/CC12) to Console (ignores CC11/CC12)",
+      "fix": "CC_HANDLING_MISSING blocker"
+    }
+  ],
+  "recent_additions": [
+    "Dragon_Warrior", "Final_Fantasy", "Metal_Gear", "Ultima_-_Exodus",
+    "Faxanadu", "Gargoyles_Quest_II", "Goonies_II_The", "Kid_Icarus",
+    "Legendary_Wings", "Section_Z", "Silver_Surfer", "Strider", "Trojan"
+  ],
+  "failed_extractions": [
+    {"game": "Ultima_-_Quest_of_the_Avatar", "reason": "0 MIDIs produced, NSF may have issues"},
+    {"game": "Silver_Surfer", "reason": "0 MIDIs produced, SFX-only NSF"}
+  ],
+  "priority_order": [
+    "1. Port CC11/CC12 handling to Console synth (fixes all games)",
+    "2. Validate drum/noise handling in Console vs APU",
+    "3. Rebuild all Projects after synth fix",
+    "4. Iterative ear-check and ADSR tuning per game",
+    "5. Expand game_adsr.json with more game presets"
+  ]
+}

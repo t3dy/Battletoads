@@ -1,0 +1,33 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Castlevania",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "02VampireKiller"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 2 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/49349_Snare_Fade_11552.reapnes-data",
+      "description": "Snare Fade 11552 (3 notes)"
+    }
+  },
+  "drum_map": {
+    "36": {
+      "preset": "jsfx_data/49349_Snare_Fade_11552.reapnes-data",
+      "description": "Snare Fade 11552"
+    },
+    "38": {
+      "preset": "jsfx_data/51059_Snare_Fade_11553.reapnes-data",
+      "description": "Snare Fade 11553"
+    }
+  }
+}

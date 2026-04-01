@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "CastlevaniaIII Dracula sCurse",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "25Evergreen"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 24 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/0124_Soft_Lead_41739.reapnes-data",
+      "description": "Soft Lead 41739 (377 notes)",
+      "notes": "Tags: pulse, short, fade, looping, narrow"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/0672_Swell_42478.reapnes-data",
+      "description": "Swell 42478 (50 notes)",
+      "notes": "Tags: pulse, staccato, swell, looping, narrow"
+    }
+  }
+}

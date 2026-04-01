@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Castlevania",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "13NothingtoLose"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 10 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/5888_Square_Swell_26249.reapnes-data",
+      "description": "Square Swell 26249 (3 notes)",
+      "notes": "Tags: pulse, short, swell, looping, square"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/30053_Thin_Pad_21922.reapnes-data",
+      "description": "Thin Pad 21922 (3 notes)",
+      "notes": "Tags: pulse, short, fade, looping, thin"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "CastlevaniaII Simon sQuest",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "02BloodyTears"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 14 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/7580_Thin_Swell_17357.reapnes-data",
+      "description": "Thin Swell 17357 (2 notes)",
+      "notes": "Tags: pulse, short, swell, thin"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/10296_Swell_48862.reapnes-data",
+      "description": "Swell 48862 (2 notes)",
+      "notes": "Tags: pulse, short, swell, looping, duty-sweep"
+    }
+  }
+}

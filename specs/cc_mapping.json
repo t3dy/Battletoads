@@ -1,0 +1,33 @@
+{
+  "cc11_volume": {
+    "midi_cc": 11,
+    "midi_range": [0, 127],
+    "nes_range": [0, 15],
+    "forward_map": "nes_vol = min(127, nes_vol_0_15 * 8)",
+    "reverse_map": "nes_vol = floor(midi_val * 15 / 127)",
+    "per_channel": {
+      "pulse1": {"typical_range": [8, 120], "updates_per_note": 4.0, "description": "Per-frame volume envelope"},
+      "pulse2": {"typical_range": [8, 120], "updates_per_note": 5.0, "description": "Per-frame volume envelope"},
+      "triangle": {"fixed_value": 127, "updates_per_note": 1.0, "description": "Gate only, no hardware volume control"},
+      "noise": {"not_used": true, "description": "Drums use velocity, not CC11"}
+    }
+  },
+  "cc12_duty": {
+    "midi_cc": 12,
+    "midi_values": [16, 32, 64, 96],
+    "nes_values": [0, 1, 2, 3],
+    "duty_labels": ["12.5%", "25%", "50%", "75%"],
+    "forward_map": "[16, 32, 64, 96][nes_duty]",
+    "reverse_map": "0-31=0, 32-63=1, 64-95=2, 96-127=3",
+    "applies_to": ["pulse1", "pulse2"],
+    "not_applicable": ["triangle", "noise"]
+  },
+  "cc123_all_notes_off": {
+    "midi_cc": 123,
+    "effect": "Reset cc_active[] flags, re-enable ADSR for all channels"
+  },
+  "cc121_reset_controllers": {
+    "midi_cc": 121,
+    "effect": "Reset cc_active[] flags, re-enable ADSR for all channels"
+  }
+}

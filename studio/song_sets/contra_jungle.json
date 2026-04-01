@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Contra",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "03JungleBattleStage17"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 20 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/1780_Wide_Swell_851.reapnes-data",
+      "description": "Wide Swell 851 (14 notes)",
+      "notes": "Tags: pulse, staccato, swell, wide"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/4339_Wide_Swell_847.reapnes-data",
+      "description": "Wide Swell 847 (4 notes)",
+      "notes": "Tags: pulse, short, swell, wide"
+    }
+  }
+}

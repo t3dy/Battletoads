@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Contra",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "09FortressofFlameStage6"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 7 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/5590_Thin_Pad_17621.reapnes-data",
+      "description": "Thin Pad 17621 (3 notes)",
+      "notes": "Tags: pulse, short, fade, looping, thin"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/7632_Thin_Pad_17620.reapnes-data",
+      "description": "Thin Pad 17620 (2 notes)",
+      "notes": "Tags: pulse, short, fade, looping, thin"
+    }
+  }
+}

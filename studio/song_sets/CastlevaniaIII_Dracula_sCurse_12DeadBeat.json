@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "CastlevaniaIII Dracula sCurse",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "12DeadBeat"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 23 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/0050_Thin_Pad_48715.reapnes-data",
+      "description": "Thin Pad 48715 (1180 notes)",
+      "notes": "Tags: pulse, staccato, fade, duty-sweep"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/24794_Thin_Pad_47747.reapnes-data",
+      "description": "Thin Pad 47747 (249 notes)",
+      "notes": "Tags: pulse, staccato, fade, duty-sweep"
+    }
+  }
+}

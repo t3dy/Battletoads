@@ -1,0 +1,35 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "MegaMan2",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "10CrashManStage"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 11 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/2094_Soft_Lead_44579.reapnes-data",
+      "description": "Soft Lead 44579 (12 notes)",
+      "notes": "Tags: pulse, short, fade, looping, narrow"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/28015_Soft_Lead_39009.reapnes-data",
+      "description": "Soft Lead 39009 (6 notes)",
+      "notes": "Tags: pulse, short, fade, narrow"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/52344_Snare_Fade_13974.reapnes-data",
+      "description": "Snare Fade 13974 (1 notes)"
+    }
+  }
+}

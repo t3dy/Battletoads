@@ -1,0 +1,53 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "CastlevaniaIII Dracula sCurse",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "20BigBattle1"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 29 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/0682_Thin_Pad_49632.reapnes-data",
+      "description": "Thin Pad 49632 (49 notes)",
+      "notes": "Tags: pulse, staccato, fade, duty-sweep"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/10413_Soft_Lead_49636.reapnes-data",
+      "description": "Soft Lead 49636 (2 notes)",
+      "notes": "Tags: pulse, medium, fade, looping, duty-sweep"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/48208_Noise_Swell_11572.reapnes-data",
+      "description": "Noise Swell 11572 (17 notes)"
+    }
+  },
+  "drum_map": {
+    "36": {
+      "preset": "jsfx_data/48208_Noise_Swell_11572.reapnes-data",
+      "description": "Noise Swell 11572"
+    },
+    "38": {
+      "preset": "jsfx_data/48730_Snare_Fade_11575.reapnes-data",
+      "description": "Snare Fade 11575"
+    },
+    "42": {
+      "preset": "jsfx_data/49074_Noise_Swell_11571.reapnes-data",
+      "description": "Noise Swell 11571"
+    },
+    "46": {
+      "preset": "jsfx_data/49350_Noise_Swell_11569.reapnes-data",
+      "description": "Noise Swell 11569"
+    }
+  }
+}

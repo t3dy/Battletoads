@@ -1,0 +1,34 @@
+{
+  "schema_version": "0.1.0",
+  "metadata": {
+    "source": "test_fixture",
+    "rom_name": "test_rom_multi",
+    "region": "ntsc",
+    "notes": "Multi-channel trace: pulse1, triangle, and noise active across 4 frames."
+  },
+  "writes": [
+    {"frame": 0, "address": "$4015", "value": 15},
+
+    {"frame": 0, "address": "$4000", "value": 191},
+    {"frame": 0, "address": "$4002", "value": 253},
+    {"frame": 0, "address": "$4003", "value": 0},
+
+    {"frame": 0, "address": "$400A", "value": 253},
+    {"frame": 0, "address": "$400B", "value": 0},
+
+    {"frame": 0, "address": "$400C", "value": 159},
+    {"frame": 0, "address": "$400E", "value": 4},
+    {"frame": 0, "address": "$400F", "value": 0},
+
+    {"frame": 10, "address": "$4002", "value": 212},
+    {"frame": 10, "address": "$4003", "value": 0},
+
+    {"frame": 10, "address": "$400A", "value": 212},
+    {"frame": 10, "address": "$400B", "value": 0},
+
+    {"frame": 10, "address": "$400E", "value": 6},
+
+    {"frame": 20, "address": "$4000", "value": 48},
+    {"frame": 20, "address": "$400C", "value": 16}
+  ]
+}

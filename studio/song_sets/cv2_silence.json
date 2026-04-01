@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "CastlevaniaII Simon sQuest",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "01TheSilenceofTheDaylight"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 18 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/1228_Soft_Lead_50768.reapnes-data",
+      "description": "Soft Lead 50768 (24 notes)",
+      "notes": "Tags: pulse, staccato, fade, duty-sweep"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/3217_Soft_Lead_50607.reapnes-data",
+      "description": "Soft Lead 50607 (7 notes)",
+      "notes": "Tags: pulse, staccato, fade, duty-sweep"
+    }
+  }
+}

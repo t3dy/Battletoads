@@ -1,0 +1,310 @@
+desc:ReapNES Instrument — Preset-Driven NES Synth
+tags:synthesizer chiptune NES 8-bit preset instrument
+//author:ReapNES Studio
+in_pin:none
+out_pin:Left
+out_pin:Right
+
+// Loads .reapnes-data instrument presets and plays them back with
+// per-note envelope automation (volume, duty, pitch) at the NES-MDB
+// frame rate (24 Hz). MIDI-driven — play notes and the extracted
+// NES instrument envelopes shape every parameter automatically.
+//
+// Supports 4 preset slots (one per NES channel type).
+// MIDI channel routing: Ch1→Pulse, Ch2→Pulse, Ch3→Triangle, Ch4→Noise.
+
+import lib/apu_core.jsfx-inc
+import lib/lfsr_noise.jsfx-inc
+import lib/mixer_nonlinear.jsfx-inc
+import lib/envelope.jsfx-inc
+
+// ---------------------------------------------------------------------------
+//  Sliders
+// ---------------------------------------------------------------------------
+
+// Preset file selection — REAPER will show a file browser for these
+slider1:/ReapNES-Studio/presets:none:Pulse 1 Preset
+slider2:/ReapNES-Studio/presets:none:Pulse 2 Preset
+slider3:/ReapNES-Studio/presets:none:Triangle Preset
+slider4:/ReapNES-Studio/presets:none:Noise Preset
+
+// Manual overrides (applied when no preset is loaded)
+slider10:2<0,3,1{12.5%,25%,50%,75%}>Default Pulse Duty
+slider11:15<0,15,1>Default Volume
+slider12:0<0,15,1>Default Noise Period
+
+// Envelope control
+slider15:1<0,1,1{Off,On}>Envelope Playback
+
+// Output
+slider20:0.8<0,1,0.01>Master Gain
+
+// ---------------------------------------------------------------------------
+//  @init
+// ---------------------------------------------------------------------------
+@init
+
+apu_pulse_init(0);
+apu_pulse_init(1);
+apu_tri_init();
+apu_noise_init();
+
+env_init(0);  // Pulse 1 envelope
+env_init(1);  // Pulse 2 envelope
+env_init(2);  // Triangle envelope
+env_init(3);  // Noise envelope
+
+// MIDI state
+inst.midi_note    = 5500;  // memory offset for 4 note slots
+inst.midi_note[0] = -1;
+inst.midi_note[1] = -1;
+inst.midi_note[2] = -1;
+inst.midi_note[3] = -1;
+
+// Preset loaded flags
+inst.preset_loaded    = 5510;
+inst.preset_loaded[0] = 0;
+inst.preset_loaded[1] = 0;
+inst.preset_loaded[2] = 0;
+inst.preset_loaded[3] = 0;
+
+function note_to_hz(note) ( 440 * 2 ^ ((note - 69) / 12); );
+
+// Try to load preset files
+function load_preset_slot(slot, slider_idx)
+  local(fh)
+(
+  fh = file_open(slider_idx);
+  fh >= 0 ? (
+    file_rewind(fh);
+    env_load_from_file(slot, fh);
+    file_close(fh);
+    inst.preset_loaded[slot] = 1;
+  ) : (
+    inst.preset_loaded[slot] = 0;
+  );
+);
+
+// ---------------------------------------------------------------------------
+//  @slider
+// ---------------------------------------------------------------------------
+@slider
+
+// Reload presets when sliders change
+load_preset_slot(0, slider1);
+load_preset_slot(1, slider2);
+load_preset_slot(2, slider3);
+load_preset_slot(3, slider4);
+
+// ---------------------------------------------------------------------------
+//  @block — MIDI
+// ---------------------------------------------------------------------------
+@block
+
+while (midirecv(offset, msg1, msg2, msg3)) (
+  status = msg1 & 0xF0;
+  ch     = msg1 & 0x0F;
+
+  // Clamp MIDI channel to our 4 slots
+  ch > 3 ? ch = 0;
+
+  // Note On
+  status == 0x90 && msg3 > 0 ? (
+    inst.midi_note[ch] = msg2;
+
+    ch == 0 ? (
+      apu_pulse_set_freq_hz(0, note_to_hz(msg2));
+      slider15 && inst.preset_loaded[0] ? (
+        env_trigger(0);
+      ) : (
+        apu_pulse_set_duty(0, slider10);
+        apu_pulse_set_volume(0, floor(msg3 / 127 * 15 + 0.5));
+      );
+      apu_pulse_set_enabled(0, 1);
+    );
+
+    ch == 1 ? (
+      apu_pulse_set_freq_hz(1, note_to_hz(msg2));
+      slider15 && inst.preset_loaded[1] ? (
+        env_trigger(1);
+      ) : (
+        apu_pulse_set_duty(1, slider10);
+        apu_pulse_set_volume(1, floor(msg3 / 127 * 15 + 0.5));
+      );
+      apu_pulse_set_enabled(1, 1);
+    );
+
+    ch == 2 ? (
+      apu_tri_set_freq_hz(note_to_hz(msg2));
+      slider15 && inst.preset_loaded[2] ? (
+        env_trigger(2);
+      );
+      apu_tri_set_enabled(1);
+    );
+
+    ch == 3 ? (
+      apu_noise_set_period(floor(msg2 / 8));
+      slider15 && inst.preset_loaded[3] ? (
+        env_trigger(3);
+      ) : (
+        apu_noise_set_volume(floor(msg3 / 127 * 15 + 0.5));
+      );
+      apu_noise_set_enabled(1);
+    );
+  );
+
+  // Note Off
+  (status == 0x80 || (status == 0x90 && msg3 == 0)) ? (
+    ch <= 3 && msg2 == inst.midi_note[ch] ? (
+      // Release envelope (will play through to end or stop at loop)
+      slider15 && inst.preset_loaded[ch] ? (
+        env_release(ch);
+      );
+
+      ch == 0 ? apu_pulse_set_enabled(0, 0);
+      ch == 1 ? apu_pulse_set_enabled(1, 0);
+      ch == 2 ? apu_tri_set_enabled(0);
+      ch == 3 ? apu_noise_set_enabled(0);
+
+      inst.midi_note[ch] = -1;
+    );
+  );
+
+  midisend(offset, msg1, msg2, msg3);
+);
+
+// ---------------------------------------------------------------------------
+//  @sample
+// ---------------------------------------------------------------------------
+@sample
+
+// Process envelopes and apply to synth parameters
+slider15 ? (
+  // Pulse 1 envelope
+  env_is_playing(0) ? (
+    env_process(0);
+    apu_pulse_set_volume(0, floor(env_get_volume(0) + 0.5));
+    apu_pulse_set_duty(0, floor(env_get_timbre(0) + 0.5));
+    // Apply pitch offset
+    inst.midi_note[0] >= 0 ? (
+      apu_pulse_set_freq_hz(0, note_to_hz(inst.midi_note[0] + env_get_pitch(0)));
+    );
+    apu_pulse_set_enabled(0, 1);
+  );
+
+  // Pulse 2 envelope
+  env_is_playing(1) ? (
+    env_process(1);
+    apu_pulse_set_volume(1, floor(env_get_volume(1) + 0.5));
+    apu_pulse_set_duty(1, floor(env_get_timbre(1) + 0.5));
+    inst.midi_note[1] >= 0 ? (
+      apu_pulse_set_freq_hz(1, note_to_hz(inst.midi_note[1] + env_get_pitch(1)));
+    );
+    apu_pulse_set_enabled(1, 1);
+  );
+
+  // Triangle envelope (volume doesn't apply, but pitch does)
+  env_is_playing(2) ? (
+    env_process(2);
+    inst.midi_note[2] >= 0 ? (
+      apu_tri_set_freq_hz(note_to_hz(inst.midi_note[2] + env_get_pitch(2)));
+    );
+    apu_tri_set_enabled(1);
+  );
+
+  // Noise envelope
+  env_is_playing(3) ? (
+    env_process(3);
+    apu_noise_set_volume(floor(env_get_volume(3) + 0.5));
+    apu_noise_set_mode(floor(env_get_timbre(3) + 0.5));
+    apu_noise_set_enabled(1);
+  );
+);
+
+// Synthesize
+p1_out  = apu_pulse_process(0);
+p2_out  = apu_pulse_process(1);
+tri_out = apu_tri_process();
+noi_out = apu_noise_process();
+
+// Non-linear mix
+pulse_mixed = apu_mix_pulse(p1_out, p2_out);
+tnd_mixed   = apu_mix_tnd(tri_out, noi_out, 0);
+mixed = pulse_mixed + tnd_mixed;
+
+out = (mixed - 0.35) * slider20 * 2.8;
+spl0 = out;
+spl1 = out;
+
+// ---------------------------------------------------------------------------
+//  @gfx — Envelope visualizer
+// ---------------------------------------------------------------------------
+@gfx 500 300
+
+gfx_clear = 0x1A1A2E;
+gfx_setfont(1, "Courier New", 12);
+
+function draw_env_slot(slot, y_top, height, r, g, b, label)
+  local(base, vol_ptr, n, i, x, y, frame_pos, bar_x)
+(
+  base    = env.base + slot * ENV_SLOT_SIZE;
+  vol_ptr = env.vol_base + slot * ENV_MAX_LEN;
+  n       = base[0];
+
+  // Background
+  gfx_r = 0.1; gfx_g = 0.1; gfx_b = 0.15; gfx_a = 1;
+  gfx_rect(0, y_top, gfx_w, height);
+
+  // Label
+  gfx_r = r; gfx_g = g; gfx_b = b;
+  gfx_x = 4; gfx_y = y_top + 2;
+  gfx_drawstr(label);
+
+  inst.preset_loaded[slot] ? (
+    // Draw envelope curve
+    gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.8;
+    n > 0 ? (
+      i = 0;
+      loop(n,
+        x = 50 + (i / n) * (gfx_w - 60);
+        y = y_top + height - 4 - (vol_ptr[i] / 15) * (height - 10);
+        i == 0 ? ( gfx_x = x; gfx_y = y; )
+        : gfx_lineto(x, y);
+        i += 1;
+      );
+
+      // Playback position indicator
+      env_is_playing(slot) ? (
+        frame_pos = base[5];  // phase_acc = current frame
+        bar_x = 50 + (frame_pos / n) * (gfx_w - 60);
+        gfx_r = 1; gfx_g = 1; gfx_b = 0; gfx_a = 0.6;
+        gfx_line(bar_x, y_top, bar_x, y_top + height);
+      );
+
+      // Loop point marker
+      base[1] >= 0 ? (
+        bar_x = 50 + (base[1] / n) * (gfx_w - 60);
+        gfx_r = 0.5; gfx_g = 0.5; gfx_b = 1; gfx_a = 0.5;
+        gfx_line(bar_x, y_top, bar_x, y_top + height);
+      );
+    );
+  ) : (
+    gfx_r = 0.4; gfx_g = 0.4; gfx_b = 0.4;
+    gfx_x = 50; gfx_y = y_top + height / 2 - 6;
+    gfx_drawstr("No preset loaded");
+  );
+);
+
+lane_h = gfx_h / 4;
+draw_env_slot(0, 0,            lane_h, 0.3, 0.9, 0.4, "P1");
+draw_env_slot(1, lane_h,       lane_h, 0.4, 0.7, 0.9, "P2");
+draw_env_slot(2, lane_h * 2,   lane_h, 0.9, 0.5, 0.3, "TRI");
+draw_env_slot(3, lane_h * 3,   lane_h, 0.7, 0.7, 0.7, "NOI");
+
+// Separator lines
+gfx_r = 0.3; gfx_g = 0.3; gfx_b = 0.4; gfx_a = 1;
+i = 1;
+loop(3,
+  gfx_line(0, lane_h * i, gfx_w, lane_h * i);
+  i += 1;
+);

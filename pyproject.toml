@@ -1,0 +1,25 @@
+[project]
+name = "nes-music-studio"
+version = "0.1.0"
+description = "Full-pipeline NES music extraction and REAPER studio system"
+requires-python = ">=3.10"
+dependencies = [
+    "mido",
+    "pytest",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["extraction/src", "scripts", "tools"]
+
+[tool.setuptools.package-dir]
+nesml = "extraction/src/nesml"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["extraction/src", "scripts", "tools"]

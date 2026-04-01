@@ -1,0 +1,185 @@
+{
+  "_description": "Desired improvements and unfinished work, derived from WINSWISHES.md and REFINEMENT_PLAN.md",
+  "wishes": [
+    {
+      "id": "WISH01",
+      "category": "fidelity",
+      "description": "Port CC11/CC12 handling from ReapNES_APU.jsfx to ReapNES_Console.jsfx",
+      "rationale": "Console synth ignores per-frame volume/duty data, replacing ground-truth envelopes with generic ADSR. Fixes playback fidelity for all 1099 projects at once",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "critical"
+    },
+    {
+      "id": "WISH02",
+      "category": "fidelity",
+      "description": "Capture Contra APU trace for frame-level validation",
+      "rationale": "Parser is at 96.6% volume accuracy but remaining gaps (decrescendo timing, UNKNOWN_SOUND_01, triangle precision) are blocked without trace data",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "critical"
+    },
+    {
+      "id": "WISH03",
+      "category": "fidelity",
+      "description": "Per-game ADSR tuning for keyboard play mode",
+      "rationale": "Each game has a distinct envelope character (Mario=uniform 5-step, CV1=fast 4-step, Metroid=crescendo-decrescendo). Keyboard mode needs game-specific ADSR presets",
+      "current_status": "partial",
+      "blocked_by": null,
+      "priority": "high"
+    },
+    {
+      "id": "WISH04",
+      "category": "fidelity",
+      "description": "Triangle linear counter precision to sub-frame accuracy",
+      "rationale": "195 sounding mismatches on CV1 labeled APPROXIMATE. Requires modeling APU 240Hz quarter-frame sequencer. Estimated 3-5 sessions",
+      "current_status": "partial",
+      "blocked_by": null,
+      "priority": "medium"
+    },
+    {
+      "id": "WISH05",
+      "category": "fidelity",
+      "description": "Implement EB vibrato command as pitch bend",
+      "rationale": "EB is documented but unimplemented; silently skips bytes. TMNT and Gradius likely use vibrato and will produce corrupt output",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "medium"
+    },
+    {
+      "id": "WISH06",
+      "category": "fidelity",
+      "description": "Decode and render DPCM samples for Contra drums",
+      "rationale": "Two physical samples (81-byte hi-hat, 593-byte snare) at $FC00 in bank 7. Currently white noise; real DPCM would transform drum sound",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "medium"
+    },
+    {
+      "id": "WISH07",
+      "category": "fidelity",
+      "description": "Expanded noise channel modeling with 16 rate presets and 2 modes (long/short)",
+      "rationale": "Every percussion hit uses same white noise. Real NES noise has distinct timbres per period+mode combination for snare, hi-hat, kick, tom",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "medium"
+    },
+    {
+      "id": "WISH08",
+      "category": "fidelity",
+      "description": "Validate and port drum mapping table to Console synth",
+      "rationale": "Console synth may handle noise differently from APU. If Console lacks the 35-entry drum mapping, drums will be wrong or silent",
+      "current_status": "not_started",
+      "blocked_by": "WISH01",
+      "priority": "high"
+    },
+    {
+      "id": "WISH09",
+      "category": "expansion",
+      "description": "Super C as third Konami game to validate universal vs game-specific assumptions",
+      "rationale": "Same driver family, mapper 2, 9/15 tracks already parsed with CV1 parser. Third data point reveals which assumptions are truly universal",
+      "current_status": "partial",
+      "blocked_by": null,
+      "priority": "high"
+    },
+    {
+      "id": "WISH10",
+      "category": "expansion",
+      "description": "Expansion audio support: MMC5 (CV3 US) then VRC6 (CV3 JP)",
+      "rationale": "CV3 JP has the best Castlevania soundtrack and uses VRC6 (2 extra pulse + sawtooth). MMC5 first (trivial synth), VRC6 second",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "medium"
+    },
+    {
+      "id": "WISH11",
+      "category": "expansion",
+      "description": "Non-Konami driver support starting with Capcom (Mega Man series)",
+      "rationale": "Capcom driver covers 10-15 games from one parser. Second-best pipeline ROI after Konami completion",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "medium"
+    },
+    {
+      "id": "WISH12",
+      "category": "infrastructure",
+      "description": "AddressResolver abstraction replacing hardcoded cpu_to_rom functions",
+      "rationale": "Two hardcoded mapper functions (mapper 0 and mapper 2). Every new mapper requires a new function. ABC with Linear/BankSwitched/MMC3/MMC5 needed for scaling",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "high"
+    },
+    {
+      "id": "WISH13",
+      "category": "infrastructure",
+      "description": "Runtime manifest loading so parsers read addresses and configs from JSON at runtime",
+      "rationale": "Manifests exist as reference docs but parsers hardcode addresses and byte counts. Manifest-driven parsing means new games need only JSON + ear-check, not code",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "high"
+    },
+    {
+      "id": "WISH14",
+      "category": "workflow",
+      "description": "Reference audio comparison tool (spectral diff between rendered WAV and NSF player output)",
+      "rationale": "Semi-automates ear-checking by computing per-channel spectral difference and flagging frames where volume or pitch diverge above threshold",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "medium"
+    },
+    {
+      "id": "WISH15",
+      "category": "workflow",
+      "description": "Deploy website to GitHub Pages (t3dy.github.io/ReapNES)",
+      "rationale": "Jekyll site content exists (annotated source, methodology paper, research log, game matrix, Bach mashups) but was never deployed",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "low"
+    },
+    {
+      "id": "WISH16",
+      "category": "workflow",
+      "description": "Render WAVs for the 117 Bach fugue mashup REAPER projects",
+      "rationale": "Fugues 1, 2, 5, 7 crossed with every CV1 and Contra palette exist as RPPs but have zero WAV files; likely interrupted by crash",
+      "current_status": "blocked",
+      "blocked_by": null,
+      "priority": "low"
+    },
+    {
+      "id": "WISH17",
+      "category": "fidelity",
+      "description": "Revisit CV2 extraction (7 tracks parsed despite 'dead end' label)",
+      "rationale": "Focused listening session comparing WAVs to game would determine which tracks are correct and whether Fujio driver is closer to Maezawa than concluded",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "low"
+    },
+    {
+      "id": "WISH18",
+      "category": "infrastructure",
+      "description": "Commit all Antigravity session work to git",
+      "rationale": "Scripts, song sets, Bach mashups, CV2/CV3 extractions, 36 docs, annotated source, trace JSONs, and session prompt are all untracked. One crash from gone",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "high"
+    },
+    {
+      "id": "WISH19",
+      "category": "fidelity",
+      "description": "Improve note boundary detection to handle vibrato as pitch bend instead of spurious note splits",
+      "rationale": "Some games use rapid period oscillation for vibrato that creates false note boundaries. Needs per-game analysis of ornamental vs real pitch changes",
+      "current_status": "not_started",
+      "blocked_by": null,
+      "priority": "medium"
+    },
+    {
+      "id": "WISH20",
+      "category": "fidelity",
+      "description": "Contra volume envelope lookup tables for ROM-level fidelity",
+      "rationale": "Contra uses 54 envelope lookup tables instead of CV1's parametric model. Tables identified in disassembly but not implemented",
+      "current_status": "not_started",
+      "blocked_by": "WISH02",
+      "priority": "high"
+    }
+  ]
+}

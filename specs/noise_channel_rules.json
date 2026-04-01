@@ -1,0 +1,152 @@
+{
+  "_description": "Complete specification of NES noise channel handling across the extraction pipeline (nsf_to_reaper.py) and both synth plugins (ReapNES_APU.jsfx and ReapNES_Full.jsfx). Covers hardware period table, LFSR behavior, MIDI drum mapping, and synth drum envelope tables.",
+  "period_table": {
+    "description": "NTSC noise period lookup table. 4-bit index (0-15) maps to CPU cycles per LFSR timer clock. Lower index = higher pitch, shorter period.",
+    "values": [4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068],
+    "unit": "CPU cycles per LFSR clock",
+    "cpu_clock_hz": 1789773,
+    "source": "nesdev.org/wiki/APU_Noise, identical in ReapNES_APU.jsfx (np[]), lfsr_noise.jsfx-inc (apu.noise_period_table[])"
+  },
+  "mode_bit": {
+    "description": "Bit 7 of register $400E selects LFSR feedback tap position, producing two distinct noise timbres.",
+    "register": "0x400E",
+    "bit_position": 7,
+    "mode_0_long": {
+      "feedback_taps": "bit 0 XOR bit 1",
+      "sequence_length": 32767,
+      "description": "Long mode produces pseudo-random white noise with a 32767-step sequence. Used for most percussion (kicks, snares, crashes)."
+    },
+    "mode_1_short": {
+      "feedback_taps": "bit 0 XOR bit 6",
+      "sequence_length": 93,
+      "description": "Short mode produces a buzzy, metallic, looping tone with a 93-step sequence. Used for hi-hats, side sticks, and tonal percussion."
+    },
+    "lfsr_width_bits": 15,
+    "lfsr_init_value": 1,
+    "lfsr_shift_operation": "shift_reg >>= 1, then set bit 14 = feedback",
+    "output_rule": "When bit 0 is 0, output = volume. When bit 0 is 1, output = 0."
+  },
+  "midi_drum_mapping": {
+    "description": "How nsf_to_reaper.py maps noise period index to GM drum notes during MIDI extraction. This is a coarse 3-bucket mapping.",
+    "source": "nsf_to_reaper.py build_midi() noise section",
+    "buckets": [
+      {
+        "period_range": "0-4",
+        "period_values_cpu_cycles": [4, 8, 16, 32, 64],
+        "gm_drum_note": 42,
+        "gm_name": "Closed Hi-Hat",
+        "pitch_character": "high"
+      },
+      {
+        "period_range": "5-8",
+        "period_values_cpu_cycles": [96, 128, 160, 202],
+        "gm_drum_note": 38,
+        "gm_name": "Snare",
+        "pitch_character": "mid"
+      },
+      {
+        "period_range": "9-15",
+        "period_values_cpu_cycles": [254, 380, 508, 762, 1016, 2034, 4068],
+        "gm_drum_note": 36,
+        "gm_name": "Kick",
+        "pitch_character": "low"
+      }
+    ],
+    "velocity_formula": "min(127, vol * 8)",
+    "limitation": "Only 3 GM drum types for 16 possible noise periods. Real NES games use all 16 periods with different volume envelopes for wider percussion variety."
+  },
+  "extraction_rules": {
+    "description": "How nsf_to_reaper.py detects drum hits from APU register state. Uses volume gate transitions, NOT period changes.",
+    "source": "nsf_to_reaper.py build_midi() and frames_to_channel_data()",
+    "register_reads": {
+      "volume": "$400C bits 0-3 (4-bit, range 0-15)",
+      "period_index": "$400E bits 0-3 (4-bit, range 0-15)",
+      "mode": "$400E bit 7 (0=long, 1=short)"
+    },
+    "drum_hit_trigger": "vol > 0 AND prev_vol <= 0 (volume gate rising edge)",
+    "drum_off_trigger": "vol <= 0 AND prev_vol > 0 (volume gate falling edge)",
+    "note_off_target": "Uses prev_midi if available, else falls back to note 42 (hi-hat)",
+    "per_frame_state_recorded": ["vol", "period", "mode"],
+    "no_cc11_for_noise": true,
+    "no_cc12_for_noise": true,
+    "no_period_change_note_boundaries": "Unlike pulse/triangle, noise does not use period changes as note boundaries. Only volume transitions matter."
+  },
+  "synth_drum_table": {
+    "description": "ReapNES_APU.jsfx drum mapping table at memory offset 80. Maps GM drum notes 35-57 to NES noise parameters with per-drum envelope shaping. 4 values per entry: period_idx, mode, attack_vol, decay_rate (samples to lose 1 vol level).",
+    "source": "ReapNES_APU.jsfx @init dm[] array",
+    "index_formula": "(gm_note - 35) * 4",
+    "gm_note_range": "35-57",
+    "entry_format": ["period_idx (0-15)", "mode (0=long, 1=short)", "attack_vol (0-15)", "decay_rate (samples per vol step)"],
+    "entries": [
+      {"gm_note": 35, "name": "Kick 2",      "period_idx": 14, "mode": 0, "attack_vol": 15, "decay_rate": 600},
+      {"gm_note": 36, "name": "Kick 1",       "period_idx": 13, "mode": 0, "attack_vol": 15, "decay_rate": 500},
+      {"gm_note": 37, "name": "Side Stick",   "period_idx": 3,  "mode": 1, "attack_vol": 10, "decay_rate": 200},
+      {"gm_note": 38, "name": "Snare",        "period_idx": 6,  "mode": 0, "attack_vol": 15, "decay_rate": 350},
+      {"gm_note": 39, "name": "Clap",         "period_idx": 5,  "mode": 0, "attack_vol": 13, "decay_rate": 300},
+      {"gm_note": 40, "name": "Snare 2",      "period_idx": 7,  "mode": 0, "attack_vol": 15, "decay_rate": 400},
+      {"gm_note": 41, "name": "Low Tom",      "period_idx": 11, "mode": 0, "attack_vol": 14, "decay_rate": 500},
+      {"gm_note": 42, "name": "Closed HH",    "period_idx": 1,  "mode": 1, "attack_vol": 10, "decay_rate": 100},
+      {"gm_note": 43, "name": "Low Tom 2",    "period_idx": 10, "mode": 0, "attack_vol": 14, "decay_rate": 450},
+      {"gm_note": 44, "name": "Pedal HH",     "period_idx": 1,  "mode": 1, "attack_vol": 8,  "decay_rate": 80},
+      {"gm_note": 45, "name": "Mid Tom",      "period_idx": 8,  "mode": 0, "attack_vol": 14, "decay_rate": 400},
+      {"gm_note": 46, "name": "Open HH",      "period_idx": 2,  "mode": 0, "attack_vol": 11, "decay_rate": 250},
+      {"gm_note": 47, "name": "Mid Tom 2",    "period_idx": 9,  "mode": 0, "attack_vol": 14, "decay_rate": 400},
+      {"gm_note": 48, "name": "Hi Tom",       "period_idx": 6,  "mode": 0, "attack_vol": 13, "decay_rate": 350},
+      {"gm_note": 49, "name": "Crash",        "period_idx": 3,  "mode": 0, "attack_vol": 13, "decay_rate": 800},
+      {"gm_note": 50, "name": "Hi Tom 2",     "period_idx": 5,  "mode": 0, "attack_vol": 13, "decay_rate": 350},
+      {"gm_note": 51, "name": "Ride",         "period_idx": 2,  "mode": 0, "attack_vol": 9,  "decay_rate": 300},
+      {"gm_note": 52, "name": "Spare 1",      "period_idx": 4,  "mode": 0, "attack_vol": 10, "decay_rate": 300},
+      {"gm_note": 53, "name": "Spare 2",      "period_idx": 4,  "mode": 0, "attack_vol": 10, "decay_rate": 300},
+      {"gm_note": 54, "name": "Spare 3",      "period_idx": 4,  "mode": 0, "attack_vol": 10, "decay_rate": 300},
+      {"gm_note": 55, "name": "Splash",       "period_idx": 2,  "mode": 0, "attack_vol": 11, "decay_rate": 600},
+      {"gm_note": 56, "name": "Cowbell",      "period_idx": 4,  "mode": 1, "attack_vol": 12, "decay_rate": 200},
+      {"gm_note": 57, "name": "Crash 2",      "period_idx": 3,  "mode": 0, "attack_vol": 13, "decay_rate": 900}
+    ],
+    "trigger_function": "trigger_drum(gm_note, velocity) sets noi_period_idx, noi_mode, drum_vol (scaled by velocity/127), drum_decay, drum_timer, drum_active=1",
+    "decay_mechanism": "Per-sample countdown: drum_timer decrements each sample. At 0, drum_vol decreases by 1 and timer resets. When drum_vol reaches 0, drum_active=0 and noi_en=0."
+  },
+  "full_synth_handling": {
+    "description": "ReapNES_Full.jsfx uses the lfsr_noise.jsfx-inc library for wire-accurate noise. No drum mapping table -- it maps MIDI note number directly to period index.",
+    "source": "ReapNES_Full.jsfx @block, lfsr_noise.jsfx-inc",
+    "note_to_period_formula": "period_idx = floor(midi_note / 8)",
+    "no_drum_table": true,
+    "no_drum_envelope": true,
+    "volume_from_velocity": "floor(msg3 / 127 * 15 + 0.5)",
+    "note_off_disables_channel": true,
+    "lfsr_implementation": "Wire-accurate 15-bit LFSR with per-sample phase accumulator. Clocks per sample = (CPU_CLK / srate) / period_table[idx].",
+    "difference_from_apu_synth": "ReapNES_Full has no GM drum mapping, no drum decay envelope, and uses the nonlinear mixer (apu_mix_tnd). ReapNES_APU has the full drum table with per-drum envelopes and a linear mixer."
+  },
+  "apu_synth_noise_synthesis": {
+    "description": "How ReapNES_APU.jsfx generates noise audio in @sample.",
+    "source": "ReapNES_APU.jsfx @sample",
+    "lfsr_clock_rate": "cpu_clk / (np[noi_period_idx & 15] * srate) clocks per sample",
+    "lfsr_feedback_long": "((lfsr & 1) + ((lfsr >> 1) & 1)) & 1 (XOR of bits 0 and 1, implemented as add-and-mask)",
+    "lfsr_feedback_short": "((lfsr & 1) + ((lfsr >> 6) & 1)) & 1 (XOR of bits 0 and 6, implemented as add-and-mask)",
+    "lfsr_shift": "(lfsr >> 1) | (fb << 14)",
+    "output_rule": "(lfsr & 1) ? 0 : noi_vol",
+    "mixer_weight": 0.3,
+    "mixer_formula": "(noi_out / 15.0 - 0.5) * 0.3"
+  },
+  "validation_focus": [
+    {
+      "concern": "missing_drums_critical_regression",
+      "description": "If drum detection fails (e.g., volume gate logic is wrong), entire songs lose their rhythm track. This is immediately audible and makes output sound wrong. The noise channel carries the beat in most NES games."
+    },
+    {
+      "concern": "3_bucket_mapping_loses_percussion_variety",
+      "description": "The extraction pipeline maps 16 possible noise periods to only 3 GM drum notes. Games with varied percussion (e.g., distinct tom fills, multiple cymbal types) collapse to kick/snare/hi-hat. The synth drum table supports 23 GM drums but extraction only produces 3."
+    },
+    {
+      "concern": "mode_bit_not_captured_in_midi",
+      "description": "The noise mode bit (long vs short LFSR) is captured in frames_to_channel_data but NOT encoded in the MIDI output. The synth drum table in ReapNES_APU.jsfx assigns mode per drum type, which may not match what the game actually used."
+    },
+    {
+      "concern": "drum_envelope_mismatch",
+      "description": "NSF extraction captures per-frame volume for noise but does not emit CC11 for it. The synth uses its own decay envelopes (decay_rate in drum table). The actual game volume envelope may differ from the synth approximation."
+    },
+    {
+      "concern": "note_off_fallback_to_42",
+      "description": "When prev_midi is 0 at drum-off time, the code falls back to note_off for note 42 (hi-hat). This is a best-guess that could cause stuck notes if the actual drum was not a hi-hat."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "MegaMan2",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "09QuickManStage"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 10 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/0474_Wide_Pad_315.reapnes-data",
+      "description": "Wide Pad 315 (77 notes)",
+      "notes": "Tags: pulse, short, fade, looping, wide"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/2685_Wide_Lead_1583.reapnes-data",
+      "description": "Wide Lead 1583 (8 notes)",
+      "notes": "Tags: pulse, medium, flat, looping, wide"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/48125_Cymbal_50510.reapnes-data",
+      "description": "Cymbal 50510 (23 notes)"
+    }
+  },
+  "drum_map": {
+    "36": {
+      "preset": "jsfx_data/48125_Cymbal_50510.reapnes-data",
+      "description": "Cymbal 50510"
+    },
+    "38": {
+      "preset": "jsfx_data/48619_Cymbal_50511.reapnes-data",
+      "description": "Cymbal 50511"
+    }
+  }
+}

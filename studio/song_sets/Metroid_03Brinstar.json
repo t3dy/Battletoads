@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Metroid",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "03Brinstar"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 14 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/29037_Thin_Pad_23876.reapnes-data",
+      "description": "Thin Pad 23876 (4 notes)",
+      "notes": "Tags: pulse, medium, fade, looping, thin"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/32504_Thin_Swell_23870.reapnes-data",
+      "description": "Thin Swell 23870 (2 notes)",
+      "notes": "Tags: pulse, short, attack, looping, thin"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": "0.1.0",
+  "metadata": {
+    "source": "test_fixture",
+    "rom_name": "test_rom",
+    "region": "ntsc",
+    "notes": "Minimal pulse1 trace: two notes (C4-ish, E4-ish) with duty and volume changes."
+  },
+  "writes": [
+    {"frame": 0, "address": "$4015", "value": 1},
+    {"frame": 0, "address": "$4000", "value": 191},
+    {"frame": 0, "address": "$4002", "value": 253},
+    {"frame": 0, "address": "$4003", "value": 0},
+
+    {"frame": 15, "address": "$4000", "value": 176},
+
+    {"frame": 30, "address": "$4002", "value": 212},
+    {"frame": 30, "address": "$4003", "value": 0},
+
+    {"frame": 60, "address": "$4000", "value": 48},
+    {"frame": 60, "address": "$4002", "value": 0},
+    {"frame": 60, "address": "$4003", "value": 0}
+  ]
+}

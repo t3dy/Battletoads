@@ -1,0 +1,132 @@
+Castlevania Music Format v1.0
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+by Sliver X
+
+Notes
+~~~~~
+First nibble denotes pitch, second denotes time
+
+First nibble: Range: 0 - B ("C" to "B")
+{C C# D D# E F F# G G# A A# B}
+{0 1  2 3  4 5 6  7 8  9 A  B} 
+
+Second nibble: 0 - F (0 is fastest, F is slowest)
+CX is a rest.
+
+Octaves
+~~~~~~~
+
+E0 - E4 (Highest octave to lowest)
+
+E0 is high pitched, E1 is lower, E2 is very low, E3 is barely audiable,
+E4 is so low it's silent. (The silent values seem to be used for "drum solos", i.e.
+stretches of noise: see Noise Data below for more info)
+Remains silent until E8, which is highest again.
+
+Instruments
+~~~~~~~~~~~
+00 - FF
+
+Instrument sets. x0 is harshest duty cycle, while xF is smoothest. Each range of 16
+employs different ASDR techniques (Fade, attack, etc).
+
+An instrument change *must* be preceded by a tempo change (See below), otherwise you'll just
+make it a note.
+
+Tempo
+~~~~~
+D1 - DF (Fastest to slowest) 
+
+Controls the entire speed of the following notes until a new D* is encountred.
+D1 is so fast it's retarded, while DF is really slow. Note that D0 is *EXTREMELY* slow.
+
+Noise Data
+~~~~~~~~~~
+Range: E9 - EA 
+
+This is used for percussion effects. These can be located in any channel's data. The way it
+works is that it follows a note definition to determine its speed. So B0E9 would be a very
+fast hit, and BFE9 would be a hit followed by a long pause. If you do not precede a noise
+byte with a note value, things will get *VERY* badly messed up. It should also be noted that
+that the "drum" will sound at the same time as the preceding note. If you're simply wanting
+a stretch of percussion, set the octave to E4 beforehand.
+
+E9 sounds like a snare.
+EA sounds like a closed high-hat.
+
+Repeating
+~~~~~~~~~
+
+FEXXXXXX
+
+FE followed by three bytes is a repeat control. Second byte is the number of times to repeat (FF is infinity), and the third
+and fourth are the pointer to loop to. Note that this must come after a note (As opposed to a noise "drum" sound),
+otherwise the drums won't repeat. This would mean you can't put a drum effect at the very end of a song.
+
+Figure 1: Triangle/Noise Repeat
+*******************************
+(FEFF)B59D
+
+Calculating:
+~~~~~~~~~~~~
+
+Pointer to Address:
+ 
+ B59D
+
+ Now take the pointer and swap the bytes:
+
+ 9DB5
+
+ Now subtract $8000:
+
+ 1DB5
+
+ Now add $10:
+
+ 1DC5 (Address)
+
+Address to Pointer:
+
+ 1DC5
+
+ 1DB5
+
+ 9DB5
+
+ B59D (Pointer)
+
+
+MASTER POINTERS
+~~~~~~~~~~~~~~~
+
+This is the list of pointers that tells the game where the start of each channel is; these can
+be manipulated to move music data elsewhere in ROM, if you can find the space. 
+
+The format is six bytes for Square 1, Square 2, and Triangle, (Two byte pointer per),
+then a seperator byte that should not be messed with...
+
+Music
+#####
+
+Track 1		Track 2		Track 3		Track 4		Track 5		Track 6 
+--------	--------	--------	--------	--------	--------
+Sq1: 825	Sq1: 82E	Sq1: 837	Sq1: 840	Sq1: 849	Sq1: 852
+Sq2: 828	Sq2: 831	Sq2: 83A	Sq2: 843	Sq2: 84C	Sq2: 855
+Tri: 82B	Tri: 834	Tri: 83D	Tri: 846	Tri: 84F	Tri: 858
+
+Track 7		Track 8		Track 9		Track 10	Track 11	Track 12 
+--------	--------	--------	--------	--------	--------
+Sq1: 85B	Sq1: 864	Sq1: 86D	Sq1: 876	Sq1: 87F	Sq1: 888
+Sq2: 85E	Sq2: 867	Sq2: 870	Sq2: 879	Sq2: 882	Sq2: 88B
+Tri: 861	Tri: 86A	Tri: 873	Tri: 87C	Tri: 885	Tri: 88E
+
+Track 13	Track 14	Track 15
+--------	--------	--------
+Sq1: 891	Sq1: 89A	Sq1: 8A3
+Sq2: 894	Sq2: 89D	Sq2: 8A6
+Tri: 897	Tri: 8A0	Tri: 8A9
+
+
+Sound effect indexes seem to follow, but are beyond the scope of this document.
+

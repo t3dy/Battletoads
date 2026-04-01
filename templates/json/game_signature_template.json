@@ -1,0 +1,17 @@
+{
+  "_template": true,
+  "_description": "Schema for a per-game audio signature. Fill in after MIDI analysis. Used by validate_project.py and project log generation.",
+  "game_id": "",
+  "display_name": "",
+  "envelope_type": "",
+  "cc11_pattern": "",
+  "cc11_per_note": 0,
+  "duration_character": "",
+  "velocity_range": [0, 0],
+  "duty_behavior": "",
+  "noise_character": "",
+  "triangle_character": "",
+  "validation_priorities": [],
+  "source_authority": "",
+  "confidence": "high|medium|low"
+}

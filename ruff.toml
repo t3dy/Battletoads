@@ -1,0 +1,11 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "B", "A", "COM", "C4", "RET", "SIM"]
+ignore = ["ANN101", "ANN102"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+line-length = 99
+target-version = "py310"

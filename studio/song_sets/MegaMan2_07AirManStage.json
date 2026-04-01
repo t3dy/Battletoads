@@ -1,0 +1,45 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "MegaMan2",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "07AirManStage"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 16 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/27880_Wide_Pad_32989.reapnes-data",
+      "description": "Wide Pad 32989 (6 notes)",
+      "notes": "Tags: pulse, short, fade, looping, wide"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/27923_Wide_Pad_34505.reapnes-data",
+      "description": "Wide Pad 34505 (6 notes)",
+      "notes": "Tags: pulse, short, fade, looping, wide"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/48335_Snare_Fade_12976.reapnes-data",
+      "description": "Snare Fade 12976 (12 notes)"
+    }
+  },
+  "drum_map": {
+    "36": {
+      "preset": "jsfx_data/48335_Snare_Fade_12976.reapnes-data",
+      "description": "Snare Fade 12976"
+    },
+    "38": {
+      "preset": "jsfx_data/48964_Snare_Fade_13973.reapnes-data",
+      "description": "Snare Fade 13973"
+    }
+  }
+}

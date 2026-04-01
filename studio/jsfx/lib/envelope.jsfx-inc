@@ -1,0 +1,270 @@
+// envelope.jsfx-inc -- Frame-Rate Envelope Engine for ReapNES Presets
+//
+// Plays back volume, timbre, and pitch envelopes extracted from NES-MDB
+// at 24 Hz (the NES-MDB temporal resolution). Envelopes are loaded from
+// .reapnes-data files via JSFX file_open / file_var / file_string.
+//
+// Memory layout for envelope state (base = env.base + slot * ENV_SLOT_SIZE):
+//   +0    env_length      -- number of envelope frames
+//   +1    loop_start      -- frame index for sustain loop (-1 = no loop)
+//   +2    channel_type    -- 0=pulse, 1=pulse, 2=tri, 3=noise
+//   +3    frame_rate      -- envelope frame rate (24)
+//   +4    current_frame   -- current playback position
+//   +5    phase_acc       -- fractional frame accumulator
+//   +6    phase_inc       -- frames per audio sample (frame_rate / srate)
+//   +7    playing         -- 1 if envelope is active
+//   +8    note_on         -- 1 if note is held (for sustain loop)
+//   +9    current_volume  -- interpolated volume output (0..15)
+//   +10   current_timbre  -- current timbre/duty value
+//   +11   current_pitch   -- current pitch offset (semitones, float)
+//
+// Envelope data arrays (stored separately):
+//   vol_data  = env.vol_base  + slot * ENV_MAX_LEN
+//   tim_data  = env.tim_base  + slot * ENV_MAX_LEN
+//   pit_data  = env.pit_base  + slot * ENV_MAX_LEN
+
+@init
+
+ENV_SLOT_SIZE = 16;
+ENV_MAX_LEN   = 256;   // max frames per envelope
+ENV_MAX_SLOTS = 4;     // one per NES channel
+
+// Memory regions
+env.base     = 1000;
+env.vol_base = 2000;   // 2000..2000+4*256 = volume data
+env.tim_base = 3100;   // timbre data
+env.pit_base = 4200;   // pitch data
+
+
+// ---------------------------------------------------------------------------
+//  env_init(slot) -- reset envelope slot
+// ---------------------------------------------------------------------------
+
+function env_init(slot)
+  local(base)
+(
+  base = env.base + slot * ENV_SLOT_SIZE;
+  base[0]  = 0;   // env_length
+  base[1]  = -1;  // loop_start
+  base[2]  = 0;   // channel_type
+  base[3]  = 24;  // frame_rate
+  base[4]  = 0;   // current_frame
+  base[5]  = 0;   // phase_acc
+  base[6]  = 0;   // phase_inc (computed when playing starts)
+  base[7]  = 0;   // playing
+  base[8]  = 0;   // note_on
+  base[9]  = 0;   // current_volume
+  base[10] = 0;   // current_timbre
+  base[11] = 0;   // current_pitch
+);
+
+
+// ---------------------------------------------------------------------------
+//  env_load_from_file(slot, file_handle) -- read .reapnes-data
+// ---------------------------------------------------------------------------
+// file_handle must already be opened with file_open().
+// Returns 1 on success, 0 on failure.
+//
+// File format (line-oriented):
+//   Line 1: env_length loop_start channel_type frame_rate
+//   Line 2: volume values (space-separated)
+//   Line 3: timbre values (space-separated)
+//   Line 4: pitch values (space-separated, floats)
+
+function env_load_from_file(slot, fh)
+  local(base, vol_ptr, tim_ptr, pit_ptr, i, n, val)
+(
+  base    = env.base + slot * ENV_SLOT_SIZE;
+  vol_ptr = env.vol_base + slot * ENV_MAX_LEN;
+  tim_ptr = env.tim_base + slot * ENV_MAX_LEN;
+  pit_ptr = env.pit_base + slot * ENV_MAX_LEN;
+
+  // Read header line: 4 integers
+  file_var(fh, base[0]);  // env_length
+  file_var(fh, base[1]);  // loop_start
+  file_var(fh, base[2]);  // channel_type
+  file_var(fh, base[3]);  // frame_rate
+
+  n = min(base[0], ENV_MAX_LEN);
+  base[0] = n;
+
+  // Read volume envelope
+  i = 0;
+  loop(n,
+    file_var(fh, vol_ptr[i]);
+    i += 1;
+  );
+
+  // Read timbre envelope
+  i = 0;
+  loop(n,
+    file_var(fh, tim_ptr[i]);
+    i += 1;
+  );
+
+  // Read pitch envelope
+  i = 0;
+  loop(n,
+    file_var(fh, pit_ptr[i]);
+    i += 1;
+  );
+
+  // Recalculate phase_inc
+  base[6] = base[3] / srate;  // frames per audio sample
+
+  1;  // success
+);
+
+
+// ---------------------------------------------------------------------------
+//  env_load_data(slot, env_len, loop, ch_type, fr,
+//                vol_arr_offset, tim_arr_offset, pit_arr_offset)
+// ---------------------------------------------------------------------------
+// Load envelope data directly from memory arrays (for programmatic use).
+// The source arrays are copied into the slot's data regions.
+
+function env_load_data(slot, env_len, loop, ch_type, fr,
+                       src_vol, src_tim, src_pit)
+  local(base, vol_ptr, tim_ptr, pit_ptr, i, n)
+(
+  base    = env.base + slot * ENV_SLOT_SIZE;
+  vol_ptr = env.vol_base + slot * ENV_MAX_LEN;
+  tim_ptr = env.tim_base + slot * ENV_MAX_LEN;
+  pit_ptr = env.pit_base + slot * ENV_MAX_LEN;
+
+  n = min(env_len, ENV_MAX_LEN);
+  base[0] = n;
+  base[1] = loop;
+  base[2] = ch_type;
+  base[3] = fr;
+  base[6] = fr / srate;
+
+  i = 0;
+  loop(n,
+    vol_ptr[i] = src_vol[i];
+    tim_ptr[i] = src_tim[i];
+    pit_ptr[i] = src_pit[i];
+    i += 1;
+  );
+);
+
+
+// ---------------------------------------------------------------------------
+//  env_trigger(slot) -- start envelope playback (note on)
+// ---------------------------------------------------------------------------
+
+function env_trigger(slot)
+  local(base)
+(
+  base = env.base + slot * ENV_SLOT_SIZE;
+  base[4] = 0;    // current_frame = 0
+  base[5] = 0;    // phase_acc = 0
+  base[6] = base[3] / srate;  // recalc phase_inc
+  base[7] = 1;    // playing = true
+  base[8] = 1;    // note_on = true
+);
+
+
+// ---------------------------------------------------------------------------
+//  env_release(slot) -- note off (exits sustain loop)
+// ---------------------------------------------------------------------------
+
+function env_release(slot)
+  local(base)
+(
+  base = env.base + slot * ENV_SLOT_SIZE;
+  base[8] = 0;  // note_on = false
+  // Envelope continues past loop point to natural end
+);
+
+
+// ---------------------------------------------------------------------------
+//  env_stop(slot) -- immediate stop
+// ---------------------------------------------------------------------------
+
+function env_stop(slot)
+  local(base)
+(
+  base = env.base + slot * ENV_SLOT_SIZE;
+  base[7] = 0;  // playing = false
+  base[9] = 0;  // volume = 0
+);
+
+
+// ---------------------------------------------------------------------------
+//  env_process(slot) -- call once per @sample
+// ---------------------------------------------------------------------------
+// Advances the envelope by the fractional frame step and updates
+// current_volume, current_timbre, and current_pitch.
+//
+// Returns current_volume (0..15).
+
+function env_process(slot)
+  local(base, vol_ptr, tim_ptr, pit_ptr, frame, n, loop_pt,
+        playing, note_on, acc, inc, frame_i, frac, v0, v1)
+(
+  base    = env.base + slot * ENV_SLOT_SIZE;
+  vol_ptr = env.vol_base + slot * ENV_MAX_LEN;
+  tim_ptr = env.tim_base + slot * ENV_MAX_LEN;
+  pit_ptr = env.pit_base + slot * ENV_MAX_LEN;
+
+  playing = base[7];
+  playing == 0 ? (
+    base[9] = 0;
+    0;
+  ) : (
+    n       = base[0];
+    loop_pt = base[1];
+    note_on = base[8];
+    acc     = base[5];
+    inc     = base[6];
+
+    // Advance fractional frame counter
+    acc += inc;
+    frame_i = floor(acc);
+    // Don't subtract -- acc is the absolute frame position
+    // Actually, acc IS the frame position (fractional)
+
+    // Handle looping
+    note_on && loop_pt >= 0 && frame_i >= n ? (
+      // Loop back to loop_start
+      frame_i = loop_pt + ((frame_i - loop_pt) % (n - loop_pt));
+      acc = frame_i;
+    );
+
+    // Handle envelope end
+    frame_i >= n ? (
+      base[7] = 0;  // stop
+      base[9] = 0;
+      base[5] = acc;
+      0;
+    ) : (
+      // Interpolate volume between frames
+      frac = acc - floor(acc);
+      v0 = vol_ptr[frame_i];
+      v1 = frame_i + 1 < n ? vol_ptr[frame_i + 1] : v0;
+      base[9] = v0 + (v1 - v0) * frac;
+
+      // Timbre: no interpolation (discrete duty/mode values)
+      base[10] = tim_ptr[frame_i];
+
+      // Pitch offset: interpolate
+      v0 = pit_ptr[frame_i];
+      v1 = frame_i + 1 < n ? pit_ptr[frame_i + 1] : v0;
+      base[11] = v0 + (v1 - v0) * frac;
+
+      base[5] = acc;
+      base[9];  // return current volume
+    );
+  );
+);
+
+
+// ---------------------------------------------------------------------------
+//  Getters
+// ---------------------------------------------------------------------------
+
+function env_get_volume(slot)  ( (env.base + slot * ENV_SLOT_SIZE)[9]; );
+function env_get_timbre(slot)  ( (env.base + slot * ENV_SLOT_SIZE)[10]; );
+function env_get_pitch(slot)   ( (env.base + slot * ENV_SLOT_SIZE)[11]; );
+function env_is_playing(slot)  ( (env.base + slot * ENV_SLOT_SIZE)[7]; );

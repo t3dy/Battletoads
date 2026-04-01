@@ -1,0 +1,113 @@
+{
+  "game": "Contra",
+  "rom_aliases": ["Contra (U)"],
+  "status": "IN_PROGRESS",
+  "driver_family": "konami_maezawa",
+  "driver_family_status": "verified",
+
+  "rom_layout": {
+    "mapper": 2,
+    "prg_banks": 8,
+    "sound_bank": 1,
+    "resolver_method": "bank_switched",
+    "resolver_status": "verified",
+    "notes": "All sound engine code and music data in bank 1"
+  },
+
+  "pointer_table": {
+    "rom_offset": "0x48F8",
+    "cpu_address": "0x88E8",
+    "format": "flat_sound_table",
+    "entry_size": 3,
+    "music_codes_start": "0x26",
+    "music_codes_end": "0x51",
+    "status": "verified",
+    "source": "annotated disassembly at references/nes-contra-us/"
+  },
+
+  "command_format": {
+    "dx_extra_bytes_pulse": 3,
+    "dx_extra_bytes_triangle": 1,
+    "dx_byte_count_status": "verified",
+    "dx_bytes_meaning": "config_byte + vol_env + decrescendo_mul (pulse), tri_config (triangle)",
+    "c0_semantics": "rest_with_duration",
+    "c0_status": "verified",
+    "percussion": "separate_channel_dmc",
+    "percussion_status": "verified",
+    "percussion_notes": "Slot 3 uses parse_percussion_cmd with DMC sample triggers"
+  },
+
+  "envelope_model": {
+    "type": "lookup_table",
+    "table_name": "pulse_volume_ptr_tbl",
+    "table_rom_location": "bank 1 start (CPU $8001)",
+    "total_entries": 54,
+    "entries_per_level": 8,
+    "levels": "7 (6 entries for level 7, 8 for all others)",
+    "format": "per-frame volume bytes (0-15), $FF = end → switch to decrescendo",
+    "vol_env_byte": "2nd DX extra byte: bit7=auto decrescendo, bits 6-0=table index",
+    "decrescendo_mul": "3rd DX byte low nibble, DECRESCENDO_END_PAUSE = (mul*dur)>>4",
+    "status": "verified",
+    "evidence": "extracted 54 envelope tables from ROM, verified against disassembly labels, frame-level volume shapes match expected attack-decay patterns",
+    "implementation": "contra_parser.py extracts tables, frame_ir.py applies per-frame via _contra_pulse_envelope()"
+  },
+
+  "pitch_adjustment": {
+    "ec_command": true,
+    "jungle_ec_value": 1,
+    "status": "verified",
+    "evidence": "trace comparison showed +1 semitone offset on all notes, traced to EC 01 at first byte of Jungle sq1 data"
+  },
+
+  "octave_mapping": {
+    "base_midi_octave4": 36,
+    "triangle_offset": -12,
+    "status": "verified",
+    "evidence": "trace comparison at offset 155 shows 91% pitch match on pulse after EC fix"
+  },
+
+  "tracks": {
+    "title":      {"name": "Title",                "sq1": "0x9195", "sq2": "0x91AB", "tri": "0x91C3", "noi": "0x91D3"},
+    "jungle":     {"name": "Jungle (Level 1 & 7)", "sq1": "0x9428", "sq2": "0x924E", "tri": "0x95C7", "noi": "0x9775"},
+    "waterfall":  {"name": "Waterfall (Level 3)",   "sq1": "0x9985", "sq2": "0x9A71", "tri": "0x9B67", "noi": "0x9BCE"},
+    "snowfield":  {"name": "Snow Field (Level 5)",  "sq1": "0x9CA4", "sq2": "0x9D32", "tri": "0x9D9A", "noi": "0x9E1E"},
+    "energy":     {"name": "Energy Zone (Level 6)", "sq1": "0x9EA8", "sq2": "0x9F46", "tri": "0x9FB8", "noi": "0xA003"},
+    "lair":       {"name": "Alien's Lair (Lvl 8)",  "sq1": "0xA092", "sq2": "0xA1A7", "tri": "0xA295", "noi": "0xA32F"},
+    "base":       {"name": "Base (Levels 2 & 4)",   "sq1": "0xA468", "sq2": "0xA570", "tri": "0xA5EB", "noi": "0xA67A"},
+    "boss":       {"name": "Boss",                  "sq1": "0xA793", "sq2": "0xA878", "tri": "0xA8FB", "noi": "0xAA0E"},
+    "stageclear": {"name": "Stage Clear",           "sq1": "0xAA92", "sq2": "0xAAB3", "tri": "0xAAD4", "noi": "0xAAEF"},
+    "ending":     {"name": "Ending",                "sq1": "0xAC9F", "sq2": "0xAD1A", "tri": "0xAE05", "noi": "0xAE87"},
+    "gameover":   {"name": "Game Over",             "sq1": "0xAB34", "sq2": "0xAB5C", "tri": "0xAB86", "noi": "0xABB2"}
+  },
+
+  "validated_tracks": [],
+  "trace_validated_tracks": [],
+  "ear_validated_tracks": ["jungle"],
+  "last_listen_check": "2026-03-28",
+  "last_listen_version": "v4",
+
+  "trace_validation": {
+    "trace_path": "extraction/traces/contra/jungle.csv",
+    "start_frame_offset": 155,
+    "validated_frames": 2976,
+    "pulse1_pitch_match": "91.0%",
+    "pulse1_volume_match": "81.7%",
+    "triangle_pitch_match": "70.3%",
+    "triangle_volume_match": "93.5%",
+    "capture_date": "2026-03-28"
+  },
+
+  "known_anomalies": [
+    "~9% pitch mismatches on pulse — likely timing drift over long sequences.",
+    "~30% triangle pitch mismatch — may be EC adjustment or linear counter timing.",
+    "EB vibrato command parameters not implemented (skipped).",
+    "Auto-decrescendo mode (bit7 set) approximated — no PULSE_VOL_DURATION extraction yet."
+  ],
+
+  "outputs": {
+    "midi": "output/Contra_v5/midi/",
+    "wav": "output/Contra_v5/wav/",
+    "reaper": "studio/reaper_projects/Contra_Jungle_v4.rpp",
+    "latest_version": "v5"
+  }
+}

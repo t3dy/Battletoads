@@ -1,0 +1,143 @@
+{
+  "_description": "Rules governing how NES APU register state is converted to MIDI note_on/note_off events in the NSF extraction pipeline. Every note boundary in the output MIDI is determined by these rules.",
+  "_authority": "nsf_to_reaper.py build_midi() function, synth_fidelity.md section 4, NESMUSICTRANSLATEDTOMIDI.md",
+  "period_change_rule": {
+    "description": "A note boundary occurs when the period register changes to a different value with volume > 0. Period stays the same = same note continues. Period changes = old note ends, new note begins.",
+    "pulse_channels": {
+      "condition": "midi_note changes (period_to_midi(period) != prev_midi) AND vol > 0 AND period > 8",
+      "on_change_to_new_note": "emit note_off for prev_midi, then note_on for new midi_note",
+      "on_change_to_silence": "emit note_off for prev_midi (when new midi_note == 0)",
+      "on_change_from_silence": "emit note_on for new midi_note (when prev_midi == 0)",
+      "minimum_period_threshold": 8,
+      "period_register_bits": 11,
+      "period_lo_register_pulse1": "0x4002",
+      "period_hi_register_pulse1": "0x4003 (bits 0-2)",
+      "period_lo_register_pulse2": "0x4006",
+      "period_hi_register_pulse2": "0x4007 (bits 0-2)"
+    },
+    "triangle_channel": {
+      "condition": "midi_note changes (period_to_midi(period, is_tri=True) != prev_midi) AND linear > 0 AND period > 2",
+      "minimum_period_threshold": 2,
+      "gate_signal": "linear counter ($4008 bits 0-6) must be > 0 for note to be active"
+    }
+  },
+  "volume_gate_rule": {
+    "description": "Volume affects whether a note is considered active but does NOT directly cause note_off. A note with vol=0 produces midi_note=0 which triggers note_off through the period_change_rule path.",
+    "pulse_logic": "midi_note = period_to_midi(period) if period > 8 and vol > 0 else 0",
+    "triangle_logic": "midi_note = period_to_midi(period, is_tri=True) if period > 2 and linear > 0 else 0",
+    "important": "Duration is determined by period changes, not volume reaching zero. A note can be silent for its last N frames if CC11 decays to 0 before the period changes. This is correct NES behavior."
+  },
+  "triangle_specific": {
+    "linear_counter_register": "0x4008",
+    "linear_counter_bits": "bits 0-6 (7-bit, range 0-127)",
+    "gate_behavior": "linear > 0 means triangle is sounding; linear == 0 means silence",
+    "no_volume_control": true,
+    "cc11_always_127": "Triangle CC11 is always emitted as 127 (gate signal only, no hardware volume)",
+    "velocity_always_127": "Triangle note_on velocity is always 127",
+    "octave_offset": "Triangle sounds 1 octave lower than pulse for same period value due to 32-step sequencer vs 16-step",
+    "period_to_freq_divisor": 32,
+    "minimum_audible_period": 2
+  },
+  "noise_specific": {
+    "detection_method": "volume gate transition (vol > 0 after prev_vol <= 0 triggers drum hit)",
+    "no_period_change_detection": "Noise does NOT use period-change-based note boundaries. It uses volume transitions.",
+    "drum_hit_condition": "vol > 0 AND prev_vol <= 0",
+    "drum_off_condition": "vol <= 0 AND prev_vol > 0",
+    "period_to_drum_mapping": {
+      "period_0_to_4": {"drum_note": 42, "gm_name": "Closed Hi-Hat"},
+      "period_5_to_8": {"drum_note": 38, "gm_name": "Snare"},
+      "period_9_to_15": {"drum_note": 36, "gm_name": "Kick"}
+    },
+    "velocity_from_volume": "min(127, vol * 8)",
+    "no_cc11": true,
+    "volume_register": "0x400C (bits 0-3)",
+    "period_register": "0x400E (bits 0-3, indexes 16-entry period table)",
+    "mode_bit_register": "0x400E (bit 7)"
+  },
+  "timing": {
+    "TICKS_PER_FRAME": 16,
+    "TICKS_PER_BEAT": 480,
+    "BPM": 128.6,
+    "tempo_microseconds_per_beat": "mido.bpm2tempo(128.6) = 466563 usec",
+    "frame_duration_ms": 16.67,
+    "frames_per_second": 60,
+    "ticks_per_second": 960,
+    "note_duration_statistics_cv1": {
+      "minimum_ticks": 48,
+      "minimum_frames": 3,
+      "minimum_ms": 50,
+      "typical_ticks": "96-200",
+      "typical_frames": "6-12",
+      "typical_ms": "100-200",
+      "maximum_ticks": 1344,
+      "maximum_frames": 84,
+      "maximum_ms": 1400
+    },
+    "all_durations_frame_aligned": true,
+    "quantization_note": "1 frame = 16 ticks at 128.6 BPM. No rounding, no quantization. Timing resolution exactly matches NES frame rate."
+  },
+  "pitch_conversion": {
+    "formula": "midi_note = round(69 + 12 * log2(freq / 440))",
+    "freq_formula_pulse": "freq = 1789773 / (16 * (period + 1))",
+    "freq_formula_triangle": "freq = 1789773 / (32 * (period + 1))",
+    "cpu_clock_hz": 1789773,
+    "pulse_divisor": 16,
+    "triangle_divisor": 32,
+    "reference_note": 69,
+    "reference_freq_hz": 440,
+    "period_register_range": "0-2047 (11-bit)",
+    "minimum_period_pulse": 8,
+    "minimum_period_triangle": 2,
+    "period_below_minimum_returns": 0
+  },
+  "cc_automation": {
+    "cc11_volume": {
+      "formula": "min(127, nes_vol * 8)",
+      "nes_range": "0-15",
+      "cc_range": "0-127 (in steps of 8)",
+      "emitted_for": ["pulse1", "pulse2"],
+      "triangle_always": 127,
+      "noise_not_emitted": true
+    },
+    "cc12_duty": {
+      "mapping": {"duty_0": 16, "duty_1": 32, "duty_2": 64, "duty_3": 96},
+      "description": "12.5%, 25%, 50%, 75% duty cycles mapped to CC12 ranges",
+      "emitted_for": ["pulse1", "pulse2"],
+      "only_emitted_when": "midi_note > 0 (note is active)"
+    }
+  },
+  "known_risks": [
+    {
+      "risk": "vibrato_fragmentation",
+      "description": "Games implementing vibrato via rapid small period changes produce a stream of very short notes (48 ticks / 3 frames) instead of a single note with pitch bend. Sounds choppy on synths with attack time.",
+      "affected_games": "Games using software vibrato (not hardware sweep unit)",
+      "possible_fix": "Detect rapid period oscillation (+/- 1-2 semitones within 4 frames) and convert to MIDI pitch bend"
+    },
+    {
+      "risk": "mid_frame_register_writes_lost",
+      "description": "The emulator captures APU state once per frame (after PLAY() returns). If the driver writes a register twice in one frame, only the final value is seen. Can lose very fast trills or mid-frame effects.",
+      "severity": "negligible for all 34 games in library"
+    },
+    {
+      "risk": "crude_noise_drum_mapping",
+      "description": "Only 3 GM drum buckets (kick/snare/hi-hat) for 16 possible noise periods. Real NES games use all 16 periods with different volume envelopes for a wider range of percussion timbres.",
+      "possible_fix": "Map all 16 noise periods to distinct MIDI notes and build a more nuanced drum envelope table in the synth"
+    },
+    {
+      "risk": "portamento_as_chromatic_steps",
+      "description": "Smooth pitch slides become a series of discrete chromatic note events, one per frame."
+    },
+    {
+      "risk": "hardware_sweep_not_captured_as_pitch_bend",
+      "description": "NES hardware sweep unit produces continuous pitch changes. These are captured as discrete period changes per frame, not as MIDI pitch bend events."
+    },
+    {
+      "risk": "dpcm_not_captured",
+      "description": "DPCM (channel 5) samples for voice clips, bass drums, or samples are not extracted."
+    },
+    {
+      "risk": "expansion_audio_not_supported",
+      "description": "VRC6, FDS, MMC5, N163, Sunsoft 5B expansion audio channels are not handled. Only standard 2A03 channels."
+    }
+  ]
+}

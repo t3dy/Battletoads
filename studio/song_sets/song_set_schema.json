@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ReapNES Song Set",
+  "description": "A collection of instruments associated with a specific NES game song or sound world.",
+  "type": "object",
+  "required": ["format", "version", "game", "song", "channels"],
+  "properties": {
+    "format": { "const": "reapnes-song-set" },
+    "version": { "type": "integer", "minimum": 1 },
+    "game": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": { "type": "string" },
+        "developer": { "type": "string" },
+        "year": { "type": "integer" },
+        "platform": { "type": "string", "default": "NES" }
+      }
+    },
+    "song": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": { "type": "string" },
+        "context": { "type": "string", "description": "Where this song plays in the game" },
+        "tempo_bpm": { "type": "number" },
+        "key": { "type": "string" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string", "enum": ["hand-authored", "nes-mdb-extracted", "nsf-extracted", "hybrid"] },
+        "confidence": { "type": "string", "enum": ["approximate", "close", "verified"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "channels": {
+      "type": "object",
+      "properties": {
+        "pulse1": { "$ref": "#/definitions/channel_assignment" },
+        "pulse2": { "$ref": "#/definitions/channel_assignment" },
+        "triangle": { "$ref": "#/definitions/channel_assignment" },
+        "noise": { "$ref": "#/definitions/channel_assignment" },
+        "dmc": { "$ref": "#/definitions/channel_assignment" }
+      }
+    },
+    "drum_map": {
+      "type": "object",
+      "description": "MIDI note to noise preset mappings for percussion",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "preset": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "channel_assignment": {
+      "type": "object",
+      "properties": {
+        "role": { "type": "string", "description": "Musical role: lead, harmony, bass, percussion, sfx" },
+        "preset": { "type": "string", "description": "Path to .reapnes-data file relative to presets/" },
+        "description": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

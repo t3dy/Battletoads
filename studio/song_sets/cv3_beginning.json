@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "CastlevaniaIII Dracula sCurse",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "03Beginning"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 26 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/4963_Soft_Lead_42634.reapnes-data",
+      "description": "Soft Lead 42634 (4 notes)",
+      "notes": "Tags: pulse, short, fade, narrow"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/9460_Soft_Lead_42636.reapnes-data",
+      "description": "Soft Lead 42636 (2 notes)",
+      "notes": "Tags: pulse, short, fade, narrow"
+    }
+  }
+}

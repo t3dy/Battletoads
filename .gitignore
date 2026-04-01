@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# REAPER
+*.reapeaks
+
+# Data (large binary files)
+*.nsf
+*.nes
+*.rom
+nesmdb_data/
+data/nesmdb24_exprsco/
+data/nesmdb/
+*.wav
+*.mp3
+*.pkl
+*.tar.gz
+
+# ROMs (do not commit copyrighted ROMs)
+extraction/roms/*.nes
+extraction/roms/*.vlp
+
+# REAPER preset data (too large for git)
+studio/presets/jsfx_data/
+
+# Test cache
+.pytest_cache/
+
+# Reference repos (cloned for study, not part of our codebase)
+references/
+
+# ROM collection (copyrighted)
+AllNESRoms/
+
+# Rendered output (WAV/MP4 too large for git, MIDIs are versioned in output/)
+*.mp4
+
+# Temporary capture files
+capture_contra.csv
+
+# Distribution builds
+*.zip
+*.tar.gz

@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Castlevania",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "06HeartofFire"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 4 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/8245_Square_Swell_26239.reapnes-data",
+      "description": "Square Swell 26239 (2 notes)",
+      "notes": "Tags: pulse, short, swell, looping, square"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/31053_Square_Pad_4554.reapnes-data",
+      "description": "Square Pad 4554 (2 notes)",
+      "notes": "Tags: pulse, short, fade, looping, square"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Super Mario Bros.",
+    "developer": "Nintendo",
+    "year": 1985,
+    "platform": "NES"
+  },
+  "song": {
+    "title": "Overworld Theme (World 1-1)",
+    "context": "Main overworld levels",
+    "tempo_bpm": 200,
+    "key": "C major"
+  },
+  "provenance": {
+    "source": "hand-authored",
+    "confidence": "approximate",
+    "notes": "Hand-crafted to approximate the SMB1 overworld sound. Duty cycles and volume levels based on listening analysis, not ROM extraction."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "mario/smb_overworld_lead.reapnes-data",
+      "description": "Main melody, 50% duty pulse"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "mario/smb_overworld_harmony.reapnes-data",
+      "description": "Counter-melody and harmony, 25% duty pulse"
+    },
+    "triangle": {
+      "role": "bass",
+      "preset": "mario/smb_bass.reapnes-data",
+      "description": "Bassline, sustained triangle"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "generic/noise_snare.reapnes-data",
+      "description": "Simple percussion hits"
+    }
+  },
+  "drum_map": {
+    "36": { "preset": "generic/noise_kick.reapnes-data", "description": "Kick drum" },
+    "38": { "preset": "generic/noise_snare.reapnes-data", "description": "Snare" },
+    "42": { "preset": "generic/noise_hihat_closed.reapnes-data", "description": "Closed hi-hat" }
+  }
+}

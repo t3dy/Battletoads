@@ -1,0 +1,437 @@
+// apu_core.jsfx-inc -- Wire-Accurate 2A03 APU Core (Pulse + Triangle)
+// Reference: https://www.nesdev.org/wiki/APU_Pulse
+//
+// The NES 2A03 pulse channels use an 11-bit timer (period) that clocks
+// a 3-bit sequencer index through one of four duty cycle waveforms.
+// The CPU clock is 1.789773 MHz; the timer counts down every *second*
+// CPU cycle, so the output frequency is:
+//
+//   f = CPU_CLK / (16 * (timer_period + 1))
+//
+// This library provides per-sample phase-accumulator synthesis that
+// matches the hardware output exactly at any host sample rate.
+
+// ---------------------------------------------------------------------------
+//  Constants
+// ---------------------------------------------------------------------------
+
+// NTSC CPU clock (Hz)
+@init
+apu.CPU_CLK = 1789773;
+
+// Duty cycle sequences (8 steps each).
+// Each element is 0 or 1. The sequencer counts *down* on hardware,
+// but the waveform shape is identical either direction -- we index
+// forward for clarity.
+//
+// Duty 0 (12.5%): 0 1 0 0 0 0 0 0
+// Duty 1 (25.0%): 0 1 1 0 0 0 0 0
+// Duty 2 (50.0%): 0 1 1 1 1 0 0 0
+// Duty 3 (75.0%): 1 0 0 1 1 1 1 1
+//
+// Stored in a flat 32-element array at apu.duty_table[duty*8 + step].
+
+apu.duty_table = 0;  // memory offset 0..31
+
+// Duty 0 -- 12.5%
+apu.duty_table[0]  = 0; apu.duty_table[1]  = 1;
+apu.duty_table[2]  = 0; apu.duty_table[3]  = 0;
+apu.duty_table[4]  = 0; apu.duty_table[5]  = 0;
+apu.duty_table[6]  = 0; apu.duty_table[7]  = 0;
+
+// Duty 1 -- 25%
+apu.duty_table[8]  = 0; apu.duty_table[9]  = 1;
+apu.duty_table[10] = 1; apu.duty_table[11] = 0;
+apu.duty_table[12] = 0; apu.duty_table[13] = 0;
+apu.duty_table[14] = 0; apu.duty_table[15] = 0;
+
+// Duty 2 -- 50%
+apu.duty_table[16] = 0; apu.duty_table[17] = 1;
+apu.duty_table[18] = 1; apu.duty_table[19] = 1;
+apu.duty_table[20] = 1; apu.duty_table[21] = 0;
+apu.duty_table[22] = 0; apu.duty_table[23] = 0;
+
+// Duty 3 -- 75% (inverted 25%)
+apu.duty_table[24] = 1; apu.duty_table[25] = 0;
+apu.duty_table[26] = 0; apu.duty_table[27] = 1;
+apu.duty_table[28] = 1; apu.duty_table[29] = 1;
+apu.duty_table[30] = 1; apu.duty_table[31] = 1;
+
+
+// ---------------------------------------------------------------------------
+//  Pulse Channel State
+// ---------------------------------------------------------------------------
+// Call apu_pulse_init(ch) once per channel (ch = 0 or 1) in @init.
+// State is stored at a per-channel memory offset to allow two independent
+// pulse channels.
+//
+// Memory layout per channel (base = apu.pulse_base + ch * 16):
+//   +0  phase        -- fractional phase accumulator [0, 8)
+//   +1  phase_inc    -- phase increment per sample
+//   +2  duty         -- duty cycle index 0..3
+//   +3  volume       -- 4-bit volume 0..15
+//   +4  timer_period -- 11-bit raw period register ($4002/$4003 low 3 bits)
+//   +5  enabled      -- channel enable flag
+//   +6  output       -- last computed sample (0..15 digital, pre-mixer)
+
+apu.pulse_base = 64;  // start after duty table region
+
+// Memory layout per channel (base = apu.pulse_base + ch * 16):
+//   +0  phase          -- fractional phase accumulator [0, 8)
+//   +1  phase_inc      -- phase increment per sample
+//   +2  duty           -- duty cycle index 0..3
+//   +3  volume         -- 4-bit volume 0..15
+//   +4  timer_period   -- 11-bit raw period register
+//   +5  enabled        -- channel enable flag
+//   +6  output         -- last computed sample (0..15 digital)
+//   +7  sweep_enabled  -- sweep unit enable
+//   +8  sweep_period   -- sweep divider period (0-7, rate = period+1 half-frames)
+//   +9  sweep_negate   -- 0 = add (pitch down), 1 = subtract (pitch up)
+//   +10 sweep_shift    -- shift amount (0-7)
+//   +11 sweep_counter  -- internal divider counter
+//   +12 sweep_acc      -- fractional accumulator for sweep timing
+
+function apu_pulse_init(ch)
+  local(base)
+(
+  base = apu.pulse_base + ch * 16;
+  base[0] = 0;    // phase
+  base[1] = 0;    // phase_inc
+  base[2] = 0;    // duty
+  base[3] = 15;   // volume (max)
+  base[4] = 0;    // timer_period
+  base[5] = 1;    // enabled
+  base[6] = 0;    // output
+  base[7] = 0;    // sweep_enabled
+  base[8] = 0;    // sweep_period
+  base[9] = 0;    // sweep_negate
+  base[10] = 0;   // sweep_shift
+  base[11] = 0;   // sweep_counter
+  base[12] = 0;   // sweep_acc
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_pulse_set_period(ch, period)
+// ---------------------------------------------------------------------------
+// Sets the 11-bit timer period and recalculates phase_inc for the current
+// host sample rate. `period` is the raw register value (0..2047).
+//
+// Hardware frequency: f = CPU_CLK / (16 * (period + 1))
+// Phase increment:    phase_inc = 8 * f / srate
+//                   = 8 * CPU_CLK / (16 * (period + 1) * srate)
+
+function apu_pulse_set_period(ch, period)
+  local(base, f)
+(
+  base = apu.pulse_base + ch * 16;
+  base[4] = period;
+
+  // Avoid divide-by-zero; periods < 8 are muted on real hardware
+  // (high-frequency interference), but we compute anyway and let
+  // the caller decide whether to gate.
+  f = apu.CPU_CLK / (16 * (period + 1));
+  base[1] = 8.0 * f / srate;
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_pulse_set_duty(ch, duty)
+// ---------------------------------------------------------------------------
+// duty: 0 = 12.5%, 1 = 25%, 2 = 50%, 3 = 75%
+
+function apu_pulse_set_duty(ch, duty)
+  local(base)
+(
+  base = apu.pulse_base + ch * 16;
+  base[2] = duty & 3;
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_pulse_set_volume(ch, vol)
+// ---------------------------------------------------------------------------
+// vol: 0..15 (4-bit constant volume)
+
+function apu_pulse_set_volume(ch, vol)
+  local(base)
+(
+  base = apu.pulse_base + ch * 16;
+  base[3] = vol & 15;
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_pulse_set_enabled(ch, en)
+// ---------------------------------------------------------------------------
+
+function apu_pulse_set_enabled(ch, en)
+  local(base)
+(
+  base = apu.pulse_base + ch * 16;
+  base[5] = en ? 1 : 0;
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_pulse_process(ch) -- call once per @sample
+// ---------------------------------------------------------------------------
+// Advances the phase accumulator, looks up the duty cycle waveform,
+// and returns the digital output (0..15).
+//
+// The returned value is the *digital* amplitude before the non-linear
+// mixer. Feed this into mixer_nonlinear.jsfx-inc for the final analog
+// voltage equivalent.
+
+function apu_pulse_process(ch)
+  local(base, phase, phase_inc, duty, vol, step, out)
+(
+  base = apu.pulse_base + ch * 16;
+
+  base[5] == 0 ? (
+    base[6] = 0;
+    0;  // return 0 if disabled
+  ) : (
+    phase     = base[0];
+    phase_inc = base[1];
+    duty      = base[2];
+    vol       = base[3];
+
+    // Determine which of the 8 sequencer steps we're on
+    step = floor(phase) & 7;
+
+    // Look up duty waveform: 1 = high, 0 = low
+    out = apu.duty_table[duty * 8 + step] * vol;
+
+    // Advance phase, wrap at 8.0
+    phase += phase_inc;
+    phase >= 8.0 ? phase -= 8.0 * floor(phase / 8.0);
+    base[0] = phase;
+
+    base[6] = out;
+    out;  // return digital output 0..15
+  );
+);
+
+
+// ---------------------------------------------------------------------------
+//  Sweep Unit
+// ---------------------------------------------------------------------------
+// Reference: https://www.nesdev.org/wiki/APU_Sweep
+//
+// The sweep unit adjusts the pulse period at a configurable rate.
+// On real hardware, the sweep clocks at ~120 Hz (every half-frame of
+// the frame counter). We simulate this via a fractional accumulator.
+//
+// Parameters:
+//   enabled: 0 or 1
+//   period:  0-7 (sweep rate = every (period+1) half-frames)
+//   negate:  0 = period increases (pitch drops), 1 = period decreases (pitch rises)
+//   shift:   0-7 (change amount = current_period >> shift)
+//
+// Pulse 1 vs Pulse 2 negate differently on hardware:
+//   Pulse 1: negated = period - (period >> shift) - 1 (one's complement)
+//   Pulse 2: negated = period - (period >> shift)     (two's complement)
+// We approximate with two's complement for both (difference is negligible).
+
+function apu_pulse_set_sweep(ch, enabled, period, negate, shift)
+  local(base)
+(
+  base = apu.pulse_base + ch * 16;
+  base[7]  = enabled ? 1 : 0;
+  base[8]  = period & 7;
+  base[9]  = negate ? 1 : 0;
+  base[10] = shift & 7;
+  base[11] = period;  // reload counter
+  base[12] = 0;       // reset accumulator
+);
+
+
+// apu_pulse_sweep_process(ch) -- call in @sample, advances sweep unit
+// The sweep clocks at ~120.0 Hz on NTSC (frame counter half-frame rate).
+// We use a fractional accumulator to match timing at any host sample rate.
+
+function apu_pulse_sweep_process(ch)
+  local(base, period, shift_amount, change, new_period)
+(
+  base = apu.pulse_base + ch * 16;
+  base[7] ? (
+    // Advance sweep accumulator at 120 Hz
+    base[12] += 120.0 / srate;
+
+    base[12] >= 1.0 ? (
+      base[12] -= 1.0;
+      base[11] -= 1;
+
+      // When counter reaches 0, apply sweep and reload
+      base[11] <= 0 ? (
+        base[11] = base[8] + 1;  // reload from period
+
+        period = base[4];
+        shift_amount = base[10];
+
+        shift_amount > 0 ? (
+          change = period >> shift_amount;
+
+          base[9] ? (
+            // Negate: period decreases -> pitch rises
+            new_period = period - change;
+            new_period < 8 ? new_period = 0;  // mute on underflow
+          ) : (
+            // Add: period increases -> pitch drops
+            new_period = period + change;
+            new_period > 2047 ? new_period = 2047;  // clamp
+          );
+
+          apu_pulse_set_period(ch, new_period);
+        );
+      );
+    );
+  );
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_pulse_set_freq_hz(ch, freq_hz)
+// ---------------------------------------------------------------------------
+// Convenience: set pitch by frequency in Hz instead of raw period.
+// Clamps to the valid 11-bit range. Useful for MIDI-driven control.
+//
+// period = CPU_CLK / (16 * freq_hz) - 1
+
+function apu_pulse_set_freq_hz(ch, freq_hz)
+  local(period)
+(
+  freq_hz > 0 ? (
+    period = apu.CPU_CLK / (16 * freq_hz) - 1;
+    period = max(0, min(2047, floor(period + 0.5)));
+    apu_pulse_set_period(ch, period);
+  );
+);
+
+
+// ===========================================================================
+//  TRIANGLE CHANNEL
+// ===========================================================================
+// Reference: https://www.nesdev.org/wiki/APU_Triangle
+//
+// The triangle channel has no volume control -- it outputs a fixed 32-step
+// triangle waveform (values 15,14,...,1,0,0,1,...,14,15) when active.
+// Timer frequency: f = CPU_CLK / (32 * (period + 1))
+// (Note: triangle timer ticks every CPU cycle, not every *second* cycle
+// like the pulse channels, but the 32-step sequence effectively divides
+// by 32 instead of 16.)
+
+// Triangle waveform: 32 steps
+// 15, 14, 13, ..., 2, 1, 0, 0, 1, 2, ..., 13, 14, 15
+apu.tri_table = 160;  // memory offset 160..191
+apu.tri_table[0]  = 15; apu.tri_table[1]  = 14;
+apu.tri_table[2]  = 13; apu.tri_table[3]  = 12;
+apu.tri_table[4]  = 11; apu.tri_table[5]  = 10;
+apu.tri_table[6]  = 9;  apu.tri_table[7]  = 8;
+apu.tri_table[8]  = 7;  apu.tri_table[9]  = 6;
+apu.tri_table[10] = 5;  apu.tri_table[11] = 4;
+apu.tri_table[12] = 3;  apu.tri_table[13] = 2;
+apu.tri_table[14] = 1;  apu.tri_table[15] = 0;
+apu.tri_table[16] = 0;  apu.tri_table[17] = 1;
+apu.tri_table[18] = 2;  apu.tri_table[19] = 3;
+apu.tri_table[20] = 4;  apu.tri_table[21] = 5;
+apu.tri_table[22] = 6;  apu.tri_table[23] = 7;
+apu.tri_table[24] = 8;  apu.tri_table[25] = 9;
+apu.tri_table[26] = 10; apu.tri_table[27] = 11;
+apu.tri_table[28] = 12; apu.tri_table[29] = 13;
+apu.tri_table[30] = 14; apu.tri_table[31] = 15;
+
+// ---------------------------------------------------------------------------
+//  Triangle Channel State
+// ---------------------------------------------------------------------------
+// Memory layout (base = apu.tri_base):
+//   +0  phase        -- fractional phase accumulator [0, 32)
+//   +1  phase_inc    -- phase increment per sample
+//   +2  timer_period -- 11-bit raw period register
+//   +3  enabled      -- channel enable flag
+//   +4  output       -- last computed sample (0..15 digital)
+
+apu.tri_base = 200;
+
+function apu_tri_init()
+  local(base)
+(
+  base = apu.tri_base;
+  base[0] = 0;    // phase
+  base[1] = 0;    // phase_inc
+  base[2] = 0;    // timer_period
+  base[3] = 1;    // enabled
+  base[4] = 0;    // output
+);
+
+// ---------------------------------------------------------------------------
+//  apu_tri_set_period(period)
+// ---------------------------------------------------------------------------
+// Triangle timer ticks every CPU cycle (not every second cycle).
+// f = CPU_CLK / (32 * (period + 1))
+// phase_inc = 32 * f / srate
+
+function apu_tri_set_period(period)
+  local(base, f)
+(
+  base = apu.tri_base;
+  base[2] = period;
+  f = apu.CPU_CLK / (32 * (period + 1));
+  base[1] = 32.0 * f / srate;
+);
+
+// ---------------------------------------------------------------------------
+//  apu_tri_set_freq_hz(freq_hz)
+// ---------------------------------------------------------------------------
+// period = CPU_CLK / (32 * freq_hz) - 1
+
+function apu_tri_set_freq_hz(freq_hz)
+  local(period)
+(
+  freq_hz > 0 ? (
+    period = apu.CPU_CLK / (32 * freq_hz) - 1;
+    period = max(0, min(2047, floor(period + 0.5)));
+    apu_tri_set_period(period);
+  );
+);
+
+// ---------------------------------------------------------------------------
+//  apu_tri_set_enabled(en)
+// ---------------------------------------------------------------------------
+
+function apu_tri_set_enabled(en)
+  local(base)
+(
+  base = apu.tri_base;
+  base[3] = en ? 1 : 0;
+);
+
+// ---------------------------------------------------------------------------
+//  apu_tri_process() -- call once per @sample
+// ---------------------------------------------------------------------------
+// Returns digital output 0..15. No volume control on hardware.
+
+function apu_tri_process()
+  local(base, phase, phase_inc, step, out)
+(
+  base = apu.tri_base;
+
+  base[3] == 0 ? (
+    base[4] = 0;
+    0;
+  ) : (
+    phase     = base[0];
+    phase_inc = base[1];
+
+    step = floor(phase) & 31;
+    out = apu.tri_table[step];
+
+    phase += phase_inc;
+    phase >= 32.0 ? phase -= 32.0 * floor(phase / 32.0);
+    base[0] = phase;
+
+    base[4] = out;
+    out;
+  );
+);

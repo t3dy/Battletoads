@@ -1,0 +1,49 @@
+// mixer_nonlinear.jsfx-inc -- Wire-Accurate 2A03 Non-Linear Mixer
+// Reference: https://www.nesdev.org/wiki/APU_Mixer
+//
+// The NES DAC is non-linear. The two lookup formulas below convert
+// digital channel outputs (0..15 for pulse/tri, 0..127 for DMC) into
+// an analog voltage approximation in the range [0.0, 1.0].
+
+// ---------------------------------------------------------------------------
+//  apu_mix_pulse(pulse1, pulse2)
+// ---------------------------------------------------------------------------
+// pulse1, pulse2: digital output 0..15 each (from apu_pulse_process).
+// Returns analog approximation [0.0, ~1.0].
+//
+//   pulse_out = 95.88 / ((8128 / (pulse1 + pulse2)) + 100)
+
+function apu_mix_pulse(p1, p2)
+  local(sum)
+(
+  sum = p1 + p2;
+  sum == 0 ? 0 : 95.88 / ((8128 / sum) + 100);
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_mix_tnd(tri, noise, dmc)
+// ---------------------------------------------------------------------------
+// tri: 0..15, noise: 0..15, dmc: 0..127
+// Returns analog approximation [0.0, ~1.0].
+//
+//   tnd_out = 159.79 / ((1 / (tri/8227 + noise/12241 + dmc/22638)) + 100)
+
+function apu_mix_tnd(tri, noise, dmc)
+  local(denom)
+(
+  denom = tri / 8227.0 + noise / 12241.0 + dmc / 22638.0;
+  denom == 0 ? 0 : 159.79 / ((1.0 / denom) + 100);
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_mix_all(pulse1, pulse2, tri, noise, dmc)
+// ---------------------------------------------------------------------------
+// Full 5-channel mix. Returns mono output roughly in [0.0, 1.0].
+// Center around 0 by subtracting 0.5 and scaling for typical headroom.
+
+function apu_mix_all(p1, p2, tri, noise, dmc)
+(
+  apu_mix_pulse(p1, p2) + apu_mix_tnd(tri, noise, dmc);
+);

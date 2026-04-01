@@ -1,0 +1,66 @@
+{
+  "_description": "Machine-readable RPP field requirements for REAPER v7.27. Derived from known-good Console_Test.rpp where keyboard input works.",
+  "header_required_fields": [
+    "RIPPLE 0",
+    "GROUPOVERRIDE 0 0 0",
+    "AUTOXFADE 129",
+    "ENVATTACH 3",
+    "POOLEDENVATTACH 0",
+    "MIXERUIFLAGS 11 48",
+    "ENVFADESZ10 40",
+    "PEAKGAIN 1",
+    "FEEDBACK 0",
+    "PANLAW 1",
+    "PANMODE 3",
+    "PANLAWFLAGS 3",
+    "RECMODE 1",
+    "SAMPLERATE 44100 0 0",
+    "LOCK 1"
+  ],
+  "header_required_blocks": [
+    "NOTES", "RECORD_CFG", "APPLYFX_CFG", "RENDER_CFG",
+    "METRONOME", "MASTERPLAYSPEEDENV", "TEMPOENVEX", "PROJBAY"
+  ],
+  "track_required_fields": {
+    "BEAT": "-1",
+    "AUTOMODE": "0",
+    "PANLAWFLAGS": "3",
+    "VOLPAN": "1 0 -1 -1 1",
+    "MUTESOLO": "0 0 0",
+    "IPHASE": "0",
+    "PLAYOFFS": "0 1",
+    "ISBUS": "0 0",
+    "BUSCOMP": "0 0 0 0 0",
+    "SHOWINMIX": "1 0.6667 0.5 1 0.5 0 0 0",
+    "FIXEDLANES": "9 0 0 0 0",
+    "VU": "2",
+    "TRACKHEIGHT": "0 0 0 0 0 0 0",
+    "INQ": "0 0 0 0.5 100 0 0 100",
+    "NCHAN": "2",
+    "FX": "1",
+    "PERF": "0",
+    "MIDIOUT": "-1",
+    "MAINSEND": "1 0"
+  },
+  "rec_field": {
+    "format": "REC {armed} 5088 1 0 0 0 0 0",
+    "armed_values": {"armed": 1, "unarmed": 0},
+    "input_value": 5088,
+    "input_breakdown": "4096 (MIDI) + (31 << 5) (all devices) + 0 (all channels)",
+    "critical_rule": "ALWAYS use 5088, even when armed=0. If input=0, REAPER forgets MIDI routing."
+  },
+  "fxchain_required_fields": {
+    "WNDRECT": "24 52 700 560",
+    "SHOW": "0",
+    "LASTSEL": "0",
+    "DOCKED": "0",
+    "BYPASS": "0 0 0"
+  },
+  "forbidden_tokens": [
+    "MASTER_SEND",
+    "REC_INPUT",
+    "RECINPUT",
+    "RECMON",
+    "SOURCE MIDIPOOL"
+  ]
+}

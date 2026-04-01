@@ -1,0 +1,49 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "CastlevaniaIII Dracula sCurse",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "08MadForest"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 17 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/24662_Swell_36357.reapnes-data",
+      "description": "Swell 36357 (1177 notes)",
+      "notes": "Tags: pulse, staccato, swell, narrow"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/24717_Soft_Lead_51951.reapnes-data",
+      "description": "Soft Lead 51951 (474 notes)",
+      "notes": "Tags: pulse, staccato, fade, duty-sweep"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/47859_Noise_Swell_10460.reapnes-data",
+      "description": "Noise Swell 10460 (200 notes)"
+    }
+  },
+  "drum_map": {
+    "36": {
+      "preset": "jsfx_data/47859_Noise_Swell_10460.reapnes-data",
+      "description": "Noise Swell 10460"
+    },
+    "38": {
+      "preset": "jsfx_data/48192_Snare_Fade_11560.reapnes-data",
+      "description": "Snare Fade 11560"
+    },
+    "42": {
+      "preset": "jsfx_data/48552_Snare_Fade_11561.reapnes-data",
+      "description": "Snare Fade 11561"
+    }
+  }
+}

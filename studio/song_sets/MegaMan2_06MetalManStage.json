@@ -1,0 +1,35 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "MegaMan2",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "06MetalManStage"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 13 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/1396_Wide_Pad_1935.reapnes-data",
+      "description": "Wide Pad 1935 (20 notes)",
+      "notes": "Tags: pulse, short, fade, looping, wide"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/3754_Wide_Pad_1938.reapnes-data",
+      "description": "Wide Pad 1938 (5 notes)",
+      "notes": "Tags: pulse, short, fade, looping, wide"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/52343_Noise_Swell_13972.reapnes-data",
+      "description": "Noise Swell 13972 (1 notes)"
+    }
+  }
+}

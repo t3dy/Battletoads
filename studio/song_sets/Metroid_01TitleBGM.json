@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Metroid",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "01TitleBGM"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 22 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/0394_Square_Swell_25717.reapnes-data",
+      "description": "Square Swell 25717 (101 notes)",
+      "notes": "Tags: pulse, short, attack, looping, square"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/0505_Square_Swell_26036.reapnes-data",
+      "description": "Square Swell 26036 (71 notes)",
+      "notes": "Tags: pulse, short, attack, looping, square"
+    }
+  }
+}

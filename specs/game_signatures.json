@@ -1,0 +1,70 @@
+{
+  "_description": "Concise structured characterization of representative games for validation, derived from docs/PROJECT*.md analysis logs",
+  "signatures": {
+    "Super_Mario_Bros": {
+      "envelope_type": "uniform 5-step decay",
+      "cc11_pattern": "64 > 56 > 48 > 40 > 32",
+      "cc11_per_note": 5.0,
+      "duration_character": "fixed 7 frames (116ms) all pulse notes",
+      "velocity_range": [64, 64],
+      "duty_behavior": "static 50% (1 CC12 message total)",
+      "noise_character": "sparse, 67 events, velocity=96",
+      "triangle_character": "legato bass, 144-1152 ticks (9-72 frames), CC11=127 always",
+      "defining_quality": "Identical envelope and duration on every note; perception of rhythm comes entirely from volume decay, not note length",
+      "validation_priorities": ["envelope shape matches 5-step 64>32", "uniform 112-tick duration", "no duty variation"],
+      "source_authority": "docs/PROJECTMARIO1.md"
+    },
+    "Castlevania": {
+      "envelope_type": "fast 4-step decay with variable velocity",
+      "cc11_pattern": "32 > 24 > 16 > 8 (Pulse 1), 40 > 32 > 24 > 16 > 8 (Pulse 2)",
+      "cc11_per_note": 4.1,
+      "duration_character": "highly varied, 1-frame grace notes to 1s+ sustains, avg 184 ticks (11.5 frames, 191ms) Pulse 1",
+      "velocity_range": [24, 40],
+      "duty_behavior": "active changes mid-song (13 CC12 on P1, 19 on P2), uses all 4 duty values on P2",
+      "noise_character": "heavy, 468 events, two velocity levels (64 strong, 48 ghost), mostly <50ms",
+      "triangle_character": "legato bass, avg 42.5 frames (707ms), range 116ms-1.9s",
+      "defining_quality": "Low starting velocity with fast decay creates sharp percussive articulation; wide duration range gives dynamic contrast between staccato bursts and legato phrases",
+      "validation_priorities": ["fast 4-step decay shape", "variable velocity (24/32/40)", "duty cycle changes", "heavy drum presence"],
+      "source_authority": "docs/PROJECTCASTLEVANIA.md"
+    },
+    "Mega_Man_2": {
+      "envelope_type": "minimal 2-step decay",
+      "cc11_pattern": "64 > 16 (Pulse 1, 2 steps), 56 single-value (Pulse 2)",
+      "cc11_per_note": 1.4,
+      "duration_character": "Pulse 2 arpeggio engine: 2294 notes avg 1.5 frames (25ms); Pulse 1 melody avg 5.5 frames (92ms)",
+      "velocity_range": [8, 80],
+      "duty_behavior": "active changes (17 CC12 on P1, 14 on P2), cycles 12.5%/25%/50%",
+      "noise_character": "dense, 675 events, two velocity levels (80 standard, 120 accented), avg 48ms",
+      "triangle_character": "punchy staccato bass, avg 4.7 frames (79ms), locks with drum patterns",
+      "defining_quality": "Rapid 1-frame arpeggio engine on Pulse 2 creates illusion of harmony on monophonic channel; 91% of P2 notes under 50ms",
+      "validation_priorities": ["1-frame arpeggio notes on P2", "minimal CC11 (only 2 values)", "three velocity tiers (8/56/64-80)", "dense drum patterns"],
+      "source_authority": "docs/PROJECTMEGAMAN2.md"
+    },
+    "Metroid": {
+      "envelope_type": "crescendo-decrescendo breathing pattern (Pulse 1), retrigger decay (Pulse 2)",
+      "cc11_pattern": "32 > 40 > 48 > 56 > 64 > 56 > 48 > 40 > 32 (Pulse 1), 104 > 72 > 56 > 48 > 40 > 32 repeating (Pulse 2)",
+      "cc11_per_note": 8.2,
+      "duration_character": "very long atmospheric, avg 613 ticks (38.3 frames, 637ms) Pulse 1, zero notes under 100ms",
+      "velocity_range": [32, 104],
+      "duty_behavior": "static 12.5% (thinnest duty, reedy hollow tone)",
+      "noise_character": "none (0 noise events in Brinstar)",
+      "triangle_character": "moderate bass, avg 21.2 frames (352ms), range 133ms-3.2s",
+      "defining_quality": "Volume oscillates up AND down within a single note creating a breathing effect impossible to reproduce with standard ADSR; Pulse 2 retriggering decay creates pulsing rhythm",
+      "validation_priorities": ["crescendo-decrescendo CC11 shape on P1", "retrigger pattern on P2", "no drums", "12.5% duty throughout", "high CC11 density (8.2/note)"],
+      "source_authority": "docs/PROJECTMETROID.md"
+    },
+    "Contra": {
+      "envelope_type": "wide-range attack transient with gradual 7-step tail",
+      "cc11_pattern": "127 > 51 > 42 > 34 > 25 > 17 > 8 (Pulse 1), 59 > 51 > 42 > 34 > 25 > 17 (Pulse 2)",
+      "cc11_per_note": 6.1,
+      "duration_character": "moderate, 62% of P1 notes in 100-200ms range, avg 260 ticks (16.3 frames, 271ms)",
+      "velocity_range": [8, 127],
+      "duty_behavior": "sparse deliberate shifts (8 CC12 on P1, 2 on P2), 50% to 75% for power chords",
+      "noise_character": "none in MIDI extraction (game uses DPCM samples at $FC00)",
+      "triangle_character": "fast rhythmic staccato bass, avg 5.7 frames (94ms), 83% under 100ms",
+      "defining_quality": "Massive 127>51 attack transient immediately pulling back defines Contra's aggressive punch; widest velocity range (8-127) in the library",
+      "validation_priorities": ["127>51 initial attack drop", "gradual 6-step tail decay", "extreme velocity range", "fast staccato triangle bass", "no noise channel (DPCM not captured)"],
+      "source_authority": "docs/PROJECTCONTRA.md"
+    }
+  }
+}

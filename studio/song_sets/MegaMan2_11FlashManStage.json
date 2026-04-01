@@ -1,0 +1,49 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "MegaMan2",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "11FlashManStage"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 9 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/0127_Soft_Lead_41853.reapnes-data",
+      "description": "Soft Lead 41853 (372 notes)",
+      "notes": "Tags: pulse, short, fade, looping, narrow"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/0864_Square_Pad_25667.reapnes-data",
+      "description": "Square Pad 25667 (36 notes)",
+      "notes": "Tags: pulse, short, fade, looping, square"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/48469_Snare_Fade_10819.reapnes-data",
+      "description": "Snare Fade 10819 (9 notes)"
+    }
+  },
+  "drum_map": {
+    "36": {
+      "preset": "jsfx_data/48469_Snare_Fade_10819.reapnes-data",
+      "description": "Snare Fade 10819"
+    },
+    "38": {
+      "preset": "jsfx_data/48965_Snare_Fade_13976.reapnes-data",
+      "description": "Snare Fade 13976"
+    },
+    "42": {
+      "preset": "jsfx_data/50214_Noise_Swell_13975.reapnes-data",
+      "description": "Noise Swell 13975"
+    }
+  }
+}

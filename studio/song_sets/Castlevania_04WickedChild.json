@@ -1,0 +1,35 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Castlevania",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "04WickedChild"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 23 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/2582_Swell_42627.reapnes-data",
+      "description": "Swell 42627 (9 notes)",
+      "notes": "Tags: pulse, short, swell, looping, narrow"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/27666_Square_Pad_4542.reapnes-data",
+      "description": "Square Pad 4542 (6 notes)",
+      "notes": "Tags: pulse, short, fade, square"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/51060_Snare_Fade_11554.reapnes-data",
+      "description": "Snare Fade 11554 (1 notes)"
+    }
+  }
+}

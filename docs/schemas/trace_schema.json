@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nesmusiclab.local/schemas/trace/v0.1.0",
+  "title": "NES Music Lab — APU Trace Format",
+  "description": "Schema for normalized APU register write traces. Input format for the analysis pipeline.",
+  "type": "object",
+  "required": ["schema_version", "metadata", "writes"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["source"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Emulator or tool that produced this trace."
+        },
+        "rom_name": { "type": "string" },
+        "rom_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "nsf_track": { "type": "integer", "minimum": 0 },
+        "region": { "enum": ["ntsc", "pal", "dual", "unknown"] },
+        "capture_start_frame": { "type": "integer", "minimum": 0 },
+        "capture_end_frame": { "type": "integer", "minimum": 0 },
+        "notes": { "type": "string" }
+      }
+    },
+    "writes": {
+      "type": "array",
+      "description": "Ordered list of APU register writes.",
+      "items": {
+        "type": "object",
+        "required": ["frame", "address", "value"],
+        "properties": {
+          "frame": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Frame number (0-indexed from capture start)."
+          },
+          "cycle": {
+            "type": ["integer", "null"],
+            "minimum": 0,
+            "description": "CPU cycle within frame, if available. Null if frame-level only."
+          },
+          "address": {
+            "type": "string",
+            "pattern": "^\\$[0-9A-Fa-f]{4}$",
+            "description": "APU register address ($4000–$4017)."
+          },
+          "value": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          }
+        }
+      }
+    }
+  }
+}

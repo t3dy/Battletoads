@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "CastlevaniaII Simon sQuest",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "04DwellingofDoom"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 16 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/0095_Thin_Pad_48777.reapnes-data",
+      "description": "Thin Pad 48777 (513 notes)",
+      "notes": "Tags: pulse, staccato, fade, duty-sweep"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/24776_Thin_Pad_51270.reapnes-data",
+      "description": "Thin Pad 51270 (275 notes)",
+      "notes": "Tags: pulse, staccato, fade, duty-sweep"
+    }
+  }
+}

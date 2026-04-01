@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Contra",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "05MazeFortress1Stage24"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 29 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/25418_Wide_Pad_32862.reapnes-data",
+      "description": "Wide Pad 32862 (39 notes)",
+      "notes": "Tags: pulse, staccato, fade, wide"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/1798_Thin_Swell_17349.reapnes-data",
+      "description": "Thin Swell 17349 (14 notes)",
+      "notes": "Tags: pulse, staccato, attack, thin"
+    }
+  }
+}

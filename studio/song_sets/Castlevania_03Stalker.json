@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Castlevania",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "03Stalker"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 8 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/28689_Square_Pad_4537.reapnes-data",
+      "description": "Square Pad 4537 (4 notes)",
+      "notes": "Tags: pulse, short, fade, looping, square"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/29596_Square_Swell_4539.reapnes-data",
+      "description": "Square Swell 4539 (3 notes)",
+      "notes": "Tags: pulse, short, swell, looping, square"
+    }
+  }
+}

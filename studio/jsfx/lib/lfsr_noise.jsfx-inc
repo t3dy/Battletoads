@@ -1,0 +1,198 @@
+// lfsr_noise.jsfx-inc -- Wire-Accurate 2A03 Noise Channel (LFSR)
+// Reference: https://www.nesdev.org/wiki/APU_Noise
+//
+// The noise channel uses a 15-bit Linear Feedback Shift Register (LFSR).
+// On each timer clock:
+//   feedback = (shift_reg bit 0) XOR (shift_reg bit 1)  [long mode]
+//            = (shift_reg bit 0) XOR (shift_reg bit 6)  [short mode]
+//   shift_reg >>= 1
+//   shift_reg bit 14 = feedback
+//
+// Output is inverted bit 0: when bit 0 is 0, channel outputs volume;
+// when bit 0 is 1, channel outputs 0.
+//
+// The timer period is set by a 4-bit index into a lookup table of
+// CPU-cycle counts. The timer ticks once per CPU cycle.
+
+@init
+
+// NTSC noise period lookup table (CPU cycles per timer clock)
+apu.noise_period_table = 128;  // memory offset
+apu.noise_period_table[0]  = 4;
+apu.noise_period_table[1]  = 8;
+apu.noise_period_table[2]  = 16;
+apu.noise_period_table[3]  = 32;
+apu.noise_period_table[4]  = 64;
+apu.noise_period_table[5]  = 96;
+apu.noise_period_table[6]  = 128;
+apu.noise_period_table[7]  = 160;
+apu.noise_period_table[8]  = 202;
+apu.noise_period_table[9]  = 254;
+apu.noise_period_table[10] = 380;
+apu.noise_period_table[11] = 508;
+apu.noise_period_table[12] = 762;
+apu.noise_period_table[13] = 1016;
+apu.noise_period_table[14] = 2034;
+apu.noise_period_table[15] = 4068;
+
+
+// ---------------------------------------------------------------------------
+//  Noise Channel State
+// ---------------------------------------------------------------------------
+// Memory layout (base = apu.noise_base):
+//   +0  shift_reg    -- 15-bit LFSR (init to 1)
+//   +1  timer_acc    -- fractional timer accumulator
+//   +2  timer_inc    -- timer increment per audio sample (CPU clocks/sample / period)
+//   +3  period_idx   -- 4-bit index into period table (0..15)
+//   +4  mode         -- 0 = long (32767 steps), 1 = short (93 steps)
+//   +5  volume       -- 4-bit volume 0..15
+//   +6  enabled      -- channel enable flag
+//   +7  output       -- last computed sample (0..15 digital)
+
+apu.noise_base = 300;
+
+function apu_noise_init()
+  local(base)
+(
+  base = apu.noise_base;
+  base[0] = 1;     // shift_reg -- must be non-zero to produce output
+  base[1] = 0;     // timer_acc
+  base[2] = 0;     // timer_inc
+  base[3] = 0;     // period_idx
+  base[4] = 0;     // mode (long)
+  base[5] = 15;    // volume (max)
+  base[6] = 1;     // enabled
+  base[7] = 0;     // output
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_noise_set_period(idx)
+// ---------------------------------------------------------------------------
+// idx: 0..15 index into the period lookup table.
+// Recalculates timer_inc for the current sample rate.
+//
+// The LFSR clocks once every `period` CPU cycles.
+// CPU cycles per audio sample = CPU_CLK / srate.
+// LFSR clocks per audio sample = (CPU_CLK / srate) / period.
+
+function apu_noise_set_period(idx)
+  local(base, period, cpus_per_sample)
+(
+  base = apu.noise_base;
+  idx = idx & 15;
+  base[3] = idx;
+
+  period = apu.noise_period_table[idx];
+  cpus_per_sample = apu.CPU_CLK / srate;
+  base[2] = cpus_per_sample / period;  // LFSR clocks per audio sample
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_noise_set_mode(m)
+// ---------------------------------------------------------------------------
+// m: 0 = long mode (feedback from bit 1, 32767-step sequence)
+//    1 = short mode (feedback from bit 6, 93-step sequence)
+
+function apu_noise_set_mode(m)
+  local(base)
+(
+  base = apu.noise_base;
+  base[4] = m ? 1 : 0;
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_noise_set_volume(vol)
+// ---------------------------------------------------------------------------
+
+function apu_noise_set_volume(vol)
+  local(base)
+(
+  base = apu.noise_base;
+  base[5] = vol & 15;
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_noise_set_enabled(en)
+// ---------------------------------------------------------------------------
+
+function apu_noise_set_enabled(en)
+  local(base)
+(
+  base = apu.noise_base;
+  base[6] = en ? 1 : 0;
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_noise_clock_lfsr() -- advance the shift register one step
+// ---------------------------------------------------------------------------
+
+function apu_noise_clock_lfsr()
+  local(base, sr, feedback, tap)
+(
+  base = apu.noise_base;
+  sr = base[0];
+
+  // Select feedback tap: bit 1 (long) or bit 6 (short)
+  tap = base[4] == 0 ? 1 : 6;
+
+  // feedback = bit 0 XOR bit <tap>
+  feedback = ((sr & 1) ^ ((sr >> tap) & 1));
+
+  // Shift right, set bit 14 to feedback
+  sr = (sr >> 1) | (feedback << 14);
+
+  // Mask to 15 bits
+  sr = sr & 0x7FFF;
+
+  // Ensure non-zero (safety -- shouldn't happen with correct init)
+  sr == 0 ? sr = 1;
+
+  base[0] = sr;
+);
+
+
+// ---------------------------------------------------------------------------
+//  apu_noise_process() -- call once per @sample
+// ---------------------------------------------------------------------------
+// Advances the LFSR by the correct number of clocks for this audio sample
+// and returns the digital output (0..15).
+
+function apu_noise_process()
+  local(base, acc, inc, clocks, i, sr, vol, out)
+(
+  base = apu.noise_base;
+
+  base[6] == 0 ? (
+    base[7] = 0;
+    0;
+  ) : (
+    acc = base[1];
+    inc = base[2];
+    vol = base[5];
+
+    // Accumulate timer -- each integer crossing = one LFSR clock
+    acc += inc;
+    clocks = floor(acc);
+    acc -= clocks;
+    base[1] = acc;
+
+    // Clock the LFSR
+    i = 0;
+    loop(clocks,
+      apu_noise_clock_lfsr();
+      i += 1;
+    );
+
+    // Output: when bit 0 of shift_reg is 0, output volume; else 0
+    sr = base[0];
+    out = (sr & 1) == 0 ? vol : 0;
+
+    base[7] = out;
+    out;
+  );
+);

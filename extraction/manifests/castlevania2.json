@@ -1,0 +1,112 @@
+{
+  "game": "Castlevania II: Simon's Quest",
+  "rom_file": "extraction/roms/cv2.nes",
+  "status": "INVESTIGATION",
+
+  "driver": {
+    "family": "konami_fujio",
+    "family_status": "hypothesis",
+    "notes": "Shares period table values with Maezawa but different encoding, architecture, and envelope model. Hierarchical phrase system with chaining, not flat streams."
+  },
+
+  "rom_layout": {
+    "mapper": 1,
+    "mapper_name": "MMC1",
+    "prg_banks": 8,
+    "prg_size_kb": 128,
+    "resolver_method": "bank_switched_mmc1",
+    "sound_bank": 0,
+    "sound_bank_status": "hypothesis",
+    "fixed_bank": "last"
+  },
+
+  "period_table": {
+    "rom_offset": "0x01C1D",
+    "cpu_address": "0x9C1D",
+    "bank": 0,
+    "entry_count": 32,
+    "entry_size": 2,
+    "byte_order": "little_endian",
+    "range": "E1 (MIDI 28) through B3 (MIDI 59)",
+    "structure": "multi_octave_flat",
+    "structure_notes": "Pre-computed 2.67 octaves. Same frequencies as Maezawa 12-entry table but indexed directly (no runtime octave shift).",
+    "status": "verified"
+  },
+
+  "phrase_library": {
+    "rom_offset": "0x00B60",
+    "cpu_address": "0x8B50",
+    "bank": 0,
+    "entry_count": 30,
+    "entry_size": 2,
+    "format": "pointer_to_phrase",
+    "status": "verified"
+  },
+
+  "song_table": {
+    "rom_offset": "0x00CE0",
+    "cpu_address": "0x8CD0",
+    "bank": 0,
+    "entry_count": 17,
+    "entry_size": 2,
+    "format": "pointer_to_song_data",
+    "padding_pointer": "0x8E15",
+    "status": "verified"
+  },
+
+  "note_encoding": {
+    "format": "combined_byte",
+    "bit_7": "flag (long/tied/modified)",
+    "bits_6_5": "duration_class (0-3)",
+    "bits_4_0": "period_table_index (0-31)",
+    "status": "hypothesis",
+    "notes": "Consistent with observed data but not confirmed via disassembly"
+  },
+
+  "commands": {
+    "FF": {"meaning": "end_marker", "status": "verified"},
+    "FE": {"meaning": "repeat", "params": 1, "status": "verified"},
+    "FB": {"meaning": "parameter_prefix", "params": 1, "status": "hypothesis"},
+    "F0-F7": {"meaning": "phrase_chain", "params": 0, "status": "hypothesis", "notes": "Fx chains to phrase x in the phrase library"},
+    "C0": {"meaning": "rest", "status": "hypothesis"},
+    "80-BF": {"meaning": "modified_note", "status": "hypothesis"}
+  },
+
+  "envelope_model": {
+    "type": "unknown",
+    "max_volume": 6,
+    "shape": "3-frame attack-decay, sustain at 1",
+    "notes": "Not parametric (CV1), not lookup (Contra). Possibly hardware APU decay or very simple software table.",
+    "status": "hypothesis"
+  },
+
+  "trace": {
+    "file": "extraction/traces/cv2/bloody_tears.csv",
+    "track": "Bloody Tears (track 02)",
+    "frames": 3688,
+    "duration_seconds": 61.5,
+    "channels_active": ["pulse1", "pulse2", "triangle", "noise", "dmc"],
+    "dmc_dac_changes": 449,
+    "capture_date": "2026-03-29"
+  },
+
+  "tracks": {
+    "total_estimated": 15,
+    "extracted": 0,
+    "bloody_tears_phrases": [19, 5, 6, 20],
+    "notes": "Phrase numbers that contain Bloody Tears chromatic bass fragments"
+  },
+
+  "validation": {
+    "reference_track": "bloody_tears",
+    "pitch_mismatches": null,
+    "volume_mismatches": null,
+    "last_validated": null
+  },
+
+  "anomalies": [
+    "Period write jitter: pulse periods appear as N and N+2 on alternating frames (driver writes low/high bytes across 2 frames)",
+    "Max volume capped at 6 (not 15) — possibly UNKNOWN_SOUND_01 or deliberate design",
+    "Bytes 0x20-0x3F in song-level data might be phrase indices, not notes — encoding unclear at song level"
+  ]
+}

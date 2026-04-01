@@ -1,0 +1,914 @@
+desc:ReapNES APU - NES 2A03 Synth
+tags:instrument synthesizer chiptune NES 8-bit
+in_pin:none
+out_pin:Left
+out_pin:Right
+
+slider1:2<0,3,1{12.5%,25%,50%,75%}>P1 Duty
+slider2:15<0,15,1>P1 Volume
+slider3:1<0,1,1{Off,On}>P1 Enable
+slider4:1<0,3,1{12.5%,25%,50%,75%}>P2 Duty
+slider5:15<0,15,1>P2 Volume
+slider6:1<0,1,1{Off,On}>P2 Enable
+slider7:1<0,1,1{Off,On}>Tri Enable
+slider8:0<0,15,1>Noise Period (0-15)
+slider9:0<0,1,1{Long,Short}>Noise Mode
+slider10:15<0,15,1>Noise Volume
+slider11:1<0,1,1{Off,On}>Noise Enable
+slider12:0.8<0,1,0.01>Master Gain
+slider13:4<0,4,1{Pulse 1 Only,Pulse 2 Only,Triangle Only,Noise/Drums Only,Full APU (All)}>Channel Mode
+slider14:1<0,2,1{Off,NES Sustain,NES Decay}>Live Patch
+slider15:0<0,1,1{Off,On}>Debug Overlay
+
+@init
+cpu_clk = 1789773;
+
+// Duty cycle tables (4 x 8 steps)
+dt = 0;
+dt[0]=0; dt[1]=1; dt[2]=0; dt[3]=0; dt[4]=0; dt[5]=0; dt[6]=0; dt[7]=0;
+dt[8]=0; dt[9]=1; dt[10]=1; dt[11]=0; dt[12]=0; dt[13]=0; dt[14]=0; dt[15]=0;
+dt[16]=0; dt[17]=1; dt[18]=1; dt[19]=1; dt[20]=1; dt[21]=0; dt[22]=0; dt[23]=0;
+dt[24]=1; dt[25]=0; dt[26]=0; dt[27]=1; dt[28]=1; dt[29]=1; dt[30]=1; dt[31]=1;
+
+// Triangle waveform (32 steps)
+tt = 32;
+tt[0]=15; tt[1]=14; tt[2]=13; tt[3]=12; tt[4]=11; tt[5]=10; tt[6]=9; tt[7]=8;
+tt[8]=7; tt[9]=6; tt[10]=5; tt[11]=4; tt[12]=3; tt[13]=2; tt[14]=1; tt[15]=0;
+tt[16]=0; tt[17]=1; tt[18]=2; tt[19]=3; tt[20]=4; tt[21]=5; tt[22]=6; tt[23]=7;
+tt[24]=8; tt[25]=9; tt[26]=10; tt[27]=11; tt[28]=12; tt[29]=13; tt[30]=14; tt[31]=15;
+
+// Noise period table (CPU cycles per LFSR clock)
+np = 64;
+np[0]=4; np[1]=8; np[2]=16; np[3]=32; np[4]=64; np[5]=96; np[6]=128; np[7]=160;
+np[8]=202; np[9]=254; np[10]=380; np[11]=508; np[12]=762; np[13]=1016; np[14]=2034; np[15]=4068;
+
+// Drum mapping table (memory offset 80)
+// Each drum: period_idx, mode, attack_vol, decay_rate (samples to lose 1 vol level)
+// Indexed by GM drum note - 35 (so note 35 = index 0, note 57 = index 22)
+// 4 values per entry, base offset 80
+dm = 80;
+// Note 35: Kick 2        period=14(low), mode=0(long), vol=15, decay=600
+dm[0]=14; dm[1]=0; dm[2]=15; dm[3]=600;
+// Note 36: Kick 1         period=13(low), mode=0(long), vol=15, decay=500
+dm[4]=13; dm[5]=0; dm[6]=15; dm[7]=500;
+// Note 37: Side Stick     period=3(high), mode=1(short), vol=10, decay=200
+dm[8]=3; dm[9]=1; dm[10]=10; dm[11]=200;
+// Note 38: Snare          period=6(mid), mode=0(long), vol=15, decay=350
+dm[12]=6; dm[13]=0; dm[14]=15; dm[15]=350;
+// Note 39: Clap           period=5(mid), mode=0(long), vol=13, decay=300
+dm[16]=5; dm[17]=0; dm[18]=13; dm[19]=300;
+// Note 40: Snare 2        period=7(mid), mode=0(long), vol=15, decay=400
+dm[20]=7; dm[21]=0; dm[22]=15; dm[23]=400;
+// Note 41: Low Tom        period=11(low), mode=0(long), vol=14, decay=500
+dm[24]=11; dm[25]=0; dm[26]=14; dm[27]=500;
+// Note 42: Closed HH      period=1(high), mode=1(short), vol=10, decay=100
+dm[28]=1; dm[29]=1; dm[30]=10; dm[31]=100;
+// Note 43: Low Tom 2      period=10(low), mode=0(long), vol=14, decay=450
+dm[32]=10; dm[33]=0; dm[34]=14; dm[35]=450;
+// Note 44: Pedal HH       period=1(high), mode=1(short), vol=8, decay=80
+dm[36]=1; dm[37]=1; dm[38]=8; dm[39]=80;
+// Note 45: Mid Tom        period=8(mid), mode=0(long), vol=14, decay=400
+dm[40]=8; dm[41]=0; dm[42]=14; dm[43]=400;
+// Note 46: Open HH        period=2(high), mode=0(long), vol=11, decay=250
+dm[44]=2; dm[45]=0; dm[46]=11; dm[47]=250;
+// Note 47: Mid Tom 2      period=9(mid), mode=0(long), vol=14, decay=400
+dm[48]=9; dm[49]=0; dm[50]=14; dm[51]=400;
+// Note 48: Hi Tom         period=6(mid-hi), mode=0(long), vol=13, decay=350
+dm[52]=6; dm[53]=0; dm[54]=13; dm[55]=350;
+// Note 49: Crash          period=3(high), mode=0(long), vol=13, decay=800
+dm[56]=3; dm[57]=0; dm[58]=13; dm[59]=800;
+// Note 50: Hi Tom 2       period=5(mid-hi), mode=0(long), vol=13, decay=350
+dm[60]=5; dm[61]=0; dm[62]=13; dm[63]=350;
+// Note 51: Ride           period=2(high), mode=0(long), vol=9, decay=300
+dm[64]=2; dm[65]=0; dm[66]=9; dm[67]=300;
+// Note 52-54: spare
+dm[68]=4; dm[69]=0; dm[70]=10; dm[71]=300;
+dm[72]=4; dm[73]=0; dm[74]=10; dm[75]=300;
+dm[76]=4; dm[77]=0; dm[78]=10; dm[79]=300;
+// Note 55: Splash         period=2(high), mode=0(long), vol=11, decay=600
+dm[80]=2; dm[81]=0; dm[82]=11; dm[83]=600;
+// Note 56: Cowbell        period=4(mid), mode=1(short), vol=12, decay=200
+dm[84]=4; dm[85]=1; dm[86]=12; dm[87]=200;
+// Note 57: Crash 2        period=3(high), mode=0(long), vol=13, decay=900
+dm[88]=3; dm[89]=0; dm[90]=13; dm[91]=900;
+
+// Channel state
+p1_phase = 0; p1_inc = 0; p1_duty = 2; p1_vol = 15; p1_en = 0; p1_note = -1;
+p2_phase = 0; p2_inc = 0; p2_duty = 1; p2_vol = 15; p2_en = 0; p2_note = -1;
+tri_phase = 0; tri_inc = 0; tri_en = 0; tri_note = -1;
+lfsr = 1; lfsr_acc = 0; noi_vol = 15; noi_en = 0; noi_period_idx = 4;
+noi_mode = 0; noi_note = -1;
+
+// Drum envelope state
+drum_vol = 0;        // current drum volume (0-15, fractional)
+drum_decay = 0;      // samples per volume step decrease
+drum_timer = 0;      // countdown to next volume decrease
+drum_active = 0;     // is a drum hit currently decaying?
+drum_name = -1;      // GM note number of current drum (for display)
+
+// UI state
+ui_drag = -1;
+ui_last_click = 0;
+
+// -------------------------------------------------------------------------
+// Live Patch system -- gives live keyboard input NES-authentic envelopes
+// when no CC automation (CC11/CC12) is driving the channel.
+//
+// Per-channel state:
+//   lp_cc_active[ch] = 1 when CC11 or CC12 has been received (file mode)
+//   lp_env_vol[ch]   = current envelope volume (fractional 0-15)
+//   lp_env_phase[ch] = 0=attack, 1=sustain, 2=decay, 3=off
+//   lp_env_timer[ch] = samples remaining in current phase
+//   lp_vel[ch]       = velocity-derived peak volume for this note
+//
+// Envelope parameters (samples at 44100):
+//   Attack:  instant (1 sample to peak -- matches NES hardware)
+//   Sustain: holds peak for lp_sustain_time samples
+//   Decay:   linear ramp from peak to 0 over lp_decay_time samples
+// -------------------------------------------------------------------------
+lp_cc_active = 500;     // memory offset for 4 channels
+lp_cc_active[0] = 0; lp_cc_active[1] = 0; lp_cc_active[2] = 0; lp_cc_active[3] = 0;
+
+lp_env_vol = 510;
+lp_env_vol[0] = 0; lp_env_vol[1] = 0; lp_env_vol[2] = 0; lp_env_vol[3] = 0;
+
+lp_env_phase = 520;     // 0=attack, 1=sustain, 2=decay, 3=off
+lp_env_phase[0] = 3; lp_env_phase[1] = 3; lp_env_phase[2] = 3; lp_env_phase[3] = 3;
+
+lp_env_timer = 530;
+lp_env_timer[0] = 0; lp_env_timer[1] = 0; lp_env_timer[2] = 0; lp_env_timer[3] = 0;
+
+lp_vel = 540;
+lp_vel[0] = 15; lp_vel[1] = 15; lp_vel[2] = 15; lp_vel[3] = 15;
+
+lp_note_held = 550;     // 1 if note is currently held (for sustain mode)
+lp_note_held[0] = 0; lp_note_held[1] = 0; lp_note_held[2] = 0; lp_note_held[3] = 0;
+
+// Envelope timing (in samples -- recalculated for srate)
+lp_sustain_time = 0;    // computed in @slider from srate
+lp_decay_time = 0;
+
+// Debug counters
+dbg_cc11_count = 0;
+dbg_cc12_count = 0;
+dbg_noteon_count = 0;
+dbg_live_env_count = 0;
+dbg_last_src = 560;     // per-channel: 0=none, 1=live, 2=cc-driven
+dbg_last_src[0] = 0; dbg_last_src[1] = 0; dbg_last_src[2] = 0; dbg_last_src[3] = 0;
+
+// Live Patch envelope trigger
+function lp_trigger_env(ch, velocity) (
+  lp_vel[ch] = floor(velocity / 127 * 15 + 0.5);
+  lp_env_vol[ch] = lp_vel[ch];
+  lp_env_phase[ch] = 1;  // go straight to sustain (instant attack)
+  lp_env_timer[ch] = lp_sustain_time;
+  lp_note_held[ch] = 1;
+  dbg_live_env_count += 1;
+  dbg_last_src[ch] = 1;
+);
+
+// Live Patch note release -- enter decay
+function lp_release_env(ch) (
+  lp_note_held[ch] = 0;
+  // In sustain mode, start decay on release
+  // In decay mode, note may already be decaying -- let it continue
+  lp_env_phase[ch] == 1 ? (
+    lp_env_phase[ch] = 2;
+    lp_env_timer[ch] = lp_decay_time;
+  );
+);
+
+function note2hz(n) ( 440 * 2 ^ ((n - 69) / 12); );
+
+// Live Patch per-sample envelope processor (called from @sample)
+function lp_process_env(ch)
+  local(phase, timer, vol, peak)
+(
+  phase = lp_env_phase[ch];
+  phase < 3 ? (
+    timer = lp_env_timer[ch];
+    vol = lp_env_vol[ch];
+    peak = lp_vel[ch];
+
+    phase == 1 ? (
+      // Sustain: hold at peak volume
+      vol = peak;
+      slider14 == 2 ? (
+        // NES Decay mode: auto-decay even while held
+        timer -= 1;
+        timer <= 0 ? (
+          lp_env_phase[ch] = 2;
+          lp_env_timer[ch] = lp_decay_time;
+        ) : (
+          lp_env_timer[ch] = timer;
+        );
+      );
+      // NES Sustain mode (slider14==1): hold until note-off triggers release
+    );
+
+    phase == 2 ? (
+      // Decay: linear ramp from peak to 0
+      timer -= 1;
+      timer <= 0 ? (
+        vol = 0;
+        lp_env_phase[ch] = 3;  // off
+        // Turn off channel when envelope finishes
+        ch == 0 ? ( p1_en = 0; p1_note = -1; );
+        ch == 1 ? ( p2_en = 0; p2_note = -1; );
+        ch == 2 ? ( tri_en = 0; tri_note = -1; );
+        ch == 3 ? ( noi_en = 0; noi_note = -1; );
+      ) : (
+        vol = peak * (timer / lp_decay_time);
+        lp_env_timer[ch] = timer;
+      );
+    );
+
+    lp_env_vol[ch] = vol;
+
+    // Apply volume to channel (triangle has no volume control)
+    ch == 0 ? p1_vol = floor(vol + 0.5);
+    ch == 1 ? p2_vol = floor(vol + 0.5);
+    ch == 3 ? noi_vol = floor(vol + 0.5);
+  );
+);
+
+function calc_pulse_inc(freq) local(period, f) (
+  period = cpu_clk / (16 * freq) - 1;
+  period = max(0, min(2047, floor(period + 0.5)));
+  f = cpu_clk / (16 * (period + 1));
+  8.0 * f / srate;
+);
+
+function calc_tri_inc(freq) local(period, f) (
+  period = cpu_clk / (32 * freq) - 1;
+  period = max(0, min(2047, floor(period + 0.5)));
+  f = cpu_clk / (32 * (period + 1));
+  32.0 * f / srate;
+);
+
+// Trigger a drum hit from a GM drum note
+function trigger_drum(gm_note, velocity) local(idx, base) (
+  idx = gm_note - 35;
+  idx >= 0 && idx <= 22 ? (
+    base = idx * 4;
+    noi_period_idx = dm[base];
+    noi_mode = dm[base + 1];
+    drum_vol = dm[base + 2] * (velocity / 127);
+    drum_decay = dm[base + 3];
+    drum_timer = drum_decay;
+    drum_active = 1;
+    drum_name = gm_note;
+    noi_vol = floor(drum_vol + 0.5);
+    noi_en = 1;
+    slider8 = noi_period_idx;
+    slider9 = noi_mode;
+    slider10 = noi_vol;
+  );
+);
+
+@slider
+p1_duty = slider1;
+p1_vol = slider2;
+p2_duty = slider4;
+p2_vol = slider5;
+noi_period_idx = slider8;
+noi_mode = slider9;
+noi_vol = slider10;
+
+// Recalculate Live Patch envelope timing for current sample rate
+// Sustain: ~200ms hold at peak, Decay: ~300ms linear ramp to 0
+lp_sustain_time = floor(srate * 0.20 + 0.5);
+lp_decay_time   = floor(srate * 0.30 + 0.5);
+
+// When Live Patch mode changes, reset CC tracking
+slider14 == 0 ? (
+  lp_cc_active[0] = 0; lp_cc_active[1] = 0;
+  lp_cc_active[2] = 0; lp_cc_active[3] = 0;
+);
+
+@block
+// Channel mode: 0=P1 only, 1=P2 only, 2=Tri only, 3=Noise only, 4=Full APU
+ch_mode = slider13;
+
+while (midirecv(offset, msg1, msg2, msg3)) (
+  status = msg1 & 0xF0;
+  ch = msg1 & 0x0F;
+
+  // Filter: in single-channel modes, only process MIDI on our channel
+  // use_msg = 1 if we should process this message, 0 if we should skip
+  use_msg = 1;
+  ch_mode < 4 ? (
+    ch != ch_mode ? use_msg = 0;
+  );
+
+  // --- Note On ---
+  use_msg && status == 0x90 && msg3 > 0 ? (
+    dbg_noteon_count += 1;
+
+    // Determine if this channel is in "live" mode (no CC automation seen)
+    // Live Patch applies duty from slider + volume envelope on note-on
+    lp_active = slider14 > 0 && !lp_cc_active[ch];
+
+    ch == 0 ? (
+      p1_note = msg2; p1_inc = calc_pulse_inc(note2hz(msg2));
+      lp_active ? (
+        // Live mode: use slider duty, envelope controls volume
+        p1_duty = slider1;
+        p1_vol = floor(msg3 / 127 * 15 + 0.5);
+        lp_trigger_env(0, msg3);
+      ) : (
+        // CC-driven mode (MIDI file): velocity sets initial volume
+        p1_vol = floor(msg3 / 127 * 15 + 0.5);
+        dbg_last_src[0] = 2;
+      );
+      p1_en = 1;
+    );
+    ch == 1 ? (
+      p2_note = msg2; p2_inc = calc_pulse_inc(note2hz(msg2));
+      lp_active ? (
+        p2_duty = slider4;
+        p2_vol = floor(msg3 / 127 * 15 + 0.5);
+        lp_trigger_env(1, msg3);
+      ) : (
+        p2_vol = floor(msg3 / 127 * 15 + 0.5);
+        dbg_last_src[1] = 2;
+      );
+      p2_en = 1;
+    );
+    ch == 2 ? (
+      tri_note = msg2; tri_inc = calc_tri_inc(note2hz(msg2));
+      lp_active ? lp_trigger_env(2, msg3);
+      dbg_last_src[2] = lp_active ? 1 : 2;
+      tri_en = 1;
+    );
+    ch == 3 ? (
+      // Drum mode: map GM drum notes to NES noise parameters with envelope
+      msg2 >= 35 && msg2 <= 57 ? (
+        trigger_drum(msg2, msg3);
+      ) : (
+        // Non-drum note on noise channel: use as pitched noise
+        noi_note = msg2; noi_period_idx = floor(msg2 / 8);
+        noi_vol = floor(msg3 / 127 * 15 + 0.5); noi_en = 1;
+        drum_active = 0;
+        lp_active ? lp_trigger_env(3, msg3);
+        dbg_last_src[3] = lp_active ? 1 : 2;
+      );
+    );
+  );
+
+  // --- Note Off ---
+  use_msg && (status == 0x80 || (status == 0x90 && msg3 == 0)) ? (
+    ch == 0 && msg2 == p1_note ? (
+      slider14 > 0 && !lp_cc_active[0] ? (
+        // Live mode: trigger release decay instead of instant off
+        lp_release_env(0);
+        slider14 == 1 ? ( p1_en = 0; p1_note = -1; );
+        // In Decay mode (slider14==2), keep p1_en=1, envelope handles fade
+      ) : (
+        p1_en = 0; p1_note = -1;
+      );
+    );
+    ch == 1 && msg2 == p2_note ? (
+      slider14 > 0 && !lp_cc_active[1] ? (
+        lp_release_env(1);
+        slider14 == 1 ? ( p2_en = 0; p2_note = -1; );
+      ) : (
+        p2_en = 0; p2_note = -1;
+      );
+    );
+    ch == 2 && msg2 == tri_note ? (
+      slider14 > 0 && !lp_cc_active[2] ? (
+        lp_release_env(2);
+        slider14 == 1 ? ( tri_en = 0; tri_note = -1; );
+      ) : (
+        tri_en = 0; tri_note = -1;
+      );
+    );
+    ch == 3 && !drum_active && msg2 == noi_note ? (
+      slider14 > 0 && !lp_cc_active[3] ? (
+        lp_release_env(3);
+        slider14 == 1 ? ( noi_en = 0; noi_note = -1; );
+      ) : (
+        noi_en = 0; noi_note = -1;
+      );
+    );
+  );
+
+  // CC1 (mod wheel): duty cycle via 0-127 range (legacy)
+  use_msg && status == 0xB0 && msg2 == 1 ? (
+    ch == 0 ? ( p1_duty = floor(msg3 / 32); slider1 = p1_duty; );
+    ch == 1 ? ( p2_duty = floor(msg3 / 32); slider4 = p2_duty; );
+  );
+
+  // CC11 (expression): volume change mid-note (nesmdb standard, 0-127)
+  // Marks channel as CC-driven (disables Live Patch for this channel)
+  use_msg && status == 0xB0 && msg2 == 11 ? (
+    lp_cc_active[ch] = 1;
+    dbg_cc11_count += 1;
+    dbg_last_src[ch] = 2;
+    ch == 0 ? ( p1_vol = floor(msg3 / 127 * 15 + 0.5); slider2 = p1_vol; );
+    ch == 1 ? ( p2_vol = floor(msg3 / 127 * 15 + 0.5); slider5 = p2_vol; );
+    ch == 3 ? ( noi_vol = floor(msg3 / 127 * 15 + 0.5); slider10 = noi_vol; );
+  );
+
+  // CC12 (timbre): duty cycle via NES value 0-3 (nesmdb standard)
+  // Marks channel as CC-driven (disables Live Patch for this channel)
+  use_msg && status == 0xB0 && msg2 == 12 ? (
+    lp_cc_active[ch] = 1;
+    dbg_cc12_count += 1;
+    dbg_last_src[ch] = 2;
+    ch == 0 ? ( p1_duty = min(3, msg3); slider1 = p1_duty; );
+    ch == 1 ? ( p2_duty = min(3, msg3); slider4 = p2_duty; );
+  );
+
+  // CC123 (all notes off) or CC121 (reset all controllers): reset Live Patch state
+  use_msg && status == 0xB0 && (msg2 == 123 || msg2 == 121) ? (
+    lp_cc_active[0] = 0; lp_cc_active[1] = 0;
+    lp_cc_active[2] = 0; lp_cc_active[3] = 0;
+    lp_env_phase[0] = 3; lp_env_phase[1] = 3;
+    lp_env_phase[2] = 3; lp_env_phase[3] = 3;
+  );
+
+  // Pitch bend
+  use_msg && status == 0xE0 ? (
+    pb = ((msg3 << 7) | msg2) - 8192;
+    pb_semi = pb / 8192 * 2;
+    ch == 0 && p1_note >= 0 ? p1_inc = calc_pulse_inc(note2hz(p1_note + pb_semi));
+    ch == 1 && p2_note >= 0 ? p2_inc = calc_pulse_inc(note2hz(p2_note + pb_semi));
+    ch == 2 && tri_note >= 0 ? tri_inc = calc_tri_inc(note2hz(tri_note + pb_semi));
+  );
+
+  midisend(offset, msg1, msg2, msg3);
+);
+
+@sample
+
+// --- Live Patch Envelope Processing ---
+// Runs per-sample for each channel in live mode.
+// Updates volume for pulse channels; for triangle, controls gate.
+slider14 > 0 ? (
+  !lp_cc_active[0] ? lp_process_env(0);
+  !lp_cc_active[1] ? lp_process_env(1);
+  !lp_cc_active[2] ? lp_process_env(2);
+  !lp_cc_active[3] ? lp_process_env(3);
+);
+
+// --- Pulse 1 ---
+p1_en && slider3 ? (
+  p1_out = dt[p1_duty * 8 + (floor(p1_phase) & 7)] * p1_vol;
+  p1_phase += p1_inc;
+  p1_phase >= 8.0 ? p1_phase -= 8.0;
+) : p1_out = 0;
+
+// --- Pulse 2 ---
+p2_en && slider6 ? (
+  p2_out = dt[p2_duty * 8 + (floor(p2_phase) & 7)] * p2_vol;
+  p2_phase += p2_inc;
+  p2_phase >= 8.0 ? p2_phase -= 8.0;
+) : p2_out = 0;
+
+// --- Triangle ---
+tri_en && slider7 ? (
+  tri_out = tt[floor(tri_phase) & 31];
+  tri_phase += tri_inc;
+  tri_phase >= 32.0 ? tri_phase -= 32.0;
+) : tri_out = 0;
+
+// --- Noise with drum envelope ---
+// Process drum decay envelope
+drum_active ? (
+  drum_timer -= 1;
+  drum_timer <= 0 ? (
+    drum_vol -= 1;
+    drum_vol <= 0 ? (
+      drum_vol = 0;
+      drum_active = 0;
+      noi_en = 0;
+      drum_name = -1;
+    ) : (
+      drum_timer = drum_decay;
+    );
+    noi_vol = floor(drum_vol + 0.5);
+    slider10 = noi_vol;
+  );
+);
+
+noi_en && slider11 ? (
+  noi_rate = cpu_clk / (np[noi_period_idx & 15] * srate);
+  lfsr_acc += noi_rate;
+  lfsr_acc >= 1.0 ? (
+    lfsr_acc -= 1.0;
+    noi_mode ? (
+      fb = ((lfsr & 1) + ((lfsr >> 6) & 1)) & 1;
+    ) : (
+      fb = ((lfsr & 1) + ((lfsr >> 1) & 1)) & 1;
+    );
+    lfsr = (lfsr >> 1) | (fb << 14);
+  );
+  noi_out = (lfsr & 1) ? 0 : noi_vol;
+) : noi_out = 0;
+
+// --- Mix (only active channels contribute, no DC offset from inactive ones) ---
+mix = 0;
+n_active = 0;
+p1_en ? ( mix += (p1_out / 15.0 - 0.5) * 0.5; n_active += 1; );
+p2_en ? ( mix += (p2_out / 15.0 - 0.5) * 0.5; n_active += 1; );
+tri_en ? ( mix += (tri_out / 15.0 - 0.5) * 0.4; n_active += 1; );
+noi_en ? ( mix += (noi_out / 15.0 - 0.5) * 0.3; n_active += 1; );
+
+n_active > 0 ? (
+  out = mix * slider12;
+  spl0 = out;
+  spl1 = out;
+) : (
+  spl0 = 0;
+  spl1 = 0;
+);
+
+// =========================================================================
+@gfx 620 420
+
+gfx_clear = 0x1A1A2E;
+
+// --- Layout constants ---
+scope_h = 180;
+ctrl_y = scope_h + 8;
+row_h = 32;
+lbl_w = 36;
+bar_x = 160;
+bar_w = 200;
+btn_x = 380;
+col_r = gfx_w - 10;
+
+// --- Ring buffer for scope ---
+gfx_ring = 200;
+gfx_ring_len = 500;
+gfx_ring_pos >= gfx_ring_len ? gfx_ring_pos = 0;
+
+gfx_ring[gfx_ring_pos]                     = p1_out / 15;
+gfx_ring[gfx_ring_pos + gfx_ring_len]      = p2_out / 15;
+gfx_ring[gfx_ring_pos + gfx_ring_len * 2]  = tri_out / 15;
+gfx_ring[gfx_ring_pos + gfx_ring_len * 3]  = noi_out / 15;
+gfx_ring[gfx_ring_pos + gfx_ring_len * 4]  = out * 2;
+gfx_ring_pos += 1;
+
+// --- Draw oscilloscope ---
+gfx_setfont(1, "Arial", 12);
+
+function draw_scope(ch_off, yc, r, g, b, label)
+  local(i, idx, val, y)
+(
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.85;
+  gfx_x = 4; gfx_y = yc - 8;
+  gfx_drawstr(label);
+  gfx_a = 0.7;
+  i = 0;
+  loop(min(gfx_w - 40, gfx_ring_len),
+    idx = (gfx_ring_pos + i) % gfx_ring_len + ch_off;
+    val = gfx_ring[idx];
+    y = yc - val * 14;
+    i == 0 ? ( gfx_x = 36; gfx_y = y; )
+    : gfx_lineto(36 + i, y);
+    i += 1;
+  );
+);
+
+lane_h = scope_h / 5;
+draw_scope(0,                   lane_h * 0.5, 0.3, 0.9, 0.4, "P1");
+draw_scope(gfx_ring_len,        lane_h * 1.5, 0.4, 0.7, 0.9, "P2");
+draw_scope(gfx_ring_len * 2,    lane_h * 2.5, 0.9, 0.6, 0.2, "TRI");
+draw_scope(gfx_ring_len * 3,    lane_h * 3.5, 0.7, 0.7, 0.7, "NOI");
+draw_scope(gfx_ring_len * 4,    lane_h * 4.5, 1.0, 1.0, 1.0, "MIX");
+
+// Scope separators
+gfx_r = 0.25; gfx_g = 0.25; gfx_b = 0.35; gfx_a = 1;
+i = 1;
+loop(4,
+  gfx_line(0, lane_h * i, gfx_w, lane_h * i);
+  i += 1;
+);
+gfx_line(0, scope_h, gfx_w, scope_h);
+
+// --- Helper: draw horizontal slider bar ---
+function draw_hslider(x, y, w, h, val, vmin, vmax, r, g, b, label)
+  local(fill_w, mx, my, nv)
+(
+  gfx_r = 0.15; gfx_g = 0.15; gfx_b = 0.2; gfx_a = 1;
+  gfx_rect(x, y, w, h);
+  fill_w = ((val - vmin) / (vmax - vmin)) * w;
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.8;
+  gfx_rect(x, y, fill_w, h);
+  gfx_r = 0.4; gfx_g = 0.4; gfx_b = 0.5; gfx_a = 1;
+  gfx_roundrect(x, y, w, h, 2);
+  gfx_r = 1; gfx_g = 1; gfx_b = 1; gfx_a = 0.9;
+  gfx_x = x + w + 6; gfx_y = y + 2;
+  vmax <= 1 ? (
+    gfx_printf("%.2f", val);
+  ) : (
+    gfx_printf("%d", floor(val + 0.5));
+  );
+  mouse_cap & 1 ? (
+    mx = mouse_x; my = mouse_y;
+    mx >= x && mx <= x + w && my >= y && my <= y + h ? (
+      nv = vmin + (mx - x) / w * (vmax - vmin);
+      nv = max(vmin, min(vmax, nv));
+      vmax > 1 ? nv = floor(nv + 0.5);
+      nv;
+    ) : val;
+  ) : val;
+);
+
+// --- Helper: draw toggle button ---
+function draw_toggle(x, y, w, h, val, r, g, b, label)
+  local(mx, my, clicked)
+(
+  val ? (
+    gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.7;
+  ) : (
+    gfx_r = 0.2; gfx_g = 0.2; gfx_b = 0.25; gfx_a = 1;
+  );
+  gfx_rect(x, y, w, h);
+  gfx_r = 0.5; gfx_g = 0.5; gfx_b = 0.6; gfx_a = 1;
+  gfx_roundrect(x, y, w, h, 2);
+  gfx_r = 1; gfx_g = 1; gfx_b = 1; gfx_a = 0.9;
+  gfx_x = x + 4; gfx_y = y + 3;
+  gfx_drawstr(label);
+  mx = mouse_x; my = mouse_y;
+  (mouse_cap & 1) && mx >= x && mx <= x + w && my >= y && my <= y + h ? (
+    ui_last_click == 0 ? (
+      ui_last_click = 1;
+      val ? 0 : 1;
+    ) : val;
+  ) : (
+    !(mouse_cap & 1) ? ui_last_click = 0;
+    val;
+  );
+);
+
+// --- Helper: duty cycle selector ---
+function draw_duty_sel(x, y, w, h, val, r, g, b)
+  local(mx, my)
+(
+  gfx_r = 0.12; gfx_g = 0.12; gfx_b = 0.18; gfx_a = 1;
+  gfx_rect(x, y, w, h);
+  gfx_r = 0.5; gfx_g = 0.5; gfx_b = 0.6; gfx_a = 1;
+  gfx_roundrect(x, y, w, h, 2);
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.9;
+  gfx_x = x + 4; gfx_y = y + 3;
+  val == 0 ? gfx_drawstr("12.5%");
+  val == 1 ? gfx_drawstr("25%");
+  val == 2 ? gfx_drawstr("50%");
+  val == 3 ? gfx_drawstr("75%");
+  mx = mouse_x; my = mouse_y;
+  (mouse_cap & 1) && mx >= x && mx <= x + w && my >= y && my <= y + h ? (
+    ui_last_click == 0 ? (
+      ui_last_click = 1;
+      (val + 1) & 3;
+    ) : val;
+  ) : val;
+);
+
+// --- Helper: note name ---
+function draw_note_name(x, y, note)
+(
+  gfx_r = 1; gfx_g = 1; gfx_b = 0.7; gfx_a = 0.9;
+  gfx_x = x; gfx_y = y;
+  note >= 0 ? (
+    n = note % 12;
+    oct = floor(note / 12) - 1;
+    n == 0 ? gfx_drawstr("C");
+    n == 1 ? gfx_drawstr("C#");
+    n == 2 ? gfx_drawstr("D");
+    n == 3 ? gfx_drawstr("D#");
+    n == 4 ? gfx_drawstr("E");
+    n == 5 ? gfx_drawstr("F");
+    n == 6 ? gfx_drawstr("F#");
+    n == 7 ? gfx_drawstr("G");
+    n == 8 ? gfx_drawstr("G#");
+    n == 9 ? gfx_drawstr("A");
+    n == 10 ? gfx_drawstr("A#");
+    n == 11 ? gfx_drawstr("B");
+    gfx_printf("%d", oct);
+  ) : (
+    gfx_drawstr("--");
+  );
+);
+
+// --- Helper: drum name ---
+function draw_drum_name(x, y, gm_note)
+(
+  gfx_r = 1; gfx_g = 0.8; gfx_b = 0.5; gfx_a = 0.9;
+  gfx_x = x; gfx_y = y;
+  gm_note == 35 ? gfx_drawstr("KICK2");
+  gm_note == 36 ? gfx_drawstr("KICK");
+  gm_note == 37 ? gfx_drawstr("STICK");
+  gm_note == 38 ? gfx_drawstr("SNARE");
+  gm_note == 39 ? gfx_drawstr("CLAP");
+  gm_note == 40 ? gfx_drawstr("SNARE2");
+  gm_note == 41 ? gfx_drawstr("LTOM");
+  gm_note == 42 ? gfx_drawstr("CHH");
+  gm_note == 43 ? gfx_drawstr("LTOM2");
+  gm_note == 44 ? gfx_drawstr("PHH");
+  gm_note == 45 ? gfx_drawstr("MTOM");
+  gm_note == 46 ? gfx_drawstr("OHH");
+  gm_note == 47 ? gfx_drawstr("MTOM2");
+  gm_note == 48 ? gfx_drawstr("HTOM");
+  gm_note == 49 ? gfx_drawstr("CRASH");
+  gm_note == 50 ? gfx_drawstr("HTOM2");
+  gm_note == 51 ? gfx_drawstr("RIDE");
+  gm_note == 55 ? gfx_drawstr("SPLSH");
+  gm_note == 57 ? gfx_drawstr("CRASH2");
+  gm_note < 0 ? gfx_drawstr("--");
+);
+
+// ========== DRAW CONTROLS ==========
+gfx_setfont(1, "Arial", 13);
+
+function draw_row_label(y, r, g, b, label)
+(
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 1;
+  gfx_x = 6; gfx_y = y + 5;
+  gfx_setfont(1, "Arial", 14);
+  gfx_drawstr(label);
+  gfx_setfont(1, "Arial", 12);
+);
+
+// Row Y positions
+r1 = ctrl_y + 4;
+r2 = r1 + row_h + 2;
+r3 = r2 + row_h + 2;
+r4 = r3 + row_h + 2;
+r5 = r4 + row_h + 6;
+r6 = r5 + row_h + 2;
+
+// --- PULSE 1 ---
+draw_row_label(r1, 0.3, 0.9, 0.4, "PULSE 1");
+nv = draw_duty_sel(80, r1+2, 52, 22, slider1, 0.3, 0.9, 0.4);
+nv != slider1 ? ( slider1 = nv; p1_duty = nv; );
+
+gfx_r=0.6; gfx_g=0.6; gfx_b=0.6; gfx_x = 140; gfx_y = r1+5; gfx_drawstr("Vol");
+nv = draw_hslider(166, r1+3, 140, 18, slider2, 0, 15, 0.3, 0.9, 0.4, "");
+nv != slider2 ? ( slider2 = nv; p1_vol = nv; );
+
+nv = draw_toggle(340, r1+2, 36, 22, slider3, 0.3, 0.9, 0.4, "ON");
+nv != slider3 ? slider3 = nv;
+
+draw_note_name(390, r1+5, p1_note);
+
+// --- PULSE 2 ---
+draw_row_label(r2, 0.4, 0.7, 0.9, "PULSE 2");
+nv = draw_duty_sel(80, r2+2, 52, 22, slider4, 0.4, 0.7, 0.9);
+nv != slider4 ? ( slider4 = nv; p2_duty = nv; );
+
+gfx_r=0.6; gfx_g=0.6; gfx_b=0.6; gfx_x = 140; gfx_y = r2+5; gfx_drawstr("Vol");
+nv = draw_hslider(166, r2+3, 140, 18, slider5, 0, 15, 0.4, 0.7, 0.9, "");
+nv != slider5 ? ( slider5 = nv; p2_vol = nv; );
+
+nv = draw_toggle(340, r2+2, 36, 22, slider6, 0.4, 0.7, 0.9, "ON");
+nv != slider6 ? slider6 = nv;
+
+draw_note_name(390, r2+5, p2_note);
+
+// --- TRIANGLE ---
+draw_row_label(r3, 0.9, 0.6, 0.2, "TRIANGLE");
+gfx_r=0.5; gfx_g=0.5; gfx_b=0.5; gfx_x = 80; gfx_y = r3+5; gfx_drawstr("(no vol ctrl)");
+
+nv = draw_toggle(340, r3+2, 36, 22, slider7, 0.9, 0.6, 0.2, "ON");
+nv != slider7 ? slider7 = nv;
+
+draw_note_name(390, r3+5, tri_note);
+
+// --- NOISE / DRUMS ---
+draw_row_label(r4, 0.7, 0.7, 0.7, "NOISE");
+
+nv = draw_toggle(80, r4+2, 48, 22, slider9, 0.7, 0.7, 0.7, noi_mode ? "Short" : "Long");
+nv != slider9 ? ( slider9 = nv; noi_mode = nv; );
+
+gfx_r=0.6; gfx_g=0.6; gfx_b=0.6; gfx_x = 140; gfx_y = r4+5; gfx_drawstr("Vol");
+nv = draw_hslider(166, r4+3, 140, 18, slider10, 0, 15, 0.7, 0.7, 0.7, "");
+!drum_active ? (
+  nv != slider10 ? ( slider10 = nv; noi_vol = nv; );
+);
+
+nv = draw_toggle(340, r4+2, 36, 22, slider11, 0.7, 0.7, 0.7, "ON");
+nv != slider11 ? slider11 = nv;
+
+// Show drum name if active, else note name
+drum_active ? (
+  draw_drum_name(390, r4+5, drum_name);
+) : (
+  draw_note_name(390, r4+5, noi_note);
+);
+
+// --- Separator ---
+gfx_r = 0.3; gfx_g = 0.3; gfx_b = 0.4;
+gfx_line(0, r5-4, gfx_w, r5-4);
+
+// --- MASTER ---
+gfx_r = 1; gfx_g = 1; gfx_b = 1; gfx_a = 1;
+gfx_x = 6; gfx_y = r5+5;
+gfx_setfont(1, "Arial", 14);
+gfx_drawstr("MASTER");
+gfx_setfont(1, "Arial", 12);
+
+nv = draw_hslider(80, r5+3, 200, 18, slider12, 0, 1, 0.8, 0.8, 0.3, "");
+nv != slider12 ? slider12 = nv;
+
+// Channel mode display
+gfx_r = 0.5; gfx_g = 0.5; gfx_b = 0.8; gfx_a = 0.9;
+gfx_x = 310; gfx_y = r5 + 5;
+slider13 == 0 ? gfx_drawstr("Mode: P1 Only");
+slider13 == 1 ? gfx_drawstr("Mode: P2 Only");
+slider13 == 2 ? gfx_drawstr("Mode: Tri Only");
+slider13 == 3 ? gfx_drawstr("Mode: Noise Only");
+slider13 == 4 ? gfx_drawstr("Mode: Full APU");
+
+// --- Status line ---
+gfx_r = 0.5; gfx_g = 0.5; gfx_b = 0.6; gfx_a = 0.8;
+gfx_x = 6; gfx_y = r6 + 5;
+gfx_drawstr("ReapNES APU -- NES 2A03 Synthesizer");
+
+any_active ? (
+  gfx_r = 0; gfx_g = 1; gfx_b = 0; gfx_a = 0.8;
+  gfx_x = gfx_w - 80; gfx_y = r6 + 5;
+  gfx_drawstr("PLAYING");
+) : (
+  gfx_r = 0.4; gfx_g = 0.4; gfx_b = 0.4;
+  gfx_x = gfx_w - 80; gfx_y = r6 + 5;
+  gfx_drawstr("IDLE");
+);
+
+// --- Live Patch status indicator ---
+slider14 > 0 ? (
+  gfx_r = 0; gfx_g = 0.8; gfx_b = 1; gfx_a = 0.9;
+  gfx_x = 310; gfx_y = r6 + 5;
+  slider14 == 1 ? gfx_drawstr("LP:Sustain");
+  slider14 == 2 ? gfx_drawstr("LP:Decay");
+);
+
+// --- Debug Overlay (slider15) ---
+slider15 ? (
+  dbg_y = r6 + 22;
+  gfx_r = 0.1; gfx_g = 0.1; gfx_b = 0.15; gfx_a = 0.92;
+  gfx_rect(0, dbg_y, gfx_w, 90);
+
+  gfx_setfont(1, "Courier New", 11);
+
+  // Row 1: MIDI event counters
+  gfx_r = 0.7; gfx_g = 0.7; gfx_b = 0.3; gfx_a = 1;
+  gfx_x = 6; gfx_y = dbg_y + 2;
+  gfx_printf("NoteOn:%d  CC11:%d  CC12:%d  LiveEnv:%d",
+    dbg_noteon_count, dbg_cc11_count, dbg_cc12_count, dbg_live_env_count);
+
+  // Row 2: Per-channel source and CC-active status
+  gfx_x = 6; gfx_y = dbg_y + 16;
+  gfx_r = 0.5; gfx_g = 0.8; gfx_b = 0.5;
+  function dbg_src_label(ch)
+  (
+    dbg_last_src[ch] == 0 ? gfx_drawstr("--");
+    dbg_last_src[ch] == 1 ? (
+      gfx_r = 0; gfx_g = 0.9; gfx_b = 1;
+      gfx_drawstr("LIVE");
+    );
+    dbg_last_src[ch] == 2 ? (
+      gfx_r = 1; gfx_g = 0.7; gfx_b = 0;
+      gfx_drawstr("CC");
+    );
+    gfx_r = 0.5; gfx_g = 0.8; gfx_b = 0.5;
+  );
+  gfx_drawstr("P1:"); dbg_src_label(0);
+  gfx_drawstr("  P2:"); dbg_src_label(1);
+  gfx_drawstr("  TRI:"); dbg_src_label(2);
+  gfx_drawstr("  NOI:"); dbg_src_label(3);
+
+  // Row 3: CC-active flags
+  gfx_x = 6; gfx_y = dbg_y + 30;
+  gfx_r = 0.6; gfx_g = 0.6; gfx_b = 0.6;
+  gfx_printf("CC-active: %d %d %d %d",
+    lp_cc_active[0], lp_cc_active[1], lp_cc_active[2], lp_cc_active[3]);
+
+  // Row 4: Live envelope state
+  gfx_x = 6; gfx_y = dbg_y + 44;
+  gfx_r = 0; gfx_g = 0.8; gfx_b = 1;
+  gfx_drawstr("Env phase: ");
+  function dbg_phase_label(ch) (
+    lp_env_phase[ch] == 0 ? gfx_drawstr("ATK ");
+    lp_env_phase[ch] == 1 ? gfx_drawstr("SUS ");
+    lp_env_phase[ch] == 2 ? gfx_drawstr("DEC ");
+    lp_env_phase[ch] == 3 ? gfx_drawstr("OFF ");
+  );
+  dbg_phase_label(0); dbg_phase_label(1);
+  dbg_phase_label(2); dbg_phase_label(3);
+
+  // Row 5: Current duty and volume per channel
+  gfx_x = 6; gfx_y = dbg_y + 58;
+  gfx_r = 0.8; gfx_g = 0.8; gfx_b = 0.8;
+  gfx_printf("Duty: %d %d --  Vol: %d %d -- %d",
+    p1_duty, p2_duty, p1_vol, p2_vol, noi_vol);
+
+  // Row 6: Live envelope volume (fractional)
+  gfx_x = 6; gfx_y = dbg_y + 72;
+  gfx_r = 0; gfx_g = 0.7; gfx_b = 0.9;
+  gfx_printf("EnvVol: %.1f %.1f %.1f %.1f",
+    lp_env_vol[0], lp_env_vol[1], lp_env_vol[2], lp_env_vol[3]);
+);

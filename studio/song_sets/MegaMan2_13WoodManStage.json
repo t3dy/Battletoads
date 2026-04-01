@@ -1,0 +1,45 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "MegaMan2",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "13WoodManStage"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 18 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/5879_Square_Pad_26158.reapnes-data",
+      "description": "Square Pad 26158 (3 notes)",
+      "notes": "Tags: pulse, short, fade, looping, square"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/6132_Square_Pad_29672.reapnes-data",
+      "description": "Square Pad 29672 (3 notes)",
+      "notes": "Tags: pulse, short, fade, looping, square"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/48048_Snare_Fade_11368.reapnes-data",
+      "description": "Snare Fade 11368 (30 notes)"
+    }
+  },
+  "drum_map": {
+    "36": {
+      "preset": "jsfx_data/48048_Snare_Fade_11368.reapnes-data",
+      "description": "Snare Fade 11368"
+    },
+    "38": {
+      "preset": "jsfx_data/48275_Noise_Swell_13745.reapnes-data",
+      "description": "Noise Swell 13745"
+    }
+  }
+}

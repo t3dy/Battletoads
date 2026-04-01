@@ -1,0 +1,30 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "CastlevaniaIII Dracula sCurse",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "01Prelude"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 18 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/25104_Wide_Pad_33407.reapnes-data",
+      "description": "Wide Pad 33407 (73 notes)",
+      "notes": "Tags: pulse, short, fade, looping, wide"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/26650_Wide_Pad_33405.reapnes-data",
+      "description": "Wide Pad 33405 (11 notes)",
+      "notes": "Tags: pulse, short, fade, looping, wide"
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "game": "Castlevania",
+  "rom_aliases": ["Castlevania (U)", "Castlevania (V1.0)"],
+  "status": "COMPLETE",
+  "driver_family": "konami_maezawa",
+  "driver_family_status": "verified",
+
+  "rom_layout": {
+    "mapper": 2,
+    "prg_banks": 8,
+    "sound_bank": "N/A — pointer table uses simple cpu_to_rom",
+    "resolver_method": "linear",
+    "resolver_status": "verified"
+  },
+
+  "pointer_table": {
+    "rom_offset": "0x0825",
+    "format": "9_byte_entries",
+    "entry_size": 9,
+    "num_tracks": 15,
+    "status": "verified"
+  },
+
+  "command_format": {
+    "dx_extra_bytes_pulse": 2,
+    "dx_extra_bytes_triangle": 0,
+    "dx_byte_count_status": "verified",
+    "c0_semantics": "rest_with_duration",
+    "c0_status": "verified",
+    "percussion": "inline_e9_ea",
+    "percussion_status": "verified"
+  },
+
+  "envelope_model": {
+    "type": "two_phase_parametric",
+    "fade_start": "number of 1/frame decrements from attack",
+    "fade_step": "number of 1/frame decrements at note end (release)",
+    "triangle_linear_counter": true,
+    "status": "verified",
+    "evidence": "frame-by-frame trace comparison, 99.5% accuracy"
+  },
+
+  "octave_mapping": {
+    "base_midi_octave4": 36,
+    "triangle_offset": -12,
+    "trace_pulse_offset": 12,
+    "status": "verified",
+    "evidence": "user ear-check against game confirmed A4 for lead"
+  },
+
+  "validated_tracks": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+  "trace_validated_tracks": [2],
+  "ear_validated_tracks": [2],
+  "last_listen_check": "2026-03-28",
+
+  "known_anomalies": [
+    "Tracks 3 and 12 have octave values >4 on triangle (EC/ED bytes misinterpreted as octave). Clamped to 0-4.",
+    "9 sounding mismatches on pulse1, 10 on pulse2 (edge cases in fade_step model).",
+    "8 triangle sounding mismatches (linear counter approximation off by 1 frame)."
+  ],
+
+  "outputs": {
+    "midi": "output/cv1_tracks/",
+    "wav": "output/cv1_wav/",
+    "reaper": "studio/reaper_projects/cv1_*.rpp",
+    "mp4": "output/cv1_full_soundtrack.mp4",
+    "youtube_desc": "output/cv1_youtube_description.txt"
+  }
+}

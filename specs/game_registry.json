@@ -1,0 +1,408 @@
+{
+  "_description": "Auto-generated game registry. Regenerate with: python -c \"...\" > specs/game_registry.json",
+  "_generated": "2026-03-31",
+  "game_count": 50,
+  "total_midis": 1099,
+  "games": [
+    {
+      "name": "Batman",
+      "midi_count": 3,
+      "reaper_count": 3,
+      "wav_count": 3,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Bionic_Commando",
+      "midi_count": 22,
+      "reaper_count": 41,
+      "wav_count": 23,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Blaster_Master",
+      "midi_count": 16,
+      "reaper_count": 16,
+      "wav_count": 16,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Castlevania",
+      "midi_count": 54,
+      "reaper_count": 54,
+      "wav_count": 54,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Castlevania_2___Simons_Quest",
+      "midi_count": 51,
+      "reaper_count": 51,
+      "wav_count": 51,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Castlevania_3___Draculas_Curse",
+      "midi_count": 19,
+      "reaper_count": 19,
+      "wav_count": 19,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Castlevania_3___Draculas_Curse_JP",
+      "midi_count": 15,
+      "reaper_count": 15,
+      "wav_count": 15,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Castlevania_II",
+      "midi_count": 8,
+      "reaper_count": 9,
+      "wav_count": 11,
+      "has_nsf": false,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Castlevania_III",
+      "midi_count": 10,
+      "reaper_count": 10,
+      "wav_count": 11,
+      "has_nsf": false,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Contra",
+      "midi_count": 2,
+      "reaper_count": 2,
+      "wav_count": 3,
+      "has_nsf": false,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Contra_v2",
+      "midi_count": 11,
+      "reaper_count": 11,
+      "wav_count": 12,
+      "has_nsf": false,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Contra_v5",
+      "midi_count": 3,
+      "reaper_count": 3,
+      "wav_count": 4,
+      "has_nsf": false,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Contra_v6",
+      "midi_count": 11,
+      "reaper_count": 11,
+      "wav_count": 11,
+      "has_nsf": false,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Contra_v7",
+      "midi_count": 11,
+      "reaper_count": 11,
+      "wav_count": 11,
+      "has_nsf": false,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Contra_v8",
+      "midi_count": 11,
+      "reaper_count": 11,
+      "wav_count": 11,
+      "has_nsf": false,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Dragon_Warrior",
+      "midi_count": 48,
+      "reaper_count": 48,
+      "wav_count": 48,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Faxanadu",
+      "midi_count": 44,
+      "reaper_count": 44,
+      "wav_count": 44,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Final_Fantasy",
+      "midi_count": 23,
+      "reaper_count": 23,
+      "wav_count": 23,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Gargoyles_Quest_II",
+      "midi_count": 21,
+      "reaper_count": 21,
+      "wav_count": 21,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Ghosts_n_Goblins",
+      "midi_count": 3,
+      "reaper_count": 3,
+      "wav_count": 3,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Goonies_II_The",
+      "midi_count": 56,
+      "reaper_count": 56,
+      "wav_count": 56,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Gradius",
+      "midi_count": 32,
+      "reaper_count": 32,
+      "wav_count": 33,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Journey_to_Silius",
+      "midi_count": 12,
+      "reaper_count": 12,
+      "wav_count": 12,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Kid_Icarus",
+      "midi_count": 34,
+      "reaper_count": 34,
+      "wav_count": 34,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Kirbys_Adventure",
+      "midi_count": 58,
+      "reaper_count": 58,
+      "wav_count": 58,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Legend_of_Zelda,_The",
+      "midi_count": 2,
+      "reaper_count": 2,
+      "wav_count": 2,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Legendary_Wings",
+      "midi_count": 36,
+      "reaper_count": 36,
+      "wav_count": 36,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Marble_Madness",
+      "midi_count": 9,
+      "reaper_count": 9,
+      "wav_count": 9,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Mega_Man",
+      "midi_count": 0,
+      "reaper_count": 0,
+      "wav_count": 0,
+      "has_nsf": true,
+      "status": "NSF_ONLY"
+    },
+    {
+      "name": "Mega_Man_1",
+      "midi_count": 24,
+      "reaper_count": 34,
+      "wav_count": 24,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Mega_Man_2",
+      "midi_count": 24,
+      "reaper_count": 24,
+      "wav_count": 24,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Mega_Man_3",
+      "midi_count": 57,
+      "reaper_count": 57,
+      "wav_count": 57,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Mega_Man_4",
+      "midi_count": 71,
+      "reaper_count": 71,
+      "wav_count": 71,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Metal_Gear",
+      "midi_count": 56,
+      "reaper_count": 56,
+      "wav_count": 56,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Metroid",
+      "midi_count": 11,
+      "reaper_count": 11,
+      "wav_count": 11,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Ninja_Gaiden__[Shadow_Warriors]",
+      "midi_count": 2,
+      "reaper_count": 2,
+      "wav_count": 2,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Ninja_Gaiden_II___The_Dark_Sword_of_Chaos",
+      "midi_count": 1,
+      "reaper_count": 1,
+      "wav_count": 1,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Ninja_Gaiden_III___The_Ancient_Ship_of_Doom",
+      "midi_count": 10,
+      "reaper_count": 10,
+      "wav_count": 10,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Punch_Out!!",
+      "midi_count": 17,
+      "reaper_count": 17,
+      "wav_count": 17,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Section_Z",
+      "midi_count": 19,
+      "reaper_count": 19,
+      "wav_count": 19,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Silver_Surfer",
+      "midi_count": 0,
+      "reaper_count": 0,
+      "wav_count": 0,
+      "has_nsf": true,
+      "status": "NSF_ONLY"
+    },
+    {
+      "name": "Strider",
+      "midi_count": 15,
+      "reaper_count": 15,
+      "wav_count": 15,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Super_C",
+      "midi_count": 9,
+      "reaper_count": 9,
+      "wav_count": 11,
+      "has_nsf": false,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Super_Mario_Bros",
+      "midi_count": 18,
+      "reaper_count": 18,
+      "wav_count": 18,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Super_Mario_Bros._2",
+      "midi_count": 34,
+      "reaper_count": 34,
+      "wav_count": 34,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Super_Mario_Bros._3",
+      "midi_count": 60,
+      "reaper_count": 60,
+      "wav_count": 60,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Trojan",
+      "midi_count": 35,
+      "reaper_count": 35,
+      "wav_count": 35,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Ultima_-_Exodus",
+      "midi_count": 11,
+      "reaper_count": 11,
+      "wav_count": 11,
+      "has_nsf": true,
+      "status": "COMPLETE"
+    },
+    {
+      "name": "Ultima_-_Quest_of_the_Avatar",
+      "midi_count": 0,
+      "reaper_count": 0,
+      "wav_count": 0,
+      "has_nsf": true,
+      "status": "NSF_ONLY"
+    },
+    {
+      "name": "Zelda_II___The_Adventure_of_Link",
+      "midi_count": 0,
+      "reaper_count": 0,
+      "wav_count": 0,
+      "has_nsf": true,
+      "status": "NSF_ONLY"
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+desc:ReapNES Pulse — Wire-Accurate 2A03 Pulse Channel
+tags:synthesizer chiptune NES 8-bit instrument
+//author:ReapNES Studio
+in_pin:none
+out_pin:Left
+out_pin:Right
+
+// Two independent pulse channels with register-level control.
+// Route MIDI note-on to set pitch; sliders expose hardware registers.
+
+import lib/apu_core.jsfx-inc
+import lib/mixer_nonlinear.jsfx-inc
+
+// ---------------------------------------------------------------------------
+//  Sliders — "Hardware View"
+// ---------------------------------------------------------------------------
+
+slider1:0<0,3,1{12.5%,25%,50%,75%}>Pulse 1 Duty
+slider2:15<0,15,1>Pulse 1 Volume
+slider3:1<0,1,1{Off,On}>Pulse 1 Enable
+slider4:0<0,3,1{12.5%,25%,50%,75%}>Pulse 2 Duty
+slider5:15<0,15,1>Pulse 2 Volume
+slider6:1<0,1,1{Off,On}>Pulse 2 Enable
+
+slider10:440<20,4000,1>Pulse 1 Freq (Hz) [manual]
+slider11:440<20,4000,1>Pulse 2 Freq (Hz) [manual]
+slider12:0<0,1,1{Manual,MIDI}>Pitch Mode
+
+slider20:0.8<0,1,0.01>Output Gain
+
+// ---------------------------------------------------------------------------
+//  @init
+// ---------------------------------------------------------------------------
+@init
+
+apu_pulse_init(0);  // Pulse 1
+apu_pulse_init(1);  // Pulse 2
+
+// MIDI state
+midi_note_p1 = -1;
+midi_note_p2 = -1;
+midi_vel_p1  = 0;
+midi_vel_p2  = 0;
+
+// Note-to-Hz (equal temperament, A4=440)
+function note_to_hz(note) ( 440 * 2 ^ ((note - 69) / 12); );
+
+// ---------------------------------------------------------------------------
+//  @slider
+// ---------------------------------------------------------------------------
+@slider
+
+apu_pulse_set_duty(0, slider1);
+apu_pulse_set_volume(0, slider2);
+apu_pulse_set_enabled(0, slider3);
+
+apu_pulse_set_duty(1, slider4);
+apu_pulse_set_volume(1, slider5);
+apu_pulse_set_enabled(1, slider6);
+
+// Manual frequency mode
+slider12 == 0 ? (
+  apu_pulse_set_freq_hz(0, slider10);
+  apu_pulse_set_freq_hz(1, slider11);
+);
+
+// ---------------------------------------------------------------------------
+//  @block — process MIDI
+// ---------------------------------------------------------------------------
+@block
+
+while (midirecv(offset, msg1, msg2, msg3)) (
+  status = msg1 & 0xF0;
+  ch     = msg1 & 0x0F;
+
+  // Note On
+  status == 0x90 && msg3 > 0 ? (
+    slider12 == 1 ? (  // MIDI pitch mode
+      // Channel 0 → Pulse 1, Channel 1 → Pulse 2
+      ch == 0 ? (
+        midi_note_p1 = msg2;
+        midi_vel_p1  = msg3;
+        apu_pulse_set_freq_hz(0, note_to_hz(msg2));
+        apu_pulse_set_volume(0, floor(msg3 / 127 * 15 + 0.5));
+        apu_pulse_set_enabled(0, 1);
+      );
+      ch == 1 ? (
+        midi_note_p2 = msg2;
+        midi_vel_p2  = msg3;
+        apu_pulse_set_freq_hz(1, note_to_hz(msg2));
+        apu_pulse_set_volume(1, floor(msg3 / 127 * 15 + 0.5));
+        apu_pulse_set_enabled(1, 1);
+      );
+    );
+  );
+
+  // Note Off
+  (status == 0x80 || (status == 0x90 && msg3 == 0)) ? (
+    slider12 == 1 ? (
+      ch == 0 && msg2 == midi_note_p1 ? (
+        apu_pulse_set_enabled(0, 0);
+        midi_note_p1 = -1;
+      );
+      ch == 1 && msg2 == midi_note_p2 ? (
+        apu_pulse_set_enabled(1, 0);
+        midi_note_p2 = -1;
+      );
+    );
+  );
+
+  midisend(offset, msg1, msg2, msg3);  // pass-through
+);
+
+// ---------------------------------------------------------------------------
+//  @sample
+// ---------------------------------------------------------------------------
+@sample
+
+p1_out = apu_pulse_process(0);
+p2_out = apu_pulse_process(1);
+
+// Non-linear mix → analog approximation [0, ~1]
+mixed = apu_mix_pulse(p1_out, p2_out);
+
+// Center around 0 and apply gain
+// Hardware silence ≈ 0.0, max ≈ 0.57; center at ~0.285
+out = (mixed - 0.285) * slider20 * 3.5;
+
+spl0 = out;
+spl1 = out;
+
+// ---------------------------------------------------------------------------
+//  @gfx — minimal oscilloscope display
+// ---------------------------------------------------------------------------
+@gfx 400 200
+
+gfx_clear = 0x1A1A2E;  // dark NES-purple background
+
+// Draw waveform buffer
+gfx_r = 0.2; gfx_g = 0.9; gfx_b = 0.3; gfx_a = 1.0;
+
+// Store last 400 samples in a ring buffer
+gfx_buf = 256;  // memory offset for gfx buffer
+gfx_buf_len = 400;
+gfx_buf_pos >= gfx_buf_len ? gfx_buf_pos = 0;
+gfx_buf[gfx_buf_pos] = out;
+gfx_buf_pos += 1;
+
+// Draw
+i = 0;
+cy = gfx_h * 0.5;
+loop(gfx_w,
+  idx = (gfx_buf_pos + i) % gfx_buf_len;
+  y = cy - gfx_buf[idx] * cy * 0.8;
+  i == 0 ? gfx_x = 0; gfx_y = y;
+  gfx_lineto(i, y);
+  i += 1;
+);
+
+// Channel labels
+gfx_r = 1; gfx_g = 1; gfx_b = 1;
+gfx_x = 4; gfx_y = 4;
+gfx_drawstr("P1:");
+gfx_drawnumber(p1_out, 0);
+gfx_drawstr("  P2:");
+gfx_drawnumber(p2_out, 0);
+gfx_drawstr("  Duty:");
+gfx_drawnumber(slider1, 0);
+gfx_drawstr("/");
+gfx_drawnumber(slider4, 0);

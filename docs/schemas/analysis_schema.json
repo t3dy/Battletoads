@@ -1,0 +1,310 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nesmusiclab.local/schemas/analysis/v0.1.0",
+  "title": "NES Music Lab — Normalized Music Analysis",
+  "description": "Schema for the normalized analysis of a single song extracted from an NES ROM or NSF. Every inferred value carries confidence and provenance.",
+  "type": "object",
+  "required": ["schema_version", "metadata", "channels", "provenance"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "timing": {
+      "$ref": "#/$defs/timing"
+    },
+    "structure": {
+      "$ref": "#/$defs/structure"
+    },
+    "channels": {
+      "type": "object",
+      "description": "Per-channel analysis, keyed by canonical channel name.",
+      "properties": {
+        "pulse1": { "$ref": "#/$defs/channel" },
+        "pulse2": { "$ref": "#/$defs/channel" },
+        "triangle": { "$ref": "#/$defs/channel" },
+        "noise": { "$ref": "#/$defs/channel" },
+        "dpcm": { "$ref": "#/$defs/channel" }
+      },
+      "additionalProperties": false
+    },
+    "macros": {
+      "type": "array",
+      "description": "Macro definitions (volume envelopes, arpeggios, duty sequences) shared across channels.",
+      "items": { "$ref": "#/$defs/macro" }
+    },
+    "unknowns": {
+      "type": "array",
+      "description": "Structured unknowns — things the pipeline noticed but could not resolve.",
+      "items": { "$ref": "#/$defs/unknown" }
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance_record"
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "required": ["rom_name", "song_id"],
+      "properties": {
+        "rom_name": { "type": "string" },
+        "rom_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "song_id": { "type": ["string", "integer"] },
+        "song_title": { "type": "string" },
+        "driver_family": { "type": "string" },
+        "driver_version": { "type": "string" },
+        "nsf_track": { "type": "integer", "minimum": 0 },
+        "region": { "enum": ["ntsc", "pal", "dual", "unknown"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "timing": {
+      "type": "object",
+      "description": "Timing hypotheses for the song. All inferred values carry confidence.",
+      "properties": {
+        "frame_rate_hz": {
+          "type": "number",
+          "description": "Expected playback frame rate. NTSC = 60.0988, PAL = 50.007."
+        },
+        "engine_tick_frames": {
+          "$ref": "#/$defs/inferred_int",
+          "description": "How many APU frames per engine tick (speed/tempo divisor)."
+        },
+        "tempo_bpm": {
+          "$ref": "#/$defs/inferred_float",
+          "description": "Reconstructed BPM hypothesis. Always inferred, never ground truth."
+        },
+        "time_signature": {
+          "$ref": "#/$defs/inferred_string",
+          "description": "Hypothesized time signature, e.g. '4/4'. Always inferred."
+        },
+        "total_frames": { "type": "integer", "minimum": 0 },
+        "loop_frame": {
+          "$ref": "#/$defs/inferred_int",
+          "description": "Frame index where the song loops. Null if no loop detected."
+        }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "description": "Song structure hypotheses (sections, repeats, loop points).",
+      "properties": {
+        "sections": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/section" }
+        },
+        "loop_points": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/loop_point" }
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "required": ["label", "start_frame", "end_frame", "confidence", "source"],
+      "properties": {
+        "label": { "type": "string" },
+        "start_frame": { "type": "integer", "minimum": 0 },
+        "end_frame": { "type": "integer", "minimum": 0 },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "source": { "$ref": "#/$defs/source_tag" },
+        "notes": { "type": "string" }
+      }
+    },
+    "loop_point": {
+      "type": "object",
+      "required": ["frame", "target_frame", "confidence", "source"],
+      "properties": {
+        "frame": { "type": "integer", "minimum": 0 },
+        "target_frame": { "type": "integer", "minimum": 0 },
+        "loop_count": {
+          "type": ["integer", "null"],
+          "description": "Number of times this loop repeats. Null = infinite."
+        },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "source": { "$ref": "#/$defs/source_tag" }
+      }
+    },
+    "channel": {
+      "type": "object",
+      "description": "Analysis data for a single NES APU channel.",
+      "properties": {
+        "active": { "type": "boolean", "description": "Whether this channel is used in the song." },
+        "events": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/event" }
+        },
+        "register_writes": {
+          "type": "array",
+          "description": "Raw APU register writes, frame-aligned. Populated during Phase 2.",
+          "items": { "$ref": "#/$defs/register_write" }
+        },
+        "macro_refs": {
+          "type": "array",
+          "description": "References to macro definitions used by this channel.",
+          "items": { "type": "string" }
+        },
+        "notes_text": { "type": "string" }
+      }
+    },
+    "event": {
+      "type": "object",
+      "description": "A normalized musical event on a single channel.",
+      "required": ["frame", "type", "confidence", "source"],
+      "properties": {
+        "frame": { "type": "integer", "minimum": 0 },
+        "type": {
+          "enum": [
+            "note_on", "note_off", "rest",
+            "pitch_change", "period_change",
+            "volume_change", "duty_change",
+            "macro_trigger", "sweep_change",
+            "noise_mode_change", "dpcm_trigger",
+            "unknown_command"
+          ]
+        },
+        "pitch": {
+          "type": ["string", "null"],
+          "description": "Symbolic pitch (e.g. 'C4'). Only populated after reconstruction."
+        },
+        "period": {
+          "type": ["integer", "null"],
+          "description": "Raw APU timer period value."
+        },
+        "volume": { "type": ["integer", "null"], "minimum": 0, "maximum": 15 },
+        "duty": { "type": ["integer", "null"], "minimum": 0, "maximum": 3 },
+        "duration_frames": {
+          "$ref": "#/$defs/inferred_int",
+          "description": "Duration in frames. Inferred from gap to next event."
+        },
+        "macro_id": { "type": ["string", "null"] },
+        "raw_data": {
+          "type": "object",
+          "description": "Opaque driver-specific data for events that don't map cleanly.",
+          "additionalProperties": true
+        },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "source": { "$ref": "#/$defs/source_tag" }
+      }
+    },
+    "register_write": {
+      "type": "object",
+      "required": ["frame", "address", "value"],
+      "properties": {
+        "frame": { "type": "integer", "minimum": 0 },
+        "address": {
+          "type": "string",
+          "pattern": "^\\$[0-9A-Fa-f]{4}$",
+          "description": "APU register address, e.g. '$4000'."
+        },
+        "value": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
+    "macro": {
+      "type": "object",
+      "required": ["id", "type", "values", "confidence", "source"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": {
+          "enum": ["volume_envelope", "arpeggio", "duty_sequence", "pitch_envelope", "custom"]
+        },
+        "values": {
+          "type": "array",
+          "items": { "type": "integer" }
+        },
+        "loop_index": {
+          "type": ["integer", "null"],
+          "description": "Index in values array where the macro loops. Null = no loop."
+        },
+        "release_index": {
+          "type": ["integer", "null"],
+          "description": "Index in values array for the release point. Null = no release."
+        },
+        "length": { "type": "integer", "minimum": 1 },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "source": { "$ref": "#/$defs/source_tag" }
+      }
+    },
+    "unknown": {
+      "type": "object",
+      "required": ["description", "frame", "channel"],
+      "properties": {
+        "description": { "type": "string" },
+        "frame": { "type": ["integer", "null"] },
+        "channel": { "type": ["string", "null"] },
+        "raw_data": { "type": "object", "additionalProperties": true },
+        "hypothesis": { "type": "string" },
+        "priority": { "enum": ["low", "medium", "high"] }
+      }
+    },
+    "provenance_record": {
+      "type": "object",
+      "required": ["generated_by", "generated_at", "sources"],
+      "properties": {
+        "generated_by": {
+          "type": "string",
+          "description": "Pipeline version or tool that produced this file."
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "reference"],
+            "properties": {
+              "type": { "$ref": "#/$defs/source_tag" },
+              "reference": { "type": "string" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "pipeline_config": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "source_tag": {
+      "enum": ["trace", "parse", "manual", "heuristic", "provisional"]
+    },
+    "inferred_int": {
+      "type": "object",
+      "required": ["value", "confidence", "source"],
+      "properties": {
+        "value": { "type": ["integer", "null"] },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "source": { "$ref": "#/$defs/source_tag" }
+      }
+    },
+    "inferred_float": {
+      "type": "object",
+      "required": ["value", "confidence", "source"],
+      "properties": {
+        "value": { "type": ["number", "null"] },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "source": { "$ref": "#/$defs/source_tag" }
+      }
+    },
+    "inferred_string": {
+      "type": "object",
+      "required": ["value", "confidence", "source"],
+      "properties": {
+        "value": { "type": ["string", "null"] },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "source": { "$ref": "#/$defs/source_tag" }
+      }
+    }
+  }
+}

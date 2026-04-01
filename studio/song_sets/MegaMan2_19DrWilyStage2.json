@@ -1,0 +1,35 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "MegaMan2",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "19DrWilyStage2"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 7 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/25610_Thin_Pad_23747.reapnes-data",
+      "description": "Thin Pad 23747 (29 notes)",
+      "notes": "Tags: pulse, medium, fade, looping, thin"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/26146_Thin_Pad_23746.reapnes-data",
+      "description": "Thin Pad 23746 (16 notes)",
+      "notes": "Tags: pulse, medium, fade, looping, thin"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/52345_Snare_Fade_13981.reapnes-data",
+      "description": "Snare Fade 13981 (1 notes)"
+    }
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "_description": "Proven successes across the NES Music Studio pipeline, derived from WINSWISHES.md, LATESTFIXES.md, MISTAKEBAKED.md, and blunders.json",
+  "wins": [
+    {
+      "id": "W01",
+      "scope": "extraction",
+      "proven_fact": "NSF emulation via nsf_to_reaper.py produces correct MIDI for all standard 2A03 games",
+      "why_it_matters": "Entire batch pipeline (19+ games) runs deterministically without LLM involvement",
+      "where_verified": "scripts/batch_nsf_all.py output across full library",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W02",
+      "scope": "extraction",
+      "proven_fact": "CC11 per-frame volume automation captures ground-truth envelope shapes from NSF extraction",
+      "why_it_matters": "Each note carries the exact volume curve the NES sound driver produced, enabling frame-accurate playback",
+      "where_verified": "scripts/analyze_midi_for_log.py on all extracted MIDIs; docs/PROJECTMARIO1.md confirms 5.0 CC11/note",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W03",
+      "scope": "extraction",
+      "proven_fact": "CC12 duty cycle automation captures per-note timbre changes from NSF extraction",
+      "why_it_matters": "Games like Castlevania (13-19 CC12 changes) and Mega Man 2 (17 changes) use duty shifts for timbral variety",
+      "where_verified": "docs/PROJECTCASTLEVANIA.md, docs/PROJECTMEGAMAN2.md",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W04",
+      "scope": "extraction",
+      "proven_fact": "Trace comparison validates CV1 parser at 0 pitch mismatches across 1792 frames of Vampire Killer",
+      "why_it_matters": "Frame-level proof that the Maezawa parser produces correct pitch output for Castlevania 1",
+      "where_verified": "scripts/trace_compare.py --frames 1792",
+      "applies_to": ["Castlevania"],
+      "confidence": "high"
+    },
+    {
+      "id": "W05",
+      "scope": "extraction",
+      "proven_fact": "Two-phase parametric envelope model (fade_start + fade_step) correctly models CV1 volume",
+      "why_it_matters": "Phase 1 decrement-per-frame and Phase 2 release produce correct volume curves without ROM lookup tables",
+      "where_verified": "docs/LATESTFIXES.md fixes 3, 6, 7, 8; trace_compare.py volume validation",
+      "applies_to": ["Castlevania"],
+      "confidence": "high"
+    },
+    {
+      "id": "W06",
+      "scope": "extraction",
+      "proven_fact": "Triangle linear counter modeled as (reload+3)//4 sounding frames reduces mismatches from 518 to 195",
+      "why_it_matters": "Triangle note durations approximate hardware behavior; remaining 195 labeled APPROXIMATE",
+      "where_verified": "docs/LATESTFIXES.md fix 9; trace_compare.py triangle channel",
+      "applies_to": ["Castlevania"],
+      "confidence": "medium"
+    },
+    {
+      "id": "W07",
+      "scope": "extraction",
+      "proven_fact": "MIDI export rebuilt from frame IR produces per-frame CC11 automation with correct staccato articulation",
+      "why_it_matters": "Notes are shortened to match envelope decay, not raw parser durations; output matches game audio feel",
+      "where_verified": "docs/LATESTFIXES.md fix 10",
+      "applies_to": ["Castlevania", "Contra"],
+      "confidence": "high"
+    },
+    {
+      "id": "W08",
+      "scope": "project",
+      "proven_fact": "Full RPP header (~100 lines) with ENVATTACH, SAMPLERATE, METRONOME etc. enables keyboard input",
+      "why_it_matters": "Minimal headers silently broke MIDI input; full header from Console_Test.rpp reference works reliably",
+      "where_verified": "state/blunders.json B15 (FIXED); docs/PROJECTMARIO1.md",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W09",
+      "scope": "project",
+      "proven_fact": "REC 5088 preserves MIDI routing on both armed and unarmed tracks",
+      "why_it_matters": "Using REC 0 0 caused REAPER to forget MIDI input config; 5088 must always be present",
+      "where_verified": "state/blunders.json B08 and B16 (FIXED)",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W10",
+      "scope": "project",
+      "proven_fact": "Channel Mode slider (0=P1, 1=P2, 2=Tri, 3=Noise) isolates each track to its own oscillator",
+      "why_it_matters": "Without per-track channel mode, every track plays all 4 channels simultaneously (B11)",
+      "where_verified": "state/blunders.json B11; generate_project.py --nes-native flag",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W11",
+      "scope": "synth",
+      "proven_fact": "ReapNES_APU.jsfx responds to CC11 (volume) and CC12 (duty cycle) for file playback",
+      "why_it_matters": "Per-frame volume automation from MIDI drives the synth directly, producing game-accurate envelopes",
+      "where_verified": "docs/LATESTFIXES.md fix 5; studio/jsfx/ReapNES_APU.jsfx @block section",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W12",
+      "scope": "synth",
+      "proven_fact": "Drum mapping table (35 entries) maps GM notes to NES noise period + mode + volume + decay",
+      "why_it_matters": "Without the mapping table, drum hits were silent pops (B13); now produce recognizable percussion",
+      "where_verified": "state/blunders.json B13",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W13",
+      "scope": "synth",
+      "proven_fact": "DC-offset-free mixer formula: (value/15.0 - 0.5) * weight eliminates silent/distorted output",
+      "why_it_matters": "Hardware-accurate NES mixer produced DC bias at rest causing -2.1dB constant signal (B06)",
+      "where_verified": "state/blunders.json B06",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W14",
+      "scope": "synth",
+      "proven_fact": "Sequential slider numbering with no gaps and 64-slot padding prevents RPP parameter misalignment",
+      "why_it_matters": "Gaps in slider numbering caused positional misalignment when loaded from RPP (B10)",
+      "where_verified": "state/blunders.json B10",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W15",
+      "scope": "project",
+      "proven_fact": "SOURCE MIDI with FILE reference (not SOURCE MIDIPOOL) enables playback in REAPER v7",
+      "why_it_matters": "MIDIPOOL FILE items appear visually but produce no audio on playback (B09)",
+      "where_verified": "state/blunders.json B09",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W16",
+      "scope": "infrastructure",
+      "proven_fact": "Mistake-baking strategy prevents repeat blunders by positioning warnings at decision points",
+      "why_it_matters": "8 rules in CLAUDE.md, 8-step checklist in CLAUDE_EXTRACTION.md, per-game table in spec.md intercept known errors before they happen",
+      "where_verified": "docs/MISTAKEBAKED.md",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W17",
+      "scope": "infrastructure",
+      "proven_fact": "Manifest-first workflow prevents assumptions from being baked into parser code",
+      "why_it_matters": "CV1-to-Contra transition wasted 3+ prompts from assumed DX byte count; manifests make facts explicit",
+      "where_verified": "WINSWISHES.md win 5; extraction/manifests/",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W18",
+      "scope": "extraction",
+      "proven_fact": "Contra parser handles 3-byte DX commands, separate DMC percussion, and decrescendo envelopes",
+      "why_it_matters": "11 tracks parsed from annotated disassembly; notes and timing verified close to game audio",
+      "where_verified": "extraction/drivers/konami/contra_parser.py; docs/CONTRAVERSIONS.md",
+      "applies_to": ["Contra"],
+      "confidence": "high"
+    },
+    {
+      "id": "W19",
+      "scope": "infrastructure",
+      "proven_fact": "Bach mashups proved the pipeline end-to-end: preset bank, song set extraction, RPP generation, WAV rendering",
+      "why_it_matters": "188 REAPER projects and 28 WAVs from Bach MIDI through NES instrument palettes from 8 games",
+      "where_verified": "studio/reaper_projects/bach_mashups/; WINSWISHES.md win 9",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W20",
+      "scope": "synth",
+      "proven_fact": "ASCII-only JSFX source prevents silent compilation failure on Windows cp1252",
+      "why_it_matters": "Unicode characters (em-dashes, arrows) caused JSFX to compile without error but produce no audio (B03)",
+      "where_verified": "state/blunders.json B03",
+      "applies_to": ["all"],
+      "confidence": "high"
+    },
+    {
+      "id": "W21",
+      "scope": "extraction",
+      "proven_fact": "FE repeat count semantics: count byte = total passes (not 'repeat N more times')",
+      "why_it_matters": "Off-by-one caused section A to play 3x instead of 2x, shifting all subsequent data (fix 2)",
+      "where_verified": "docs/LATESTFIXES.md fix 2",
+      "applies_to": ["Castlevania"],
+      "confidence": "high"
+    },
+    {
+      "id": "W22",
+      "scope": "extraction",
+      "proven_fact": "E8 command does NOT gate fading; fading always active when fade_start > 0",
+      "why_it_matters": "Sq2 had 1518 volume mismatches because fading was incorrectly gated by E8 (fix 7)",
+      "where_verified": "docs/LATESTFIXES.md fix 7",
+      "applies_to": ["Castlevania"],
+      "confidence": "high"
+    }
+  ]
+}

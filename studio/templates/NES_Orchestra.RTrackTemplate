@@ -1,0 +1,79 @@
+<REAPER_PROJECT 0.1 "6.0"
+  <TRACK
+    NAME "NES - Pulse 1"
+    PEAKCOL 16576606
+    NCHAN 2
+    MIDI_INPUT_CHANMAP 0
+    REC_INPUT 6112 "MIDI > Ch 1"
+    <FXCHAIN
+      SHOW 0
+      LASTSEL 0
+      DOCKED 0
+      <JS "ReapNES Studio/ReapNES_Instrument.jsfx" ""
+        // Slot 0 = Pulse 1 preset, envelope on, gain 0.8
+        0.000000 0.000000 0.000000 0.000000
+        2.000000 15.000000 0.000000
+        1.000000
+        0.800000
+      >
+    >
+  >
+  <TRACK
+    NAME "NES - Pulse 2"
+    PEAKCOL 16576606
+    NCHAN 2
+    MIDI_INPUT_CHANMAP 1
+    REC_INPUT 6112 "MIDI > Ch 2"
+    <FXCHAIN
+      SHOW 0
+      LASTSEL 0
+      DOCKED 0
+      <JS "ReapNES Studio/ReapNES_Instrument.jsfx" ""
+        0.000000 0.000000 0.000000 0.000000
+        1.000000 15.000000 0.000000
+        1.000000
+        0.800000
+      >
+    >
+  >
+  <TRACK
+    NAME "NES - Triangle"
+    PEAKCOL 16744192
+    NCHAN 2
+    MIDI_INPUT_CHANMAP 2
+    REC_INPUT 6112 "MIDI > Ch 3"
+    <FXCHAIN
+      SHOW 0
+      LASTSEL 0
+      DOCKED 0
+      <JS "ReapNES Studio/ReapNES_Full.jsfx" ""
+        // Using Full APU, triangle channel enabled
+        2.000000 15.000000 1.000000
+        1.000000 15.000000 1.000000
+        1.000000
+        0.000000 0.000000 15.000000 1.000000
+        0.800000
+      >
+    >
+  >
+  <TRACK
+    NAME "NES - Noise / Drums"
+    PEAKCOL 11184810
+    NCHAN 2
+    MIDI_INPUT_CHANMAP 3
+    REC_INPUT 6112 "MIDI > Ch 4"
+    <FXCHAIN
+      SHOW 0
+      LASTSEL 0
+      DOCKED 0
+      <JS "ReapNES Studio/ReapNES_Full.jsfx" ""
+        // Using Full APU, noise channel enabled
+        2.000000 15.000000 1.000000
+        1.000000 15.000000 1.000000
+        1.000000
+        4.000000 0.000000 15.000000 1.000000
+        0.800000
+      >
+    >
+  >
+>

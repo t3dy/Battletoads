@@ -1,0 +1,9 @@
+[project]
+name = "nesml"
+version = "0.1.0"
+description = "NES Music Lab — research-grade NES music analysis and export pipeline"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

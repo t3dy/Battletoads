@@ -1,0 +1,119 @@
+{
+  "blunders": [
+    {
+      "id": "B01", "title": "Comment tags instead of directives",
+      "symptom": "Plugin loads but never appears in instrument list, no sound",
+      "root_cause": "//tags: is a comment, not a directive. Must be tags: without //",
+      "fix": "Remove // prefix from tags directive",
+      "layer": "synth", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B02", "title": "Missing pin declarations",
+      "symptom": "Plugin accepts MIDI but produces zero audio, meters show nothing",
+      "root_cause": "Without in_pin:none / out_pin:Left / out_pin:Right, REAPER defaults to audio effect mode",
+      "fix": "Add in_pin:none, out_pin:Left, out_pin:Right to all instrument JSFX",
+      "layer": "synth", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B03", "title": "Unicode in JSFX source",
+      "symptom": "Plugin appears in FX list but produces no audio, no compilation error",
+      "root_cause": "REAPER JSFX compiler on Windows (cp1252) silently fails on Unicode",
+      "fix": "ASCII only in all JSFX files. No em-dashes, arrows, or special characters",
+      "layer": "synth", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B04", "title": "REAPER JSFX cache",
+      "symptom": "Fixed code still doesn't work, old broken behavior persists",
+      "root_cause": "REAPER caches compiled JSFX bytecode. Editing source doesn't invalidate cache",
+      "fix": "Rename the file to force cache miss",
+      "layer": "synth", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B05", "title": "XOR operator confusion",
+      "symptom": "Noise LFSR produces incorrect patterns, distorted sound",
+      "root_cause": "In JSFX, ^ is exponentiation (power), not XOR. 0^0=1 not 0",
+      "fix": "Use ((a + b) & 1) for single-bit XOR",
+      "layer": "synth", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B06", "title": "DC offset in mixer",
+      "symptom": "Meters show constant -2.1dB even when silent, audio inaudible or distorted",
+      "root_cause": "Hardware-accurate NES mixer formula produces DC bias at rest",
+      "fix": "Center output: (value / 15.0 - 0.5) * weight",
+      "layer": "synth", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B07", "title": "Unrecognized RPP tokens",
+      "symptom": "Project loads with 5+ warnings, settings silently ignored",
+      "root_cause": "MASTER_SEND, REC_INPUT, RECINPUT, RECMON don't exist in REAPER v7.27",
+      "fix": "Use only tokens from a known-good saved project. See specs/rpp_fields.json",
+      "layer": "project", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B08", "title": "REC field MIDI input routing",
+      "symptom": "MIDI input shows '(not connec...)' in track, keyboard doesn't work",
+      "root_cause": "Wrong REC field encoding. Must be REC {0|1} 5088 1 0 0 0 0 0",
+      "fix": "ALWAYS use 5088 even on unarmed tracks. Never use 0 for input field",
+      "layer": "project", "repo": "both"
+    },
+    {
+      "id": "B09", "title": "SOURCE MIDIPOOL doesn't play back",
+      "symptom": "MIDI items appear visually in timeline but pressing Play produces no audio",
+      "root_cause": "REAPER v7 treats MIDIPOOL FILE as stubs, not playable items",
+      "fix": "Use SOURCE MIDI with FILE reference, not SOURCE MIDIPOOL",
+      "layer": "project", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B10", "title": "Slider parameter misalignment",
+      "symptom": "Plugin silent or wrong sounds when loaded from RPP",
+      "root_cause": "Gap in slider numbering. RPP passes positional values that misalign",
+      "fix": "Sequential slider numbering with no gaps. Pad to 64 with dashes",
+      "layer": "project", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B11", "title": "Every track plays every channel",
+      "symptom": "Music plays 4x simultaneously, thick muddy noisy sound",
+      "root_cause": "Each track runs full APU processing all 4 oscillators",
+      "fix": "Channel Mode slider: each track set to its own mode (0=P1, 1=P2, 2=Tri, 3=Noise)",
+      "layer": "project", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B12", "title": "Community MIDI random channel numbers",
+      "symptom": "Tracks mapped to wrong oscillators, missing or doubled parts",
+      "root_cause": "Fan transcriptions use arbitrary channel layout, not NES standard 0-3",
+      "fix": "Auto-remap MIDI channels based on analysis (pitch/role sorting)",
+      "layer": "extraction", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B13", "title": "Drums had no envelope",
+      "symptom": "Drum hits sound like popping artifacts, no attack/decay character",
+      "root_cause": "Noise channel just toggled on/off with no volume shaping",
+      "fix": "Drum mapping table: GM note -> NES noise period + mode + volume + decay rate",
+      "layer": "synth", "repo": "ReapNES-Studio"
+    },
+    {
+      "id": "B14", "title": "Console synth ignores CC11/CC12",
+      "symptom": "File playback uses generic ADSR instead of ground-truth per-frame envelopes. Notes sound wrong, missing articulation",
+      "root_cause": "ReapNES_Console.jsfx has ADSR but no CC11/CC12 handlers in @block",
+      "fix": "Port lp_cc_active[] system from ReapNES_APU.jsfx. When CC arrives, bypass ADSR",
+      "layer": "synth", "repo": "NESMusicStudio",
+      "status": "OPEN"
+    },
+    {
+      "id": "B15", "title": "Minimal RPP header breaks keyboard",
+      "symptom": "Project opens but keyboard input silently fails",
+      "root_cause": "Missing ENVATTACH, SAMPLERATE, METRONOME, etc. from RPP header",
+      "fix": "Use full ~100 line header from Console_Test.rpp reference",
+      "layer": "project", "repo": "NESMusicStudio",
+      "status": "FIXED"
+    },
+    {
+      "id": "B16", "title": "REC 0 on unarmed tracks forgets MIDI routing",
+      "symptom": "User arms track later, gets audio input instead of MIDI",
+      "root_cause": "REC 0 0 1 0 0 0 0 0 sets input=0 which REAPER interprets as 'no input configured'",
+      "fix": "ALWAYS use REC {0|1} 5088 1 0 0 0 0 0. Keep 5088 even when not armed",
+      "layer": "project", "repo": "NESMusicStudio",
+      "status": "FIXED"
+    }
+  ]
+}

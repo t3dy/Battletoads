@@ -1,0 +1,47 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "Super Mario Bros.",
+    "developer": "Nintendo",
+    "year": 1985,
+    "platform": "NES"
+  },
+  "song": {
+    "title": "Underground Theme (World 1-2)",
+    "context": "Underground / pipe levels",
+    "tempo_bpm": 137,
+    "key": "C minor"
+  },
+  "provenance": {
+    "source": "hand-authored",
+    "confidence": "approximate",
+    "notes": "Hand-crafted underground sound. Thinner duty cycles, staccato triangle bass."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "mario/smb_underground_lead.reapnes-data",
+      "description": "Staccato melody, 12.5% duty (thin, spooky)"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "mario/smb_overworld_harmony.reapnes-data",
+      "description": "Echo/harmony line"
+    },
+    "triangle": {
+      "role": "bass",
+      "preset": "mario/smb_underground_bass.reapnes-data",
+      "description": "Short plucked triangle bass"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "generic/noise_hihat_closed.reapnes-data",
+      "description": "Minimal percussion"
+    }
+  },
+  "drum_map": {
+    "42": { "preset": "generic/noise_hihat_closed.reapnes-data", "description": "Closed hi-hat" },
+    "38": { "preset": "generic/noise_snare.reapnes-data", "description": "Snare" }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "format": "reapnes-song-set",
+  "version": 1,
+  "game": {
+    "title": "MegaMan2",
+    "platform": "NES"
+  },
+  "song": {
+    "title": "08BubbleManStage"
+  },
+  "provenance": {
+    "source": "nes-mdb-extracted",
+    "confidence": "approximate",
+    "notes": "Auto-generated from NES-MDB corpus. 13 presets found. Best-by-note-count selection."
+  },
+  "channels": {
+    "pulse1": {
+      "role": "lead",
+      "preset": "jsfx_data/0622_Wide_Pad_019.reapnes-data",
+      "description": "Wide Pad 019 (55 notes)",
+      "notes": "Tags: pulse, short, fade, looping, wide"
+    },
+    "pulse2": {
+      "role": "harmony",
+      "preset": "jsfx_data/1342_Wide_Pad_041.reapnes-data",
+      "description": "Wide Pad 041 (21 notes)",
+      "notes": "Tags: pulse, short, fade, looping, wide"
+    },
+    "noise": {
+      "role": "percussion",
+      "preset": "jsfx_data/47987_Noise_Swell_11182.reapnes-data",
+      "description": "Noise Swell 11182 (45 notes)"
+    }
+  }
+}
