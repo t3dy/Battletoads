@@ -50,11 +50,23 @@ def noise_timer_to_index(timer_val):
     return best_idx
 
 
+def mask_period(raw_period):
+    """Mask Mesen period value to 11-bit NES register range.
+
+    Mesen captures store $4006_period as raw ($4007 << 8 | $4006), which
+    includes length counter bits from $4007[7:3]. The actual NES timer
+    period is only 11 bits: $4006[7:0] | ($4007[2:0] << 8). Max = 2047.
+    Without masking, periods like 2717 produce MIDI notes 2 octaves low.
+    """
+    return raw_period & 0x7FF
+
+
 def period_to_midi_trace(period, is_tri=False):
     """Convert NES APU period to MIDI note number (Mesen ground truth).
 
     Same formula as nsf_to_reaper.period_to_midi() but WITHOUT the -12
     workaround for NSF emulation. Mesen captures real hardware periods.
+    Period must be pre-masked to 11 bits (use mask_period()).
     """
     if period <= (2 if is_tri else 8):
         return 0
@@ -127,19 +139,19 @@ def parse_mesen_csv(csv_path, start_frame=0, end_frame=0):
         if f in updates:
             u = updates[f]
             if '$4002_period' in u:
-                p1_period = u['$4002_period']
+                p1_period = mask_period(u['$4002_period'])
             if '$4000_vol' in u:
                 p1_vol = u['$4000_vol']
             if '$4000_duty' in u:
                 p1_duty = u['$4000_duty']
             if '$4006_period' in u:
-                p2_period = u['$4006_period']
+                p2_period = mask_period(u['$4006_period'])
             if '$4004_vol' in u:
                 p2_vol = u['$4004_vol']
             if '$4004_duty' in u:
                 p2_duty = u['$4004_duty']
             if '$400A_period' in u:
-                tr_period = u['$400A_period']
+                tr_period = mask_period(u['$400A_period'])
             if '$4008_linear' in u:
                 tr_linear = u['$4008_linear']
             if '$400C_vol' in u:
