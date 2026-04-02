@@ -1,0 +1,519 @@
+desc:ReapNES APU2 - Hardware-Accurate NES Synthesizer
+tags:instrument synthesizer chiptune NES 8-bit hardware-accurate
+in_pin:none
+out_pin:Left
+out_pin:Right
+
+// ===================================================================
+// Dual-mode NES 2A03 synthesizer:
+//   Mode 1: CC-driven — reads CC11 (volume) and CC12 (duty) from MIDI
+//           files produced by nsf_to_reaper.py. Per-frame envelope and
+//           duty changes are played back exactly as captured from the
+//           NES APU. Also reads SysEx register data when available for
+//           additional hardware accuracy (phase reset, noise params).
+//   Mode 2: ADSR Keyboard — when no CC data present, uses ADSR envelopes
+//           for live keyboard play with NES-like waveforms.
+//
+// CC11 = volume expression (NES 0-15 mapped to MIDI 0-127)
+// CC12 = duty cycle (0-31=12.5%, 32-63=25%, 64-95=50%, 96-127=75%)
+// SysEx format: F0 7D 01 ch r0lo r0hi r1lo r1hi r2lo r2hi r3lo r3hi en F7
+// ===================================================================
+
+// === MODE ===
+slider1:4<0,4,1{Pulse 1 Only,Pulse 2 Only,Triangle Only,Noise/Drums Only,Full APU}>Channel Mode
+slider2:0<0,1,1{Off,On}>Keyboard Mode
+
+// === PULSE 1 ADSR (keyboard fallback) ===
+slider3:2<0,3,1{12.5%,25%,50%,75%}>P1 Duty
+slider4:15<0,15,1>P1 Volume
+slider5:0<0,500,1>P1 Attack (ms)
+slider6:80<0,500,1>P1 Decay (ms)
+slider7:10<0,15,1>P1 Sustain
+slider8:100<0,500,1>P1 Release (ms)
+
+// === PULSE 2 ADSR (keyboard fallback) ===
+slider9:1<0,3,1{12.5%,25%,50%,75%}>P2 Duty
+slider10:15<0,15,1>P2 Volume
+slider11:0<0,500,1>P2 Attack (ms)
+slider12:60<0,500,1>P2 Decay (ms)
+slider13:10<0,15,1>P2 Sustain
+slider14:80<0,500,1>P2 Release (ms)
+
+// === TRIANGLE ADSR (keyboard fallback) ===
+slider15:0<0,500,1>Tri Attack (ms)
+slider16:50<0,500,1>Tri Release (ms)
+
+// === NOISE ADSR (keyboard fallback) ===
+slider17:0<0,500,1>Noise Attack (ms)
+slider18:100<0,500,1>Noise Decay (ms)
+
+// === MIX ===
+slider19:0.8<0,1,0.01>Master Gain
+
+@init
+cpu_clk = 1789773;
+
+// ---------------------------------------------------------------
+// Duty cycle lookup tables (4 x 8 steps)
+// ---------------------------------------------------------------
+dt = 0;
+dt[0]=0; dt[1]=1; dt[2]=0; dt[3]=0; dt[4]=0; dt[5]=0; dt[6]=0; dt[7]=0;
+dt[8]=0; dt[9]=1; dt[10]=1; dt[11]=0; dt[12]=0; dt[13]=0; dt[14]=0; dt[15]=0;
+dt[16]=0; dt[17]=1; dt[18]=1; dt[19]=1; dt[20]=1; dt[21]=0; dt[22]=0; dt[23]=0;
+dt[24]=1; dt[25]=0; dt[26]=0; dt[27]=1; dt[28]=1; dt[29]=1; dt[30]=1; dt[31]=1;
+
+// ---------------------------------------------------------------
+// Triangle waveform (32 steps)
+// ---------------------------------------------------------------
+tt = 32;
+tt[0]=15; tt[1]=14; tt[2]=13; tt[3]=12; tt[4]=11; tt[5]=10; tt[6]=9; tt[7]=8;
+tt[8]=7; tt[9]=6; tt[10]=5; tt[11]=4; tt[12]=3; tt[13]=2; tt[14]=1; tt[15]=0;
+tt[16]=0; tt[17]=1; tt[18]=2; tt[19]=3; tt[20]=4; tt[21]=5; tt[22]=6; tt[23]=7;
+tt[24]=8; tt[25]=9; tt[26]=10; tt[27]=11; tt[28]=12; tt[29]=13; tt[30]=14; tt[31]=15;
+
+// ---------------------------------------------------------------
+// Noise period table (CPU cycles per LFSR shift)
+// ---------------------------------------------------------------
+np = 64;
+np[0]=4; np[1]=8; np[2]=16; np[3]=32; np[4]=64; np[5]=96; np[6]=128; np[7]=160;
+np[8]=202; np[9]=254; np[10]=380; np[11]=508; np[12]=762; np[13]=1016; np[14]=2034; np[15]=4068;
+
+// ---------------------------------------------------------------
+// Drum mapping (keyboard mode): GM note -> period_idx, mode, vol, decay
+// ---------------------------------------------------------------
+dm = 80;
+dm[0]=14; dm[1]=0; dm[2]=15; dm[3]=600;
+dm[4]=13; dm[5]=0; dm[6]=15; dm[7]=500;
+dm[8]=3; dm[9]=1; dm[10]=10; dm[11]=200;
+dm[12]=6; dm[13]=0; dm[14]=15; dm[15]=350;
+dm[16]=5; dm[17]=0; dm[18]=13; dm[19]=300;
+dm[20]=7; dm[21]=0; dm[22]=15; dm[23]=400;
+dm[24]=11; dm[25]=0; dm[26]=14; dm[27]=500;
+dm[28]=1; dm[29]=1; dm[30]=10; dm[31]=100;
+dm[32]=10; dm[33]=0; dm[34]=14; dm[35]=450;
+dm[36]=1; dm[37]=1; dm[38]=8; dm[39]=80;
+dm[40]=8; dm[41]=0; dm[42]=14; dm[43]=400;
+dm[44]=2; dm[45]=0; dm[46]=11; dm[47]=250;
+dm[48]=9; dm[49]=0; dm[50]=14; dm[51]=400;
+dm[52]=6; dm[53]=0; dm[54]=13; dm[55]=350;
+dm[56]=3; dm[57]=0; dm[58]=13; dm[59]=800;
+dm[60]=5; dm[61]=0; dm[62]=13; dm[63]=350;
+dm[64]=2; dm[65]=0; dm[66]=9; dm[67]=300;
+dm[68]=4; dm[69]=0; dm[70]=10; dm[71]=300;
+dm[72]=4; dm[73]=0; dm[74]=10; dm[75]=300;
+dm[76]=4; dm[77]=0; dm[78]=10; dm[79]=300;
+dm[80]=2; dm[81]=0; dm[82]=11; dm[83]=600;
+dm[84]=4; dm[85]=1; dm[86]=12; dm[87]=200;
+dm[88]=3; dm[89]=0; dm[90]=13; dm[91]=900;
+
+// ---------------------------------------------------------------
+// Oscillator state
+// ---------------------------------------------------------------
+p1_phase = 0; p1_inc = 0; p1_en = 0;
+p2_phase = 0; p2_inc = 0; p2_en = 0;
+tri_phase = 0; tri_inc = 0; tri_en = 0;
+lfsr = 1; lfsr_acc = 0; noi_en = 0;
+noi_period_idx = 4; noi_mode = 0;
+
+// ---------------------------------------------------------------
+// CC-driven state (from MIDI CC11/CC12)
+// Per channel: cc_active flag, current vol, current duty
+// ---------------------------------------------------------------
+// cc[ch*4]: 0=cc_active, 1=volume (0-15), 2=duty (0-3), 3=reserved
+cc = 200;
+i = 0; loop(16, cc[i] = 0; i += 1; );
+
+// ---------------------------------------------------------------
+// ADSR envelope state (keyboard mode fallback)
+// ---------------------------------------------------------------
+// ev[ch*8]: 0=phase, 1=level, 2=atk_rate, 3=dec_rate, 4=sus, 5=rel_rate, 6=peak, 7=unused
+ev = 300;
+i = 0; loop(32, ev[i] = 0; i += 1; );
+
+// Keyboard note tracking
+kb_note = 400;
+kb_note[0] = -1; kb_note[1] = -1; kb_note[2] = -1; kb_note[3] = -1;
+
+// Drum state (keyboard mode)
+drum_vol = 0; drum_decay = 0; drum_timer = 0; drum_active = 0;
+
+// MIDI receive buffer
+midi_buf = 450;
+
+// ---------------------------------------------------------------
+// Helper functions
+// ---------------------------------------------------------------
+
+function note2hz(n) ( 440 * 2 ^ ((n - 69) / 12); );
+
+function calc_pulse_inc(freq) local(period, f) (
+  period = cpu_clk / (16 * freq) - 1;
+  period = max(0, min(2047, floor(period + 0.5)));
+  f = cpu_clk / (16 * (period + 1));
+  8.0 * f / srate;
+);
+
+function calc_tri_inc(freq) local(period, f) (
+  period = cpu_clk / (32 * freq) - 1;
+  period = max(0, min(2047, floor(period + 0.5)));
+  f = cpu_clk / (32 * (period + 1));
+  32.0 * f / srate;
+);
+
+function ms_to_rate(ms_val, range) local(samples) (
+  ms_val <= 0 ? 99999 : (
+    samples = max(1, ms_val * srate / 1000);
+    range / samples;
+  );
+);
+
+function trigger_env(ch, velocity) local(base, peak_vol, atk_ms, dec_ms, sus, rel_ms) (
+  base = ev + ch * 8;
+  peak_vol = floor(velocity / 127 * 15 + 0.5);
+  ch == 0 ? ( atk_ms = slider5;  dec_ms = slider6;  sus = slider7;  rel_ms = slider8; );
+  ch == 1 ? ( atk_ms = slider11; dec_ms = slider12; sus = slider13; rel_ms = slider14; );
+  ch == 2 ? ( atk_ms = slider15; dec_ms = 0;        sus = 15;       rel_ms = slider16; );
+  ch == 3 ? ( atk_ms = slider17; dec_ms = slider18; sus = 0;        rel_ms = 0; );
+  base[6] = peak_vol;
+  base[4] = sus;
+  base[2] = ms_to_rate(atk_ms, peak_vol);
+  base[3] = ms_to_rate(dec_ms, peak_vol - sus);
+  base[5] = ms_to_rate(rel_ms, peak_vol);
+  atk_ms > 0 ? (
+    base[0] = 1; base[1] = 0;
+  ) : (
+    base[0] = dec_ms > 0 ? 2 : 3;
+    base[1] = peak_vol;
+  );
+);
+
+function release_env(ch) local(base) (
+  base = ev + ch * 8;
+  base[0] == 0 ? 0 : ( base[0] = 4; );
+);
+
+function process_env(ch) local(base, phase, level, sus) (
+  base = ev + ch * 8;
+  phase = base[0]; level = base[1]; sus = base[4];
+  phase == 1 ? ( level += base[2]; level >= base[6] ? ( level = base[6]; base[0] = 2; ); );
+  phase == 2 ? ( level -= base[3]; level <= sus ? ( level = sus; base[0] = 3; ); );
+  phase == 3 ? ( level = sus; );
+  phase == 4 ? ( level -= base[5]; level <= 0 ? ( level = 0; base[0] = 0; ); );
+  base[1] = max(0, min(15, level));
+  base[1];
+);
+
+function trigger_drum(gm_note, velocity) local(idx, base) (
+  idx = gm_note - 35;
+  idx >= 0 && idx <= 22 ? (
+    base = idx * 4;
+    noi_period_idx = dm[base];
+    noi_mode = dm[base + 1];
+    drum_vol = dm[base + 2] * (velocity / 127);
+    drum_decay = dm[base + 3];
+    drum_timer = drum_decay;
+    drum_active = 1;
+    noi_en = 1;
+  );
+);
+
+// ===================================================================
+@block
+// ===================================================================
+ch_mode = slider1;
+kb_mode = slider2;
+
+while ((recv_len = midirecv_buf(offset, midi_buf, 128)) > 0) (
+
+  status_byte = midi_buf[0];
+
+  // ---------------------------------------------------------------
+  // SysEx: APU Register Replay (bonus data, not required for sound)
+  // F0 7D 01 ch r0lo r0hi r1lo r1hi r2lo r2hi r3lo r3hi en F7
+  // ---------------------------------------------------------------
+  status_byte == 0xF0 ? (
+    // Check if it's our APU register SysEx
+    recv_len >= 13 && midi_buf[1] == 0x7D && midi_buf[2] == 0x01 ? (
+      sx_ch = midi_buf[3];
+      // Only process matching channel
+      (ch_mode == 4 || ch_mode == sx_ch) ? (
+        // Decode register bytes
+        r0 = (midi_buf[4] & 0x7F) | ((midi_buf[5] & 0x01) << 7);
+        r3 = (midi_buf[10] & 0x7F) | ((midi_buf[11] & 0x01) << 7);
+
+        // Phase reset on high-byte write (hardware behavior)
+        // Detect r3 changes — on real NES, writing $4003/$4007 resets
+        // the phase sequencer to step 0, creating the characteristic click
+        sx_ch == 0 ? (
+          r3 != p1_prev_r3 ? p1_phase = 0;
+          p1_prev_r3 = r3;
+        );
+        sx_ch == 1 ? (
+          r3 != p2_prev_r3 ? p2_phase = 0;
+          p2_prev_r3 = r3;
+        );
+
+        // For noise: extract exact period index and mode from register
+        sx_ch == 3 ? (
+          r2 = (midi_buf[8] & 0x7F) | ((midi_buf[9] & 0x01) << 7);
+          noi_period_idx = r2 & 0x0F;
+          noi_mode = (r2 >> 7) & 1;
+        );
+      );
+    );
+    // Don't pass SysEx through
+    0;
+  ) : (
+    // ---------------------------------------------------------------
+    // Standard MIDI: Notes, CC11, CC12
+    // ---------------------------------------------------------------
+    status = status_byte & 0xF0;
+    ch = status_byte & 0x0F;
+
+    // Channel filter: only process events matching this track's channel.
+    // Each REAPER track loads the full MIDI file, so we see events on
+    // all 4 channels. Only process events matching ch_mode.
+    //
+    // Keyboard Mode: when ON, remaps non-matching channels to ch_mode.
+    // This is for live keyboard play where the controller might send
+    // on the wrong channel. For file playback, Keyboard Mode should be
+    // OFF (set by generate_project.py) so the channel filter works
+    // correctly. See docs/glitchy.md for what happens when it's ON
+    // during file playback (spoiler: chaos).
+    use_msg = 1;
+    ch_mode < 4 ? (
+      ch != ch_mode ? (
+        kb_mode ? ( ch = ch_mode; ) : ( use_msg = 0; );
+      );
+    );
+
+    use_msg ? (
+
+      // --- CC11: Volume (per-frame from NSF extraction) ---
+      status == 0xB0 && midi_buf[1] == 11 ? (
+        nes_vol = floor(midi_buf[2] * 15 / 127 + 0.5);
+        cc[ch * 4] = 1;       // Mark channel as CC-active
+        cc[ch * 4 + 1] = nes_vol;  // Store volume
+      );
+
+      // --- CC12: Duty cycle (per-frame from NSF extraction) ---
+      status == 0xB0 && midi_buf[1] == 12 ? (
+        cc[ch * 4] = 1;       // Mark channel as CC-active
+        cc[ch * 4 + 2] = floor(midi_buf[2] / 32);  // Map to 0-3
+      );
+
+      // --- CC123/CC121: All Notes Off / Reset — re-enable ADSR ---
+      status == 0xB0 && (midi_buf[1] == 123 || midi_buf[1] == 121) ? (
+        cc[ch * 4] = 0;  // Deactivate CC mode, re-enable ADSR
+      );
+
+      // --- Note On ---
+      status == 0x90 && midi_buf[2] > 0 ? (
+        ch == 0 ? (
+          kb_note[0] = midi_buf[1];
+          p1_inc = calc_pulse_inc(note2hz(midi_buf[1]));
+          p1_en = 1;
+          !cc[0] ? trigger_env(0, midi_buf[2]);  // Only ADSR if no CC data
+        );
+        ch == 1 ? (
+          kb_note[1] = midi_buf[1];
+          p2_inc = calc_pulse_inc(note2hz(midi_buf[1]));
+          p2_en = 1;
+          !cc[4] ? trigger_env(1, midi_buf[2]);
+        );
+        ch == 2 ? (
+          kb_note[2] = midi_buf[1];
+          tri_inc = calc_tri_inc(note2hz(midi_buf[1]));
+          tri_en = 1;
+          !cc[8] ? trigger_env(2, midi_buf[2]);
+        );
+        ch == 3 ? (
+          midi_buf[1] >= 35 && midi_buf[1] <= 57 ? trigger_drum(midi_buf[1], midi_buf[2]) : (
+            kb_note[3] = midi_buf[1]; noi_en = 1; drum_active = 0;
+            !cc[12] ? trigger_env(3, midi_buf[2]);
+          );
+        );
+      );
+
+      // --- Note Off ---
+      (status == 0x80 || (status == 0x90 && midi_buf[2] == 0)) ? (
+        ch == 0 && midi_buf[1] == kb_note[0] ? (
+          !cc[0] ? release_env(0);
+          kb_note[0] = -1;
+        );
+        ch == 1 && midi_buf[1] == kb_note[1] ? (
+          !cc[4] ? release_env(1);
+          kb_note[1] = -1;
+        );
+        ch == 2 && midi_buf[1] == kb_note[2] ? (
+          !cc[8] ? release_env(2);
+          kb_note[2] = -1;
+        );
+        ch == 3 && !drum_active && midi_buf[1] == kb_note[3] ? (
+          !cc[12] ? release_env(3);
+          kb_note[3] = -1;
+        );
+      );
+
+      // --- Pitch bend (keyboard mode) ---
+      status == 0xE0 ? (
+        pb = ((midi_buf[2] << 7) | midi_buf[1]) - 8192;
+        pb_semi = pb / 8192 * 2;
+        ch == 0 && kb_note[0] >= 0 ? p1_inc = calc_pulse_inc(note2hz(kb_note[0] + pb_semi));
+        ch == 1 && kb_note[1] >= 0 ? p2_inc = calc_pulse_inc(note2hz(kb_note[1] + pb_semi));
+        ch == 2 && kb_note[2] >= 0 ? tri_inc = calc_tri_inc(note2hz(kb_note[2] + pb_semi));
+      );
+    );
+
+    // Pass through non-SysEx MIDI
+    midisend_buf(offset, midi_buf, recv_len);
+  );
+);
+
+// ===================================================================
+@sample
+// ===================================================================
+
+// ---------------------------------------------------------------
+// Pulse 1
+// ---------------------------------------------------------------
+p1_out = 0;
+(ch_mode == 0 || ch_mode == 4) ? (
+  cc[0] ? (
+    // CC-driven mode: volume and duty from MIDI CC11/CC12
+    p1_en && cc[1] > 0 ? (
+      p1_out = dt[cc[2] * 8 + (floor(p1_phase) & 7)] * cc[1];
+      p1_phase += p1_inc;
+      p1_phase >= 8.0 ? p1_phase -= 8.0;
+    );
+    // Note off: silence (CC mode doesn't use ADSR release)
+    kb_note[0] < 0 ? ( p1_en = 0; );
+  ) : (
+    // ADSR keyboard mode
+    p1_env = process_env(0);
+    kb_note[0] < 0 && ev[0] == 0 ? p1_en = 0;
+    p1_en ? (
+      p1_vol_kb = floor(p1_env + 0.5);
+      p1_out = dt[slider3 * 8 + (floor(p1_phase) & 7)] * p1_vol_kb;
+      p1_phase += p1_inc;
+      p1_phase >= 8.0 ? p1_phase -= 8.0;
+    );
+  );
+);
+
+// ---------------------------------------------------------------
+// Pulse 2
+// ---------------------------------------------------------------
+p2_out = 0;
+(ch_mode == 1 || ch_mode == 4) ? (
+  cc[4] ? (
+    p2_en && cc[5] > 0 ? (
+      p2_out = dt[cc[6] * 8 + (floor(p2_phase) & 7)] * cc[5];
+      p2_phase += p2_inc;
+      p2_phase >= 8.0 ? p2_phase -= 8.0;
+    );
+    kb_note[1] < 0 ? ( p2_en = 0; );
+  ) : (
+    p2_env = process_env(1);
+    kb_note[1] < 0 && ev[8] == 0 ? p2_en = 0;
+    p2_en ? (
+      p2_vol_kb = floor(p2_env + 0.5);
+      p2_out = dt[slider9 * 8 + (floor(p2_phase) & 7)] * p2_vol_kb;
+      p2_phase += p2_inc;
+      p2_phase >= 8.0 ? p2_phase -= 8.0;
+    );
+  );
+);
+
+// ---------------------------------------------------------------
+// Triangle
+// ---------------------------------------------------------------
+tri_out = 0;
+(ch_mode == 2 || ch_mode == 4) ? (
+  tri_en ? (
+    tri_out = tt[floor(tri_phase) & 31];
+    tri_phase += tri_inc;
+    tri_phase >= 32.0 ? tri_phase -= 32.0;
+  );
+  // In CC mode, note-off silences; in ADSR mode, envelope gates
+  cc[8] ? (
+    kb_note[2] < 0 ? ( tri_en = 0; tri_out = 0; );
+  ) : (
+    tri_env = process_env(2);
+    kb_note[2] < 0 && ev[16] == 0 ? ( tri_en = 0; tri_out = 0; );
+    tri_env <= 0 && (ev[16] == 4 || ev[16] == 0) ? ( tri_en = 0; tri_out = 0; );
+  );
+);
+
+// ---------------------------------------------------------------
+// Noise
+// ---------------------------------------------------------------
+// Drum envelope tick (keyboard mode only)
+!cc[12] && drum_active ? (
+  drum_timer -= 1;
+  drum_timer <= 0 ? (
+    drum_vol -= 1;
+    drum_vol <= 0 ? ( drum_vol = 0; drum_active = 0; noi_en = 0; ) : drum_timer = drum_decay;
+  );
+);
+
+noi_out = 0;
+(ch_mode == 3 || ch_mode == 4) ? (
+  noi_en ? (
+    noi_rate = cpu_clk / (np[noi_period_idx & 15] * srate);
+    lfsr_acc += noi_rate;
+    lfsr_acc >= 1.0 ? (
+      lfsr_acc -= 1.0;
+      noi_mode ? (
+        fb = ((lfsr & 1) + ((lfsr >> 6) & 1)) & 1;
+      ) : (
+        fb = ((lfsr & 1) + ((lfsr >> 1) & 1)) & 1;
+      );
+      lfsr = (lfsr >> 1) | (fb << 14);
+    );
+
+    cc[12] ? (
+      // CC-driven: velocity sets volume on note-on, CC can modulate
+      noi_out = (lfsr & 1) ? 0 : cc[13];
+    ) : (
+      // Keyboard mode with ADSR or drum envelope
+      !drum_active ? (
+        noi_env = process_env(3);
+        kb_note[3] < 0 && ev[24] == 0 ? noi_en = 0;
+        noi_out = (lfsr & 1) ? 0 : floor(noi_env + 0.5);
+      ) : (
+        noi_out = (lfsr & 1) ? 0 : floor(drum_vol + 0.5);
+      );
+    );
+  );
+);
+
+// ---------------------------------------------------------------
+// Mixer
+// Single-channel mode: direct amplitude scaling (no cross-channel DAC effects)
+// Full APU mode: non-linear DAC mixer (hardware-accurate)
+// ---------------------------------------------------------------
+ch_mode < 4 ? (
+  // Single-channel: normalize to [-0.5, 0.5] range
+  ch_mode == 0 ? out = (p1_out / 15.0 - 0.5);
+  ch_mode == 1 ? out = (p2_out / 15.0 - 0.5);
+  ch_mode == 2 ? out = (tri_out / 15.0 - 0.5);
+  ch_mode == 3 ? out = (noi_out / 15.0 - 0.5);
+  // Only output when there's signal (avoid DC offset when silent)
+  (ch_mode == 0 && !p1_en) || (ch_mode == 1 && !p2_en) ||
+  (ch_mode == 2 && !tri_en) || (ch_mode == 3 && !noi_en) ? out = 0;
+  out *= slider19;
+) : (
+  // Full APU: non-linear DAC mixer
+  // https://www.nesdev.org/wiki/APU_Mixer
+  pulse_sum = p1_out + p2_out;
+  pulse_mix = pulse_sum == 0 ? 0 : 95.88 / ((8128.0 / pulse_sum) + 100.0);
+  tnd_denom = tri_out / 8227.0 + noi_out / 12241.0;
+  tnd_mix = tnd_denom == 0 ? 0 : 159.79 / ((1.0 / tnd_denom) + 100.0);
+  // Center and scale
+  raw = pulse_mix + tnd_mix;
+  out = raw > 0 ? (raw - 0.4) * slider19 : 0;
+);
+
+spl0 = out;
+spl1 = out;

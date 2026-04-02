@@ -80,6 +80,69 @@ CONSOLE_CH_MODE_IDX = 32
 # Per-channel mode values for slider33
 CHANNEL_MODES = {"pulse1": 0, "pulse2": 1, "triangle": 2, "noise": 3}
 
+# ---------------------------------------------------------------------------
+#  APU2 synth (hardware-accurate register replay + ADSR keyboard fallback)
+# ---------------------------------------------------------------------------
+JSFX_PLUGIN_APU2 = "ReapNES Studio/ReapNES_APU2.jsfx"
+
+# APU2 slider layout (19 sliders):
+#  1:     Channel Mode (0=P1, 1=P2, 2=Tri, 3=Noise, 4=Full APU)
+#  2:     Keyboard Mode (0=Off, 1=On)
+#  3-8:   P1 Duty, Vol, Attack, Decay, Sustain, Release
+#  9-14:  P2 Duty, Vol, Attack, Decay, Sustain, Release
+#  15-16: Tri Attack, Release
+#  17-18: Noise Attack, Decay
+#  19:    Master Gain
+APU2_DEFAULTS = [
+    4,                          # Channel Mode: Full APU (overridden per track)
+    1,                          # Keyboard Mode: ON
+    2, 15, 0, 80, 10, 100,     # P1: duty=50%, vol=15, ADSR
+    1, 15, 0, 60, 10, 80,      # P2: duty=25%, vol=15, ADSR
+    0, 50,                      # Tri: attack=0, release=50ms
+    0, 100,                     # Noise: attack=0, decay=100ms
+    0.8,                        # Master gain
+]
+
+APU2_CH_MODE_IDX = 0  # slider1 = channel mode
+
+APU2_CHANNEL_MODES = {"pulse1": 0, "pulse2": 1, "triangle": 2, "noise": 3}
+
+
+def apu2_slider_values(game: str = "", channel: str = "pulse1") -> list[float]:
+    """Build APU2 slider values for a specific game + channel."""
+    vals = list(APU2_DEFAULTS)
+    vals[APU2_CH_MODE_IDX] = APU2_CHANNEL_MODES.get(channel, 4)
+
+    # Apply game-specific ADSR if available
+    game_key = game.split("_")[0] if "_" in game else game
+    adsr = GAME_ADSR.get(game_key, {}).get(channel, {})
+    if not adsr:
+        for key in GAME_ADSR:
+            if game.startswith(key):
+                adsr = GAME_ADSR[key].get(channel, {})
+                break
+
+    if channel == "pulse1":
+        if "duty" in adsr: vals[2] = adsr["duty"]
+        if "atk" in adsr: vals[4] = adsr["atk"]
+        if "dec" in adsr: vals[5] = adsr["dec"]
+        if "sus" in adsr: vals[6] = adsr["sus"]
+        if "rel" in adsr: vals[7] = adsr["rel"]
+    elif channel == "pulse2":
+        if "duty" in adsr: vals[8] = adsr["duty"]
+        if "atk" in adsr: vals[10] = adsr["atk"]
+        if "dec" in adsr: vals[11] = adsr["dec"]
+        if "sus" in adsr: vals[12] = adsr["sus"]
+        if "rel" in adsr: vals[13] = adsr["rel"]
+    elif channel == "triangle":
+        if "atk" in adsr: vals[14] = adsr["atk"]
+        if "rel" in adsr: vals[15] = adsr["rel"]
+    elif channel == "noise":
+        if "atk" in adsr: vals[16] = adsr["atk"]
+        if "dec" in adsr: vals[17] = adsr["dec"]
+
+    return vals
+
 # Game-specific ADSR presets derived from .reapnes-data analysis
 GAME_ADSR = {
     "MegaMan": {
@@ -291,6 +354,9 @@ def rpp_track(
     midi_length: float = 0,
     armed: bool = True,
     selected: bool = False,
+    jsfx_plugin: str = "",
+    midi_events: list[str] | None = None,
+    ticks_per_beat: int = 480,
 ) -> str:
     """Generate a complete track block matching REAPER's saved-project format.
 
@@ -301,11 +367,17 @@ def rpp_track(
         name: Track display name
         color: PEAKCOL color value
         slider_values: JSFX slider values (defaults used if None)
-        midi_file: Absolute path to .mid file for SOURCE MIDI FILE reference
+        midi_file: Absolute path to .mid file (used for fallback FILE ref)
         midi_length: Length of MIDI item in seconds
         armed: Whether to arm track for MIDI recording with monitoring
         selected: Whether this track is selected (first track should be True)
+        jsfx_plugin: Override JSFX plugin path (default: JSFX_PLUGIN)
+        midi_events: Inline MIDI events (E/X lines) for HASDATA embedding.
+                     When provided, MIDI data is embedded directly in the RPP
+                     for immediate playback. FILE reference is NOT used.
+        ticks_per_beat: PPQ for HASDATA header (default 480)
     """
+    plugin = jsfx_plugin if jsfx_plugin else JSFX_PLUGIN
     vals = slider_values if slider_values is not None else list(CONSOLE_DEFAULTS)
     params = fmt_slider_values(vals)
     track_guid = make_guid()
@@ -352,7 +424,7 @@ def rpp_track(
     lines.append(f"      LASTSEL 0")
     lines.append(f"      DOCKED 0")
     lines.append(f"      BYPASS 0 0 0")
-    lines.append(f'      <JS "{JSFX_PLUGIN}" ""')
+    lines.append(f'      <JS "{plugin}" ""')
     lines.append(f"        {params}")
     lines.append(f"      >")
     lines.append(f"      FLOATPOS 0 0 0 0")
@@ -360,10 +432,9 @@ def rpp_track(
     lines.append(f"      WAK 0 0")
     lines.append(f"    >")
 
-    # MIDI item via external file reference
-    if midi_file:
+    # MIDI item — inline HASDATA (plays back directly) or FILE reference
+    if midi_events or midi_file:
         item_guid = make_guid()
-        midi_path_fwd = midi_file.replace("\\", "/")
         lines.append(f"    <ITEM")
         lines.append(f"      POSITION 0")
         lines.append(f"      LENGTH {midi_length}")
@@ -374,9 +445,21 @@ def rpp_track(
         lines.append(f"      MUTE 0 0")
         lines.append(f"      SEL 0")
         lines.append(f"      IGUID {item_guid}")
-        lines.append(f'      <SOURCE MIDI')
-        lines.append(f'        FILE "{midi_path_fwd}"')
-        lines.append(f"      >")
+        if midi_events:
+            # Embed MIDI data inline — REAPER plays this immediately
+            lines.append(f"      <SOURCE MIDI")
+            lines.append(f"        HASDATA 1 {ticks_per_beat} QN")
+            lines.append(f"        CCINTERP 32")
+            for evt in midi_events:
+                lines.append(f"        {evt}")
+            lines.append(f"        E 0 ff 2f 00")
+            lines.append(f"      >")
+        else:
+            # Fallback: external file reference
+            midi_path_fwd = midi_file.replace("\\", "/")
+            lines.append(f'      <SOURCE MIDI')
+            lines.append(f'        FILE "{midi_path_fwd}"')
+            lines.append(f"      >")
         lines.append(f"    >")
 
     lines.append(f"  >")
@@ -388,21 +471,25 @@ def rpp_track(
 # ---------------------------------------------------------------------------
 
 def midi_track_to_events(track) -> list[str]:
-    """Convert a mido track to RPP E/X event lines."""
+    """Convert a mido track to RPP E/X event lines.
+
+    Only emits channel messages (E lines). Meta events are skipped
+    because REAPER's inline MIDI parser can choke on X meta lines,
+    causing the entire item to appear empty.
+    """
     lines = []
+    accumulated_delta = 0
     for msg in track:
-        delta = msg.time
+        accumulated_delta += msg.time
         if msg.is_meta:
-            if msg.type == "end_of_track":
-                continue
+            # Skip all meta events — accumulate their delta time
+            continue
+        if msg.type in ("note_on", "note_off", "control_change", "program_change",
+                        "pitchwheel", "aftertouch", "polytouch", "channel_pressure"):
             raw = msg.bin()
             hex_data = " ".join(f"{b:02x}" for b in raw)
-            lines.append(f"X {delta} {len(raw)} {hex_data}")
-        elif msg.type in ("note_on", "note_off", "control_change", "program_change",
-                          "pitchwheel", "aftertouch", "polytouch", "channel_pressure"):
-            raw = msg.bin()
-            hex_data = " ".join(f"{b:02x}" for b in raw)
-            lines.append(f"E {delta} {hex_data}")
+            lines.append(f"E {accumulated_delta} {hex_data}")
+            accumulated_delta = 0
     return lines
 
 
@@ -578,7 +665,8 @@ def generate_song_set_project(song_set_path: Path, output_path: Path) -> None:
 
 def generate_midi_project(midi_path: Path, output_path: Path,
                           song_set_path: Path | None = None,
-                          nes_native: bool = False) -> None:
+                          nes_native: bool = False,
+                          synth: str = "console") -> None:
     """Generate project with MIDI items, optionally remapping channels to 0-3.
 
     Creates a remapped MIDI copy where active channels are assigned to
@@ -618,7 +706,11 @@ def generate_midi_project(midi_path: Path, output_path: Path,
 
     game_name = _detect_game_name(midi_path)
 
+    use_apu2 = synth == "apu2"
+    plugin_name = JSFX_PLUGIN_APU2 if use_apu2 else JSFX_PLUGIN
+
     print(f"  MIDI: {midi_path.name} ({duration:.0f}s, {tempo:.0f} BPM)")
+    print(f"  Synth: {synth} ({plugin_name})")
     print(f"  Channel mapping:")
 
     lines = [rpp_header(tempo=tempo, title=title)]
@@ -629,7 +721,10 @@ def generate_midi_project(midi_path: Path, output_path: Path,
         name = CHANNEL_LABELS[role]
 
         # Use game-specific ADSR if detected, otherwise defaults
-        vals = console_slider_values(game=game_name, channel=role)
+        if use_apu2:
+            vals = apu2_slider_values(game=game_name, channel=role)
+        else:
+            vals = console_slider_values(game=game_name, channel=role)
 
         has_midi = False
         if orig_ch is not None and orig_ch in stats:
@@ -642,12 +737,38 @@ def generate_midi_project(midi_path: Path, output_path: Path,
         else:
             print(f"    {role:<10s} <- (none)")
 
+        # APU2: Keyboard Mode OFF for file playback (has MIDI data),
+        # ON for empty tracks (live keyboard). When ON during file playback,
+        # all channels get remapped to this track's channel = chaos.
+        if use_apu2:
+            APU2_KB_MODE_IDX = 1  # slider2 = Keyboard Mode
+            vals[APU2_KB_MODE_IDX] = 0 if has_midi else 1
+
+        # Convert MIDI tracks to inline events for HASDATA embedding
+        import mido as _mido
+        track_events = None
+        if has_midi:
+            _mid = _mido.MidiFile(str(remapped_path))
+            # Find the track that contains data for this NES channel
+            target_ch = nes_ch[role]
+            for _t in _mid.tracks:
+                has_ch = any(
+                    hasattr(m, "channel") and m.channel == target_ch
+                    for m in _t
+                )
+                if has_ch:
+                    track_events = midi_track_to_events(_t)
+                    break
+
         midi_file_str = str(remapped_path.resolve()).replace("\\", "/") if has_midi else ""
         lines.append(rpp_track(
             name=name, color=COLORS[role], slider_values=vals,
             midi_file=midi_file_str, midi_length=duration,
             armed=(not has_midi),  # arm tracks without MIDI items for live play
             selected=(i == 0),
+            jsfx_plugin=plugin_name,
+            midi_events=track_events,
+            ticks_per_beat=midi_info["ticks_per_beat"],
         ))
 
     lines.append(">")
@@ -691,6 +812,8 @@ def main() -> None:
     parser.add_argument("--palette", metavar="NAME", help="Song set to use with --midi")
     parser.add_argument("--nes-native", action="store_true",
                         help="MIDI already uses NES channels 0-3 (skip remapping)")
+    parser.add_argument("--synth", choices=["console", "apu2"], default="console",
+                        help="Synth plugin: console (ADSR) or apu2 (register replay)")
 
     args = parser.parse_args()
 
@@ -713,7 +836,7 @@ def main() -> None:
             sys.exit(1)
         ss = SONG_SETS_DIR / f"{args.palette}.json" if args.palette else None
         out = Path(args.output) if args.output else PROJECTS_DIR / f"{midi.stem}_nes.rpp"
-        generate_midi_project(midi, out, ss, nes_native=args.nes_native)
+        generate_midi_project(midi, out, ss, nes_native=args.nes_native, synth=args.synth)
     elif args.all:
         generate_all()
     else:

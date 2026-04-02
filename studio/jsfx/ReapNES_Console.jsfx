@@ -1,0 +1,964 @@
+desc:ReapNES Console - NES 2A03 Synthesizer
+tags:instrument synthesizer chiptune NES 8-bit
+in_pin:none
+out_pin:Left
+out_pin:Right
+
+// === PULSE 1 ===
+slider1:2<0,3,1{12.5%,25%,50%,75%}>P1 Duty
+slider2:15<0,15,1>P1 Volume
+slider3:1<0,1,1{Off,On}>P1 Enable
+slider4:0<0,500,1>P1 Attack (ms)
+slider5:0<0,500,1>P1 Decay (ms)
+slider6:15<0,15,1>P1 Sustain
+slider7:50<0,500,1>P1 Release (ms)
+slider8:2<0,3,1{12.5%,25%,50%,75%}>P1 Duty End
+
+// === PULSE 2 ===
+slider9:1<0,3,1{12.5%,25%,50%,75%}>P2 Duty
+slider10:15<0,15,1>P2 Volume
+slider11:1<0,1,1{Off,On}>P2 Enable
+slider12:0<0,500,1>P2 Attack (ms)
+slider13:0<0,500,1>P2 Decay (ms)
+slider14:15<0,15,1>P2 Sustain
+slider15:50<0,500,1>P2 Release (ms)
+slider16:1<0,3,1{12.5%,25%,50%,75%}>P2 Duty End
+
+// === TRIANGLE ===
+slider17:1<0,1,1{Off,On}>Tri Enable
+slider18:0<0,500,1>Tri Attack (ms)
+slider19:50<0,500,1>Tri Release (ms)
+
+// === NOISE / DRUMS ===
+slider20:0<0,15,1>Noise Period
+slider21:0<0,1,1{Long,Short}>Noise Mode
+slider22:15<0,15,1>Noise Volume
+slider23:1<0,1,1{Off,On}>Noise Enable
+slider24:0<0,500,1>Noise Attack (ms)
+slider25:100<0,500,1>Noise Decay (ms)
+
+// === VIBRATO ===
+slider26:0<0,10,0.1>Vibrato Rate (Hz)
+slider27:0<0,100,1>Vibrato Depth (cents)
+
+// === MIX ===
+slider28:0.50<0,1,0.01>P1 Mix
+slider29:0.50<0,1,0.01>P2 Mix
+slider30:0.40<0,1,0.01>Tri Mix
+slider31:0.30<0,1,0.01>Noise Mix
+
+// === MASTER ===
+slider32:0.8<0,1,0.01>Master Gain
+slider33:4<0,4,1{Pulse 1 Only,Pulse 2 Only,Triangle Only,Noise/Drums Only,Full APU}>Channel Mode
+slider34:0<0,1,1{Off,On}>Keyboard Mode
+
+// === SWEEP UNIT (Pulse only) ===
+slider35:0<0,1,1{Off,On}>P1 Sweep Enable
+slider36:0<0,7,1>P1 Sweep Period
+slider37:0<0,1,1{Down,Up}>P1 Sweep Direction
+slider38:0<0,7,1>P1 Sweep Shift
+
+@init
+cpu_clk = 1789773;
+
+// Duty cycle tables (4 x 8 steps)
+dt = 0;
+dt[0]=0; dt[1]=1; dt[2]=0; dt[3]=0; dt[4]=0; dt[5]=0; dt[6]=0; dt[7]=0;
+dt[8]=0; dt[9]=1; dt[10]=1; dt[11]=0; dt[12]=0; dt[13]=0; dt[14]=0; dt[15]=0;
+dt[16]=0; dt[17]=1; dt[18]=1; dt[19]=1; dt[20]=1; dt[21]=0; dt[22]=0; dt[23]=0;
+dt[24]=1; dt[25]=0; dt[26]=0; dt[27]=1; dt[28]=1; dt[29]=1; dt[30]=1; dt[31]=1;
+
+// Triangle waveform (32 steps)
+tt = 32;
+tt[0]=15; tt[1]=14; tt[2]=13; tt[3]=12; tt[4]=11; tt[5]=10; tt[6]=9; tt[7]=8;
+tt[8]=7; tt[9]=6; tt[10]=5; tt[11]=4; tt[12]=3; tt[13]=2; tt[14]=1; tt[15]=0;
+tt[16]=0; tt[17]=1; tt[18]=2; tt[19]=3; tt[20]=4; tt[21]=5; tt[22]=6; tt[23]=7;
+tt[24]=8; tt[25]=9; tt[26]=10; tt[27]=11; tt[28]=12; tt[29]=13; tt[30]=14; tt[31]=15;
+
+// Noise period table
+np = 64;
+np[0]=4; np[1]=8; np[2]=16; np[3]=32; np[4]=64; np[5]=96; np[6]=128; np[7]=160;
+np[8]=202; np[9]=254; np[10]=380; np[11]=508; np[12]=762; np[13]=1016; np[14]=2034; np[15]=4068;
+
+// Drum mapping: period_idx, mode, attack_vol, decay_rate
+dm = 80;
+dm[0]=14; dm[1]=0; dm[2]=15; dm[3]=600;
+dm[4]=13; dm[5]=0; dm[6]=15; dm[7]=500;
+dm[8]=3; dm[9]=1; dm[10]=10; dm[11]=200;
+dm[12]=6; dm[13]=0; dm[14]=15; dm[15]=350;
+dm[16]=5; dm[17]=0; dm[18]=13; dm[19]=300;
+dm[20]=7; dm[21]=0; dm[22]=15; dm[23]=400;
+dm[24]=11; dm[25]=0; dm[26]=14; dm[27]=500;
+dm[28]=1; dm[29]=1; dm[30]=10; dm[31]=100;
+dm[32]=10; dm[33]=0; dm[34]=14; dm[35]=450;
+dm[36]=1; dm[37]=1; dm[38]=8; dm[39]=80;
+dm[40]=8; dm[41]=0; dm[42]=14; dm[43]=400;
+dm[44]=2; dm[45]=0; dm[46]=11; dm[47]=250;
+dm[48]=9; dm[49]=0; dm[50]=14; dm[51]=400;
+dm[52]=6; dm[53]=0; dm[54]=13; dm[55]=350;
+dm[56]=3; dm[57]=0; dm[58]=13; dm[59]=800;
+dm[60]=5; dm[61]=0; dm[62]=13; dm[63]=350;
+dm[64]=2; dm[65]=0; dm[66]=9; dm[67]=300;
+dm[68]=4; dm[69]=0; dm[70]=10; dm[71]=300;
+dm[72]=4; dm[73]=0; dm[74]=10; dm[75]=300;
+dm[76]=4; dm[77]=0; dm[78]=10; dm[79]=300;
+dm[80]=2; dm[81]=0; dm[82]=11; dm[83]=600;
+dm[84]=4; dm[85]=1; dm[86]=12; dm[87]=200;
+dm[88]=3; dm[89]=0; dm[90]=13; dm[91]=900;
+
+// Channel state
+p1_phase = 0; p1_inc = 0; p1_duty = 2; p1_vol = 15; p1_en = 0; p1_note = -1;
+p2_phase = 0; p2_inc = 0; p2_duty = 1; p2_vol = 15; p2_en = 0; p2_note = -1;
+tri_phase = 0; tri_inc = 0; tri_en = 0; tri_note = -1;
+lfsr = 1; lfsr_acc = 0; noi_vol = 15; noi_en = 0; noi_period_idx = 4;
+noi_mode = 0; noi_note = -1;
+
+// Drum envelope state
+drum_vol = 0; drum_decay = 0; drum_timer = 0; drum_active = 0; drum_name = -1;
+
+// ADSR envelope state per channel (0=P1, 1=P2, 2=Tri, 3=Noise)
+// Phases: 0=idle, 1=attack, 2=decay, 3=sustain, 4=release
+env_st = 500;  // memory offset
+// env_st[ch*8 + 0] = phase (0-4)
+// env_st[ch*8 + 1] = current level (0-15, fractional)
+// env_st[ch*8 + 2] = attack rate (level per sample)
+// env_st[ch*8 + 3] = decay rate (level per sample)
+// env_st[ch*8 + 4] = sustain level (0-15)
+// env_st[ch*8 + 5] = release rate (level per sample)
+// env_st[ch*8 + 6] = peak volume (from velocity)
+// env_st[ch*8 + 7] = current duty (for duty sweep)
+i = 0;
+loop(4, memset(env_st + i * 8, 0, 8); i += 1; );
+
+// Vibrato state
+vib_phase = 0;
+
+// Sweep unit state
+swp_acc = 0; swp_timer = 0;
+
+// UI
+ui_last_click = 0;
+
+function note2hz(n) ( 440 * 2 ^ ((n - 69) / 12); );
+
+function calc_pulse_inc(freq) local(period, f) (
+  period = cpu_clk / (16 * freq) - 1;
+  period = max(0, min(2047, floor(period + 0.5)));
+  f = cpu_clk / (16 * (period + 1));
+  8.0 * f / srate;
+);
+
+function calc_tri_inc(freq) local(period, f) (
+  period = cpu_clk / (32 * freq) - 1;
+  period = max(0, min(2047, floor(period + 0.5)));
+  f = cpu_clk / (32 * (period + 1));
+  32.0 * f / srate;
+);
+
+// Compute ADSR rates from ms slider values
+function ms_to_rate(ms_val, range) local(samples) (
+  ms_val <= 0 ? 99999 : (
+    samples = max(1, ms_val * srate / 1000);
+    range / samples;
+  );
+);
+
+function trigger_env(ch, velocity) local(base, peak_vol, atk_ms, dec_ms, sus, rel_ms) (
+  base = env_st + ch * 8;
+  peak_vol = floor(velocity / 127 * 15 + 0.5);
+  ch == 0 ? ( atk_ms = slider4;  dec_ms = slider5;  sus = slider6;  rel_ms = slider7; );
+  ch == 1 ? ( atk_ms = slider12; dec_ms = slider13; sus = slider14; rel_ms = slider15; );
+  ch == 2 ? ( atk_ms = slider18; dec_ms = 0;        sus = 15;       rel_ms = slider19; );
+  ch == 3 ? ( atk_ms = slider24; dec_ms = slider25; sus = 0;        rel_ms = 0; );
+  base[6] = peak_vol;
+  base[4] = sus;
+  base[2] = ms_to_rate(atk_ms, peak_vol);
+  base[3] = ms_to_rate(dec_ms, peak_vol - sus);
+  base[5] = ms_to_rate(rel_ms, peak_vol);
+  atk_ms > 0 ? (
+    base[0] = 1;  // attack phase
+    base[1] = 0;  // start from 0
+  ) : (
+    base[0] = dec_ms > 0 ? 2 : 3;  // skip to decay or sustain
+    base[1] = peak_vol;
+  );
+  // Duty sweep: start at Duty, will interpolate to Duty End
+  ch == 0 ? base[7] = slider1;
+  ch == 1 ? base[7] = slider9;
+);
+
+function release_env(ch) local(base) (
+  base = env_st + ch * 8;
+  base[0] == 0 ? 0 : (
+    base[0] = 4;  // release phase
+  );
+);
+
+function process_env(ch) local(base, phase, level, sus) (
+  base = env_st + ch * 8;
+  phase = base[0];
+  level = base[1];
+  sus = base[4];
+  phase == 1 ? (  // Attack: ramp up
+    level += base[2];
+    level >= base[6] ? ( level = base[6]; base[0] = 2; );  // -> decay
+  );
+  phase == 2 ? (  // Decay: ramp down to sustain
+    level -= base[3];
+    level <= sus ? ( level = sus; base[0] = 3; );  // -> sustain
+  );
+  phase == 3 ? (  // Sustain: hold
+    level = sus;
+  );
+  phase == 4 ? (  // Release: ramp down to 0
+    level -= base[5];
+    level <= 0 ? ( level = 0; base[0] = 0; );  // -> idle
+  );
+  base[1] = max(0, min(15, level));
+  base[1];
+);
+
+// Compute current duty for duty sweep
+function get_env_duty(ch) local(base, progress, d_start, d_end) (
+  base = env_st + ch * 8;
+  ch == 0 ? ( d_start = slider1; d_end = slider8; );
+  ch == 1 ? ( d_start = slider9; d_end = slider16; );
+  base[0] >= 1 && base[0] <= 2 ? (
+    // During attack/decay, interpolate duty
+    progress = base[1] / max(1, base[6]);
+    floor(d_start + (d_end - d_start) * progress + 0.5);
+  ) : (
+    d_end;  // sustain/release use end duty
+  );
+);
+
+function trigger_drum(gm_note, velocity) local(idx, base) (
+  idx = gm_note - 35;
+  idx >= 0 && idx <= 22 ? (
+    base = idx * 4;
+    noi_period_idx = dm[base];
+    noi_mode = dm[base + 1];
+    drum_vol = dm[base + 2] * (velocity / 127);
+    drum_decay = dm[base + 3];
+    drum_timer = drum_decay;
+    drum_active = 1;
+    drum_name = gm_note;
+    noi_vol = floor(drum_vol + 0.5);
+    noi_en = 1;
+  );
+);
+
+@slider
+p1_duty = slider1;
+p1_vol = slider2;
+p2_duty = slider9;
+p2_vol = slider10;
+noi_period_idx = slider20;
+noi_mode = slider21;
+noi_vol = slider22;
+
+@block
+ch_mode = slider33;
+kb_mode = slider34;
+
+while (midirecv(offset, msg1, msg2, msg3)) (
+  status = msg1 & 0xF0;
+  ch = msg1 & 0x0F;
+
+  kb_mode && ch_mode < 4 ? (
+    ch = ch_mode;
+    msg1 = status | ch;
+  );
+
+  use_msg = 1;
+  ch_mode < 4 ? (
+    ch != ch_mode ? use_msg = 0;
+  );
+
+  use_msg && status == 0x90 && msg3 > 0 ? (
+    ch == 0 ? (
+      p1_note = msg2; p1_inc = calc_pulse_inc(note2hz(msg2));
+      p1_en = 1;
+      trigger_env(0, msg3);
+    );
+    ch == 1 ? (
+      p2_note = msg2; p2_inc = calc_pulse_inc(note2hz(msg2));
+      p2_en = 1;
+      trigger_env(1, msg3);
+    );
+    ch == 2 ? (
+      tri_note = msg2; tri_inc = calc_tri_inc(note2hz(msg2));
+      tri_en = 1;
+      trigger_env(2, msg3);
+    );
+    ch == 3 ? (
+      msg2 >= 35 && msg2 <= 57 ? (
+        trigger_drum(msg2, msg3);
+      ) : (
+        noi_note = msg2; noi_period_idx = floor(msg2 / 8);
+        noi_en = 1; drum_active = 0;
+        trigger_env(3, msg3);
+      );
+    );
+  );
+
+  use_msg && (status == 0x80 || (status == 0x90 && msg3 == 0)) ? (
+    ch == 0 && msg2 == p1_note ? ( release_env(0); p1_note = -1; );
+    ch == 1 && msg2 == p2_note ? ( release_env(1); p2_note = -1; );
+    ch == 2 && msg2 == tri_note ? ( release_env(2); tri_note = -1; );
+    ch == 3 && !drum_active && msg2 == noi_note ? ( release_env(3); noi_note = -1; );
+  );
+
+  use_msg && status == 0xB0 && msg2 == 1 ? (
+    ch == 0 ? ( p1_duty = floor(msg3 / 32); slider1 = p1_duty; );
+    ch == 1 ? ( p2_duty = floor(msg3 / 32); slider9 = p2_duty; );
+  );
+
+  use_msg && status == 0xE0 ? (
+    pb = ((msg3 << 7) | msg2) - 8192;
+    pb_semi = pb / 8192 * 2;
+    ch == 0 && p1_note >= 0 ? p1_inc = calc_pulse_inc(note2hz(p1_note + pb_semi));
+    ch == 1 && p2_note >= 0 ? p2_inc = calc_pulse_inc(note2hz(p2_note + pb_semi));
+    ch == 2 && tri_note >= 0 ? tri_inc = calc_tri_inc(note2hz(tri_note + pb_semi));
+  );
+
+  midisend(offset, msg1, msg2, msg3);
+);
+
+@sample
+
+// Process ADSR envelopes
+p1_env_level = process_env(0);
+p2_env_level = process_env(1);
+tri_env_level = process_env(2);
+noi_env_level = process_env(3);
+
+// Apply envelope to volumes
+env_p1_vol = floor(p1_env_level + 0.5);
+env_p2_vol = floor(p2_env_level + 0.5);
+
+// Kill oscillators when envelope finishes release and note is off
+p1_note < 0 && env_st[0] == 0 ? p1_en = 0;
+p2_note < 0 && env_st[8] == 0 ? p2_en = 0;
+tri_note < 0 && env_st[16] == 0 ? tri_en = 0;
+noi_note < 0 && !drum_active && env_st[24] == 0 ? noi_en = 0;
+
+// Duty sweep
+p1_env_duty = get_env_duty(0);
+p2_env_duty = get_env_duty(1);
+
+// Vibrato LFO
+vib_semi = 0;
+slider26 > 0 ? (
+  vib_phase += slider26 / srate;
+  vib_phase >= 1 ? vib_phase -= 1;
+  vib_semi = sin(vib_phase * 2 * $pi) * slider27 / 100;
+);
+
+// Apply vibrato to pitch
+vib_semi != 0 ? (
+  p1_note >= 0 ? p1_inc = calc_pulse_inc(note2hz(p1_note + vib_semi));
+  p2_note >= 0 ? p2_inc = calc_pulse_inc(note2hz(p2_note + vib_semi));
+  tri_note >= 0 ? tri_inc = calc_tri_inc(note2hz(tri_note + vib_semi));
+);
+
+// Sweep unit (Pulse 1 only)
+slider35 ? (
+  swp_acc += 1;
+  swp_acc >= (slider36 + 1) * srate / 120 ? (
+    swp_acc = 0;
+    p1_note >= 0 ? (
+      shift_amt = p1_inc / (2 ^ (slider38 + 1));
+      slider37 ? (
+        p1_inc = max(0.001, p1_inc - shift_amt);  // Up = decrease period = increase freq
+      ) : (
+        p1_inc = min(8.0, p1_inc + shift_amt);  // Down = increase period = decrease freq
+      );
+    );
+  );
+);
+
+// --- Pulse 1 ---
+p1_en && slider3 && (env_st[0] > 0) ? (
+  p1_out = dt[p1_env_duty * 8 + (floor(p1_phase) & 7)] * env_p1_vol;
+  p1_phase += p1_inc;
+  p1_phase >= 8.0 ? p1_phase -= 8.0;
+) : (
+  p1_en && slider3 ? (
+    // No envelope active, use static volume
+    p1_out = dt[p1_duty * 8 + (floor(p1_phase) & 7)] * p1_vol;
+    p1_phase += p1_inc;
+    p1_phase >= 8.0 ? p1_phase -= 8.0;
+  ) : p1_out = 0;
+);
+
+// --- Pulse 2 ---
+p2_en && slider11 && (env_st[8] > 0) ? (
+  p2_out = dt[p2_env_duty * 8 + (floor(p2_phase) & 7)] * env_p2_vol;
+  p2_phase += p2_inc;
+  p2_phase >= 8.0 ? p2_phase -= 8.0;
+) : (
+  p2_en && slider11 ? (
+    p2_out = dt[p2_duty * 8 + (floor(p2_phase) & 7)] * p2_vol;
+    p2_phase += p2_inc;
+    p2_phase >= 8.0 ? p2_phase -= 8.0;
+  ) : p2_out = 0;
+);
+
+// --- Triangle ---
+tri_en && slider17 ? (
+  tri_out = tt[floor(tri_phase) & 31];
+  tri_phase += tri_inc;
+  tri_phase >= 32.0 ? tri_phase -= 32.0;
+  // Apply triangle envelope as gate (triangle has no volume control)
+  tri_env_level <= 0 && (env_st[16] == 4 || env_st[16] == 0) ? (
+    tri_out = 0; tri_en = 0;
+  );
+) : tri_out = 0;
+
+// --- Noise with drum envelope ---
+drum_active ? (
+  drum_timer -= 1;
+  drum_timer <= 0 ? (
+    drum_vol -= 1;
+    drum_vol <= 0 ? (
+      drum_vol = 0; drum_active = 0; noi_en = 0; drum_name = -1;
+    ) : drum_timer = drum_decay;
+    noi_vol = floor(drum_vol + 0.5);
+  );
+);
+
+noi_en && slider23 ? (
+  noi_rate = cpu_clk / (np[noi_period_idx & 15] * srate);
+  lfsr_acc += noi_rate;
+  lfsr_acc >= 1.0 ? (
+    lfsr_acc -= 1.0;
+    noi_mode ? (
+      fb = ((lfsr & 1) + ((lfsr >> 6) & 1)) & 1;
+    ) : (
+      fb = ((lfsr & 1) + ((lfsr >> 1) & 1)) & 1;
+    );
+    lfsr = (lfsr >> 1) | (fb << 14);
+  );
+  // Apply noise envelope if not in drum mode
+  !drum_active ? (
+    noi_out = (lfsr & 1) ? 0 : floor(noi_env_level + 0.5);
+  ) : (
+    noi_out = (lfsr & 1) ? 0 : noi_vol;
+  );
+) : noi_out = 0;
+
+// --- Mix with per-channel weights ---
+mix = 0;
+p1_out > 0 ? mix += (p1_out / 15.0 - 0.5) * slider28;
+p2_out > 0 ? mix += (p2_out / 15.0 - 0.5) * slider29;
+tri_out > 0 ? mix += (tri_out / 15.0 - 0.5) * slider30;
+noi_out > 0 ? mix += (noi_out / 15.0 - 0.5) * slider31;
+
+out = mix * slider32;
+spl0 = out;
+spl1 = out;
+
+// =========================================================================
+// ANALOG SYNTH CONSOLE UI
+// =========================================================================
+@gfx 820 560
+
+// --- Panel background: dark brushed metal ---
+gfx_r = 0.11; gfx_g = 0.11; gfx_b = 0.13; gfx_a = 1;
+gfx_rect(0, 0, gfx_w, gfx_h);
+// Subtle horizontal grain lines
+gfx_r = 0.13; gfx_g = 0.13; gfx_b = 0.15; gfx_a = 0.3;
+i = 0;
+loop(gfx_h / 3,
+  gfx_line(0, i * 3, gfx_w, i * 3);
+  i += 1;
+);
+
+// --- UI interaction state (memory 4000+) ---
+// ui_knob_drag: which knob is being dragged (-1 = none)
+// ui_drag_y: mouse Y at drag start
+// ui_drag_val: value at drag start
+
+// ======================== PRIMITIVES ========================
+
+// --- Rotary knob with pointer ---
+function draw_knob(cx, cy, rad, val, vmin, vmax, r, g, b, label, knob_id) local(ang, frac, px, py, mx, my, dy, nv, glow) (
+  frac = (val - vmin) / max(0.001, vmax - vmin);
+  // Angle: 225 degrees sweep (from 7 o'clock to 5 o'clock)
+  ang = (5 * $pi / 4) - frac * (3 * $pi / 2);
+
+  // Outer ring (shadow)
+  gfx_r = 0.06; gfx_g = 0.06; gfx_b = 0.08; gfx_a = 1;
+  gfx_circle(cx, cy + 1, rad + 2, 1, 1);
+
+  // Knob body (dark)
+  gfx_r = 0.18; gfx_g = 0.18; gfx_b = 0.22; gfx_a = 1;
+  gfx_circle(cx, cy, rad, 1, 1);
+
+  // Knob highlight ring
+  gfx_r = 0.28; gfx_g = 0.28; gfx_b = 0.34; gfx_a = 1;
+  gfx_circle(cx, cy, rad, 0, 1);
+
+  // Colored arc showing value
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.7;
+  gfx_arc(cx, cy, rad + 3, -5 * $pi / 4, -5 * $pi / 4 + frac * 3 * $pi / 2, 1);
+  gfx_arc(cx, cy, rad + 4, -5 * $pi / 4, -5 * $pi / 4 + frac * 3 * $pi / 2, 1);
+
+  // Pointer line
+  px = cx + cos(ang) * (rad - 4);
+  py = cy - sin(ang) * (rad - 4);
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 1;
+  gfx_line(cx, cy, px, py);
+
+  // Pointer dot
+  gfx_circle(px, py, 2, 1, 1);
+
+  // Center dot
+  gfx_r = 0.1; gfx_g = 0.1; gfx_b = 0.12; gfx_a = 1;
+  gfx_circle(cx, cy, 3, 1, 1);
+
+  // Label below
+  gfx_setfont(1, "Arial", 9);
+  gfx_r = 0.55; gfx_g = 0.55; gfx_b = 0.6; gfx_a = 1;
+  gfx_x = cx - 14; gfx_y = cy + rad + 6;
+  gfx_drawstr(label);
+
+  // Value display above
+  gfx_setfont(1, "Arial", 9);
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.9;
+  gfx_x = cx - 10; gfx_y = cy - rad - 14;
+  vmax <= 1 ? gfx_printf("%.2f", val) :
+  vmax <= 15 ? gfx_printf("%d", floor(val + 0.5)) :
+  gfx_printf("%d", floor(val + 0.5));
+
+  // Mouse interaction (drag up/down to change)
+  mx = mouse_x; my = mouse_y;
+  (mouse_cap & 1) ? (
+    // Check if starting a new drag on this knob
+    ui_knob_drag == -1 && mx >= cx - rad - 4 && mx <= cx + rad + 4 && my >= cy - rad - 4 && my <= cy + rad + 4 ? (
+      ui_knob_drag = knob_id;
+      ui_drag_y = my;
+      ui_drag_val = val;
+    );
+    // Process drag for this knob
+    ui_knob_drag == knob_id ? (
+      dy = ui_drag_y - my;
+      nv = ui_drag_val + dy * (vmax - vmin) / 150;
+      nv = max(vmin, min(vmax, nv));
+      vmax > 1 && vmax <= 15 ? nv = floor(nv + 0.5);
+      vmax > 15 ? nv = floor(nv + 0.5);
+      nv;
+    ) : val;
+  ) : (
+    ui_knob_drag == knob_id ? ui_knob_drag = -1;
+    val;
+  );
+);
+
+// --- Vertical fader ---
+function draw_fader(x, y, w, h, val, vmin, vmax, r, g, b, label, fader_id) local(frac, fy, mx, my, nv, fill_h) (
+  frac = (val - vmin) / max(0.001, vmax - vmin);
+
+  // Slot background
+  gfx_r = 0.06; gfx_g = 0.06; gfx_b = 0.08; gfx_a = 1;
+  gfx_rect(x, y, w, h);
+
+  // Slot border
+  gfx_r = 0.2; gfx_g = 0.2; gfx_b = 0.25; gfx_a = 1;
+  gfx_roundrect(x, y, w, h, 1);
+
+  // Fill from bottom
+  fill_h = frac * (h - 6);
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.4;
+  gfx_rect(x + 1, y + h - 3 - fill_h, w - 2, fill_h);
+
+  // Handle
+  fy = y + h - 3 - frac * (h - 6);
+  gfx_r = 0.7; gfx_g = 0.7; gfx_b = 0.75; gfx_a = 1;
+  gfx_rect(x - 1, fy - 3, w + 2, 6);
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.9;
+  gfx_line(x + 1, fy, x + w - 1, fy);
+
+  // Label below
+  gfx_setfont(1, "Arial", 8);
+  gfx_r = 0.5; gfx_g = 0.5; gfx_b = 0.55; gfx_a = 1;
+  gfx_x = x - 1; gfx_y = y + h + 3;
+  gfx_drawstr(label);
+
+  // Mouse interaction
+  mx = mouse_x; my = mouse_y;
+  (mouse_cap & 1) ? (
+    ui_knob_drag == -1 && mx >= x - 4 && mx <= x + w + 4 && my >= y - 4 && my <= y + h + 4 ? (
+      ui_knob_drag = fader_id;
+    );
+    ui_knob_drag == fader_id ? (
+      nv = vmax - (my - y - 3) / max(1, h - 6) * (vmax - vmin);
+      nv = max(vmin, min(vmax, nv));
+      vmax > 1 && vmax <= 15 ? nv = floor(nv + 0.5);
+      vmax > 15 ? nv = floor(nv + 0.5);
+      nv;
+    ) : val;
+  ) : (
+    ui_knob_drag == fader_id ? ui_knob_drag = -1;
+    val;
+  );
+);
+
+// --- LED indicator ---
+function draw_led(cx, cy, rad, on, r, g, b) (
+  on ? (
+    // Glow
+    gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.2;
+    gfx_circle(cx, cy, rad + 4, 1, 1);
+    // Bright center
+    gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.9;
+    gfx_circle(cx, cy, rad, 1, 1);
+    // Hot spot
+    gfx_r = 1; gfx_g = 1; gfx_b = 1; gfx_a = 0.4;
+    gfx_circle(cx - 1, cy - 1, 1, 1, 1);
+  ) : (
+    gfx_r = 0.12; gfx_g = 0.12; gfx_b = 0.15; gfx_a = 1;
+    gfx_circle(cx, cy, rad, 1, 1);
+    gfx_r = 0.2; gfx_g = 0.2; gfx_b = 0.25; gfx_a = 1;
+    gfx_circle(cx, cy, rad, 0, 1);
+  );
+);
+
+// --- Small ADSR curve visualization ---
+function draw_adsr_mini(x, y, w, h, atk, dec, sus, rel, r, g, b) local(total, ax, dx, sx, rx, sy) (
+  gfx_r = 0.06; gfx_g = 0.06; gfx_b = 0.09; gfx_a = 1;
+  gfx_rect(x, y, w, h);
+  gfx_r = 0.18; gfx_g = 0.18; gfx_b = 0.22; gfx_a = 1;
+  gfx_roundrect(x, y, w, h, 1);
+
+  total = max(1, atk + dec + 200 + rel);
+  ax = x + (atk / total) * w;
+  dx = ax + (dec / total) * w;
+  sx = dx + (200 / total) * w;
+  rx = sx + (rel / total) * w;
+  sy = y + h - (sus / 15) * h;
+
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.8;
+  gfx_x = x; gfx_y = y + h;
+  gfx_lineto(ax, y + 1);
+  gfx_lineto(dx, sy);
+  gfx_lineto(sx, sy);
+  gfx_lineto(min(rx, x + w), y + h);
+);
+
+// --- Note name helper ---
+function draw_note(x, y, note, r, g, b) local(n, oct) (
+  gfx_setfont(1, "Arial", 11);
+  gfx_x = x; gfx_y = y;
+  note >= 0 ? (
+    gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 1;
+    n = note % 12;
+    oct = floor(note / 12) - 1;
+    n == 0 ? gfx_drawstr("C");  n == 1 ? gfx_drawstr("C#");
+    n == 2 ? gfx_drawstr("D");  n == 3 ? gfx_drawstr("D#");
+    n == 4 ? gfx_drawstr("E");  n == 5 ? gfx_drawstr("F");
+    n == 6 ? gfx_drawstr("F#"); n == 7 ? gfx_drawstr("G");
+    n == 8 ? gfx_drawstr("G#"); n == 9 ? gfx_drawstr("A");
+    n == 10 ? gfx_drawstr("A#"); n == 11 ? gfx_drawstr("B");
+    gfx_printf("%d", oct);
+  ) : (
+    gfx_r = 0.3; gfx_g = 0.3; gfx_b = 0.35; gfx_a = 1;
+    gfx_drawstr("--");
+  );
+);
+
+// ======================== TITLE BAR ========================
+gfx_r = 0.08; gfx_g = 0.08; gfx_b = 0.1; gfx_a = 1;
+gfx_rect(0, 0, gfx_w, 28);
+gfx_r = 0.15; gfx_g = 0.15; gfx_b = 0.2; gfx_a = 1;
+gfx_line(0, 28, gfx_w, 28);
+
+gfx_setfont(1, "Arial", 16);
+gfx_r = 0.85; gfx_g = 0.5; gfx_b = 0.2; gfx_a = 1;
+gfx_x = 12; gfx_y = 5;
+gfx_drawstr("ReapNES");
+gfx_r = 0.5; gfx_g = 0.5; gfx_b = 0.6; gfx_a = 1;
+gfx_setfont(1, "Arial", 11);
+gfx_x = 90; gfx_y = 9;
+gfx_drawstr("NES 2A03 Synthesizer");
+
+// Playing indicator
+(p1_en || p2_en || tri_en || noi_en) ? (
+  draw_led(gfx_w - 20, 14, 4, 1, 0, 1, 0.3);
+  gfx_setfont(1, "Arial", 9);
+  gfx_r = 0; gfx_g = 0.8; gfx_b = 0.3; gfx_a = 0.9;
+  gfx_x = gfx_w - 70; gfx_y = 9;
+  gfx_drawstr("ACTIVE");
+) : (
+  draw_led(gfx_w - 20, 14, 4, 0, 0.3, 0.3, 0.3);
+);
+
+// ======================== CHANNEL SECTIONS ========================
+sec_y = 36;
+sec_h = gfx_h - sec_y;
+col1 = 8;
+col2 = 168;
+col3 = 328;
+col4 = 448;
+col5 = 568;
+col_w = 152;
+
+// Section separators (vertical groove lines)
+function draw_vsep(x) (
+  gfx_r = 0.06; gfx_g = 0.06; gfx_b = 0.08; gfx_a = 1;
+  gfx_line(x, sec_y + 4, x, gfx_h - 4);
+  gfx_r = 0.18; gfx_g = 0.18; gfx_b = 0.22; gfx_a = 0.5;
+  gfx_line(x + 1, sec_y + 4, x + 1, gfx_h - 4);
+);
+draw_vsep(col2 - 5);
+draw_vsep(col3 - 5);
+draw_vsep(col4 - 5);
+draw_vsep(col5 - 5);
+
+// --- Section header ---
+function draw_sec_header(x, y, label, r, g, b, en, note) (
+  gfx_setfont(1, "Arial", 13);
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 1;
+  gfx_x = x; gfx_y = y;
+  gfx_drawstr(label);
+  draw_led(x + 110, y + 7, 4, en, r, g, b);
+  draw_note(x + 122, y + 2, note, r, g, b);
+);
+
+// ======== PULSE 1 ========
+draw_sec_header(col1, sec_y + 2, "PULSE 1", 0.3, 0.95, 0.4, p1_en && slider3, p1_note);
+
+// Knobs row 1: Duty + Volume
+nv = draw_knob(col1 + 36, sec_y + 54, 16, slider1, 0, 3, 0.3, 0.95, 0.4, "DUTY", 100);
+nv != slider1 ? ( slider1 = nv; p1_duty = nv; );
+nv = draw_knob(col1 + 108, sec_y + 54, 16, slider2, 0, 15, 0.3, 0.95, 0.4, "VOL", 101);
+nv != slider2 ? ( slider2 = nv; p1_vol = nv; );
+
+// Knob row 2: Duty End + Mix
+nv = draw_knob(col1 + 36, sec_y + 116, 14, slider8, 0, 3, 0.3, 0.95, 0.4, "DUTY>", 102);
+nv != slider8 ? slider8 = nv;
+nv = draw_knob(col1 + 108, sec_y + 116, 14, slider28, 0, 1, 0.3, 0.95, 0.4, "MIX", 103);
+nv != slider28 ? slider28 = nv;
+
+// ADSR Faders
+fader_y = sec_y + 162;
+fader_h = 120;
+nv = draw_fader(col1 + 10, fader_y, 12, fader_h, slider4, 0, 500, 0.3, 0.95, 0.4, "A", 200);
+nv != slider4 ? slider4 = nv;
+nv = draw_fader(col1 + 42, fader_y, 12, fader_h, slider5, 0, 500, 0.3, 0.95, 0.4, "D", 201);
+nv != slider5 ? slider5 = nv;
+nv = draw_fader(col1 + 74, fader_y, 12, fader_h, slider6, 0, 15, 0.3, 0.95, 0.4, "S", 202);
+nv != slider6 ? slider6 = nv;
+nv = draw_fader(col1 + 106, fader_y, 12, fader_h, slider7, 0, 500, 0.3, 0.95, 0.4, "R", 203);
+nv != slider7 ? slider7 = nv;
+
+// ADSR mini visualization
+draw_adsr_mini(col1 + 4, fader_y + fader_h + 22, 140, 32, slider4, slider5, slider6, slider7, 0.3, 0.95, 0.4);
+
+// Waveform indicator
+gfx_setfont(1, "Arial", 8);
+gfx_r = 0.3; gfx_g = 0.95; gfx_b = 0.4; gfx_a = 0.6;
+gfx_x = col1 + 4; gfx_y = fader_y + fader_h + 58;
+slider1 == 0 ? gfx_drawstr("_| 12.5%") : slider1 == 1 ? gfx_drawstr("_|| 25%") :
+slider1 == 2 ? gfx_drawstr("_||| 50%") : gfx_drawstr("|||_ 75%");
+slider1 != slider8 ? (
+  gfx_drawstr(" -> ");
+  slider8 == 0 ? gfx_drawstr("12.5%") : slider8 == 1 ? gfx_drawstr("25%") :
+  slider8 == 2 ? gfx_drawstr("50%") : gfx_drawstr("75%");
+);
+
+// ======== PULSE 2 ========
+draw_sec_header(col2, sec_y + 2, "PULSE 2", 0.4, 0.7, 0.95, p2_en && slider11, p2_note);
+
+nv = draw_knob(col2 + 36, sec_y + 54, 16, slider9, 0, 3, 0.4, 0.7, 0.95, "DUTY", 110);
+nv != slider9 ? ( slider9 = nv; p2_duty = nv; );
+nv = draw_knob(col2 + 108, sec_y + 54, 16, slider10, 0, 15, 0.4, 0.7, 0.95, "VOL", 111);
+nv != slider10 ? ( slider10 = nv; p2_vol = nv; );
+
+nv = draw_knob(col2 + 36, sec_y + 116, 14, slider16, 0, 3, 0.4, 0.7, 0.95, "DUTY>", 112);
+nv != slider16 ? slider16 = nv;
+nv = draw_knob(col2 + 108, sec_y + 116, 14, slider29, 0, 1, 0.4, 0.7, 0.95, "MIX", 113);
+nv != slider29 ? slider29 = nv;
+
+nv = draw_fader(col2 + 10, fader_y, 12, fader_h, slider12, 0, 500, 0.4, 0.7, 0.95, "A", 210);
+nv != slider12 ? slider12 = nv;
+nv = draw_fader(col2 + 42, fader_y, 12, fader_h, slider13, 0, 500, 0.4, 0.7, 0.95, "D", 211);
+nv != slider13 ? slider13 = nv;
+nv = draw_fader(col2 + 74, fader_y, 12, fader_h, slider14, 0, 15, 0.4, 0.7, 0.95, "S", 212);
+nv != slider14 ? slider14 = nv;
+nv = draw_fader(col2 + 106, fader_y, 12, fader_h, slider15, 0, 500, 0.4, 0.7, 0.95, "R", 213);
+nv != slider15 ? slider15 = nv;
+
+draw_adsr_mini(col2 + 4, fader_y + fader_h + 22, 140, 32, slider12, slider13, slider14, slider15, 0.4, 0.7, 0.95);
+
+gfx_setfont(1, "Arial", 8);
+gfx_r = 0.4; gfx_g = 0.7; gfx_b = 0.95; gfx_a = 0.6;
+gfx_x = col2 + 4; gfx_y = fader_y + fader_h + 58;
+slider9 == 0 ? gfx_drawstr("_| 12.5%") : slider9 == 1 ? gfx_drawstr("_|| 25%") :
+slider9 == 2 ? gfx_drawstr("_||| 50%") : gfx_drawstr("|||_ 75%");
+
+// ======== TRIANGLE ========
+draw_sec_header(col3, sec_y + 2, "TRI", 0.95, 0.6, 0.2, tri_en && slider17, tri_note);
+
+nv = draw_knob(col3 + 55, sec_y + 54, 16, slider30, 0, 1, 0.95, 0.6, 0.2, "MIX", 120);
+nv != slider30 ? slider30 = nv;
+
+// Triangle has only A and R faders
+nv = draw_fader(col3 + 24, fader_y, 12, fader_h, slider18, 0, 500, 0.95, 0.6, 0.2, "A", 220);
+nv != slider18 ? slider18 = nv;
+nv = draw_fader(col3 + 76, fader_y, 12, fader_h, slider19, 0, 500, 0.95, 0.6, 0.2, "R", 221);
+nv != slider19 ? slider19 = nv;
+
+draw_adsr_mini(col3 + 4, fader_y + fader_h + 22, 108, 32, slider18, 0, 15, slider19, 0.95, 0.6, 0.2);
+
+gfx_setfont(1, "Arial", 8);
+gfx_r = 0.95; gfx_g = 0.6; gfx_b = 0.2; gfx_a = 0.5;
+gfx_x = col3 + 4; gfx_y = fader_y + fader_h + 58;
+gfx_drawstr("/\\/\\ (no vol ctrl)");
+
+// ======== NOISE ========
+draw_sec_header(col4, sec_y + 2, "NOISE", 0.7, 0.7, 0.75, noi_en && slider23, drum_active ? drum_name : noi_note);
+
+nv = draw_knob(col4 + 30, sec_y + 54, 16, slider20, 0, 15, 0.7, 0.7, 0.75, "PERIOD", 130);
+nv != slider20 ? ( slider20 = nv; noi_period_idx = nv; );
+nv = draw_knob(col4 + 90, sec_y + 54, 16, slider22, 0, 15, 0.7, 0.7, 0.75, "VOL", 131);
+nv != slider22 ? ( slider22 = nv; noi_vol = nv; );
+
+nv = draw_knob(col4 + 30, sec_y + 116, 14, slider31, 0, 1, 0.7, 0.7, 0.75, "MIX", 132);
+nv != slider31 ? slider31 = nv;
+
+// Mode LED (short = bright, long = dim)
+draw_led(col4 + 90, sec_y + 110, 5, slider21, 0.9, 0.6, 0.9);
+gfx_setfont(1, "Arial", 8);
+gfx_r = 0.6; gfx_g = 0.6; gfx_b = 0.65; gfx_a = 1;
+gfx_x = col4 + 78; gfx_y = sec_y + 120;
+slider21 ? gfx_drawstr("SHORT") : gfx_drawstr("LONG");
+
+nv = draw_fader(col4 + 24, fader_y, 12, fader_h, slider24, 0, 500, 0.7, 0.7, 0.75, "A", 230);
+nv != slider24 ? slider24 = nv;
+nv = draw_fader(col4 + 76, fader_y, 12, fader_h, slider25, 0, 500, 0.7, 0.7, 0.75, "D", 231);
+nv != slider25 ? slider25 = nv;
+
+draw_adsr_mini(col4 + 4, fader_y + fader_h + 22, 108, 32, slider24, slider25, 0, 0, 0.7, 0.7, 0.75);
+
+// Drum indicator
+drum_active ? (
+  gfx_setfont(1, "Arial", 9);
+  gfx_r = 1; gfx_g = 0.8; gfx_b = 0.3; gfx_a = 1;
+  gfx_x = col4 + 4; gfx_y = fader_y + fader_h + 58;
+  gfx_printf("DRUM #%d", drum_name);
+);
+
+// ======== GLOBAL / MASTER ========
+gfx_setfont(1, "Arial", 13);
+gfx_r = 0.85; gfx_g = 0.5; gfx_b = 0.2; gfx_a = 1;
+gfx_x = col5; gfx_y = sec_y + 2;
+gfx_drawstr("MASTER");
+
+// Master gain knob
+nv = draw_knob(col5 + 55, sec_y + 50, 20, slider32, 0, 1, 0.85, 0.5, 0.2, "GAIN", 140);
+nv != slider32 ? slider32 = nv;
+
+// Vibrato knobs
+nv = draw_knob(col5 + 26, sec_y + 116, 13, slider26, 0, 10, 0.6, 0.5, 0.9, "VIB Hz", 141);
+nv != slider26 ? slider26 = nv;
+nv = draw_knob(col5 + 84, sec_y + 116, 13, slider27, 0, 100, 0.6, 0.5, 0.9, "DEPTH", 142);
+nv != slider27 ? slider27 = nv;
+
+// Sweep knobs (P1 only)
+gfx_setfont(1, "Arial", 9);
+gfx_r = 0.5; gfx_g = 0.7; gfx_b = 0.5; gfx_a = 0.8;
+gfx_x = col5 + 4; gfx_y = sec_y + 148;
+gfx_drawstr("SWEEP P1");
+draw_led(col5 + 72, sec_y + 152, 3, slider35, 0.5, 0.9, 0.5);
+
+nv = draw_knob(col5 + 26, sec_y + 184, 12, slider36, 0, 7, 0.5, 0.8, 0.5, "RATE", 143);
+nv != slider36 ? slider36 = nv;
+nv = draw_knob(col5 + 84, sec_y + 184, 12, slider38, 0, 7, 0.5, 0.8, 0.5, "SHIFT", 144);
+nv != slider38 ? slider38 = nv;
+
+// Mode display
+gfx_setfont(1, "Arial", 10);
+gfx_r = 0.5; gfx_g = 0.5; gfx_b = 0.6; gfx_a = 0.8;
+gfx_x = col5 + 4; gfx_y = sec_y + 210;
+slider33 == 0 ? gfx_drawstr("P1 ONLY");
+slider33 == 1 ? gfx_drawstr("P2 ONLY");
+slider33 == 2 ? gfx_drawstr("TRI ONLY");
+slider33 == 3 ? gfx_drawstr("NOISE ONLY");
+slider33 == 4 ? gfx_drawstr("FULL APU");
+
+// KB mode indicator
+draw_led(col5 + 100, sec_y + 214, 3, slider34, 0.9, 0.8, 0.2);
+gfx_setfont(1, "Arial", 8);
+gfx_r = 0.5; gfx_g = 0.5; gfx_b = 0.55;
+gfx_x = col5 + 4; gfx_y = sec_y + 226;
+slider34 ? gfx_drawstr("KB MODE ON") : gfx_drawstr("KB MODE OFF");
+
+// ======== OSCILLOSCOPE (CRT style) ========
+scope_x = col5;
+scope_y2 = fader_y - 6;
+scope_w = gfx_w - col5 - 8;
+scope_h2 = gfx_h - scope_y2 - 8;
+
+// CRT bezel
+gfx_r = 0.04; gfx_g = 0.06; gfx_b = 0.04; gfx_a = 1;
+gfx_rect(scope_x, scope_y2, scope_w, scope_h2);
+gfx_r = 0.15; gfx_g = 0.2; gfx_b = 0.15; gfx_a = 1;
+gfx_roundrect(scope_x, scope_y2, scope_w, scope_h2, 3);
+
+// Grid lines
+gfx_r = 0.08; gfx_g = 0.12; gfx_b = 0.08; gfx_a = 0.5;
+i = 1;
+loop(4,
+  gfx_line(scope_x, scope_y2 + i * scope_h2 / 5, scope_x + scope_w, scope_y2 + i * scope_h2 / 5);
+  i += 1;
+);
+
+// Ring buffer for scope
+gfx_ring = 700;
+gfx_ring_len = min(scope_w - 10, 240);
+gfx_ring_pos >= gfx_ring_len ? gfx_ring_pos = 0;
+
+gfx_ring[gfx_ring_pos]                    = p1_out / 15;
+gfx_ring[gfx_ring_pos + gfx_ring_len]     = p2_out / 15;
+gfx_ring[gfx_ring_pos + gfx_ring_len * 2] = tri_out / 15;
+gfx_ring[gfx_ring_pos + gfx_ring_len * 3] = noi_out / 15;
+gfx_ring[gfx_ring_pos + gfx_ring_len * 4] = out * 2;
+gfx_ring_pos += 1;
+
+function draw_scope_line(ch_off, yc, r, g, b) local(i, idx, val, y, sx) (
+  gfx_r = r; gfx_g = g; gfx_b = b; gfx_a = 0.7;
+  sx = scope_x + 5;
+  i = 0;
+  loop(gfx_ring_len,
+    idx = (gfx_ring_pos + i) % gfx_ring_len + ch_off;
+    val = gfx_ring[idx];
+    y = yc - val * (scope_h2 / 5 - 4) * 0.5;
+    i == 0 ? ( gfx_x = sx; gfx_y = y; ) : gfx_lineto(sx + i, y);
+    i += 1;
+  );
+);
+
+lane_h2 = scope_h2 / 5;
+draw_scope_line(0,                   scope_y2 + lane_h2 * 0.5, 0.3, 0.95, 0.4);
+draw_scope_line(gfx_ring_len,        scope_y2 + lane_h2 * 1.5, 0.4, 0.7, 0.95);
+draw_scope_line(gfx_ring_len * 2,    scope_y2 + lane_h2 * 2.5, 0.95, 0.6, 0.2);
+draw_scope_line(gfx_ring_len * 3,    scope_y2 + lane_h2 * 3.5, 0.7, 0.7, 0.75);
+draw_scope_line(gfx_ring_len * 4,    scope_y2 + lane_h2 * 4.5, 0.9, 0.9, 0.9);
+
+// Scope channel labels
+gfx_setfont(1, "Arial", 8);
+gfx_r = 0.3; gfx_g = 0.95; gfx_b = 0.4; gfx_a = 0.6;
+gfx_x = scope_x + 2; gfx_y = scope_y2 + 2; gfx_drawstr("P1");
+gfx_r = 0.4; gfx_g = 0.7; gfx_b = 0.95;
+gfx_x = scope_x + 2; gfx_y = scope_y2 + lane_h2; gfx_drawstr("P2");
+gfx_r = 0.95; gfx_g = 0.6; gfx_b = 0.2;
+gfx_x = scope_x + 2; gfx_y = scope_y2 + lane_h2 * 2; gfx_drawstr("TR");
+gfx_r = 0.7; gfx_g = 0.7; gfx_b = 0.75;
+gfx_x = scope_x + 2; gfx_y = scope_y2 + lane_h2 * 3; gfx_drawstr("NO");
+gfx_r = 0.9; gfx_g = 0.9; gfx_b = 0.9;
+gfx_x = scope_x + 2; gfx_y = scope_y2 + lane_h2 * 4; gfx_drawstr("MX");
+
+// Release global drag on mouse up
+!(mouse_cap & 1) ? ui_knob_drag = -1;

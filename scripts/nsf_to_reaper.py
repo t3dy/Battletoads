@@ -237,11 +237,41 @@ def period_to_midi(period, is_tri=False):
         return 0
     div = 32 if is_tri else 16
     freq = 1789773 / (div * (period + 1))
-    return round(69 + 12 * math.log2(freq / 440))
+    midi = round(69 + 12 * math.log2(freq / 440))
+    # WORKAROUND: NSF emulation (py65) produces pulse periods that are
+    # exactly half the Mesen ground truth, shifting notes +12 semitones.
+    # Triangle is unaffected (confirmed via Mesen capture comparison).
+    # Root cause: SMB sound driver pulse period table indexing differs
+    # under NSF harness vs ROM execution. See docs/MARIODISCOVERIES.md.
+    if not is_tri:
+        midi -= 12
+    return midi
 
 
-def build_midi(channels, game_title, song_name, song_num):
-    """Build a MIDI file matching the CV1 pipeline format."""
+def build_midi(channels, game_title, song_name, song_num, frames=None,
+               period_fn=None, source_text=None):
+    """Build a MIDI file matching the CV1 pipeline format.
+
+    If frames (raw APU register snapshots) are provided, embeds per-frame
+    SysEx messages carrying the raw register state for each channel.
+    This enables hardware-accurate register-replay in the APU2 synth.
+
+    Args:
+        period_fn: Optional period-to-MIDI converter. Defaults to period_to_midi.
+                   Trace-based pipelines pass a version without the NSF -12 workaround.
+        source_text: Optional source description for MIDI metadata track.
+
+    SysEx format per channel per frame:
+        F0 7D 01 <ch> <reg0> <reg1> <reg2> <reg3> <enable_bit> F7
+    Where ch=0-3, reg0-3 are the 4 APU register bytes for that channel,
+    and enable_bit is the channel's bit from $4015.
+    All data bytes are 7-bit safe (register values 0-127 as-is,
+    values 128-255 split into two 7-bit bytes: low7, high1).
+    """
+    if period_fn is None:
+        period_fn = period_to_midi
+    if source_text is None:
+        source_text = 'NSF emulation (6502 + APU capture)'
     mid = mido.MidiFile(ticks_per_beat=TICKS_PER_BEAT)
 
     # Track 0: metadata
@@ -250,7 +280,7 @@ def build_midi(channels, game_title, song_name, song_num):
     meta_track.append(mido.MetaMessage('time_signature', numerator=4, denominator=4))
     meta_track.append(mido.MetaMessage('text', text=f'Game: {game_title}'))
     meta_track.append(mido.MetaMessage('text', text=f'Song: {song_name}'))
-    meta_track.append(mido.MetaMessage('text', text='Source: NSF emulation (6502 + APU capture)'))
+    meta_track.append(mido.MetaMessage('text', text=f'Source: {source_text}'))
     meta_track.append(mido.MetaMessage('text', text=f'Track: {song_num}'))
     mid.tracks.append(meta_track)
 
@@ -279,7 +309,7 @@ def build_midi(channels, game_title, song_name, song_num):
                 period = frame_data["period"]
                 vol = frame_data["vol"]
                 duty = frame_data["duty"]
-                midi_note = period_to_midi(period) if period > 8 and vol > 0 else 0
+                midi_note = period_fn(period) if period > 8 and vol > 0 else 0
 
                 # CC12: duty cycle change
                 if duty != prev_duty and midi_note > 0:
@@ -313,7 +343,7 @@ def build_midi(channels, game_title, song_name, song_num):
             elif ch_name == "triangle":
                 period = frame_data["period"]
                 linear = frame_data["linear"]
-                midi_note = period_to_midi(period, is_tri=True) if period > 2 and linear > 0 else 0
+                midi_note = period_fn(period, is_tri=True) if period > 2 and linear > 0 else 0
 
                 if midi_note != prev_midi:
                     if prev_midi > 0:
@@ -334,8 +364,13 @@ def build_midi(channels, game_title, song_name, song_num):
                 period = frame_data["period"]
                 mode = frame_data["mode"]
 
+                # Track drum hit state for duration capping
+                if not hasattr(frame_data, '_noise_init'):
+                    # Use closure vars instead
+                    pass
+
                 if vol > 0 and prev_vol <= 0:
-                    # Drum hit: map noise period to GM drum note
+                    # New drum hit: map noise period to GM drum note
                     if period <= 4:
                         drum_note = 42  # closed hi-hat
                     elif period <= 8:
@@ -346,14 +381,26 @@ def build_midi(channels, game_title, song_name, song_num):
                     track.append(mido.Message('note_on', note=drum_note,
                                              velocity=vel, channel=midi_ch, time=ticks))
                     ticks = 0
+                    noise_hit_vol = vol  # remember initial hit volume
+                    noise_hit_age = 0   # frames since hit
+                elif vol > 0 and prev_vol > 0 and prev_midi > 0:
+                    # Drum still sounding — check if it should end
+                    noise_hit_age += 1
+                    # End drum if: volume dropped to <25% of hit, or >12 frames old
+                    if vol <= max(1, noise_hit_vol // 4) or noise_hit_age > 12:
+                        track.append(mido.Message('note_off', note=prev_midi,
+                                                 velocity=0, channel=midi_ch, time=ticks))
+                        ticks = 0
+                        prev_midi = 0
                 elif vol <= 0 and prev_vol > 0:
-                    track.append(mido.Message('note_off', note=prev_midi if prev_midi > 0 else 42,
-                                             velocity=0, channel=midi_ch, time=ticks))
-                    ticks = 0
+                    if prev_midi > 0:
+                        track.append(mido.Message('note_off', note=prev_midi,
+                                                 velocity=0, channel=midi_ch, time=ticks))
+                        ticks = 0
                     prev_midi = 0
 
-                if vol > 0:
-                    prev_midi = drum_note if vol > 0 else 0
+                if vol > 0 and prev_midi == 0:
+                    prev_midi = drum_note if 'drum_note' in dir() else 42
                 prev_vol = vol
 
             ticks += TICKS_PER_FRAME
@@ -364,6 +411,81 @@ def build_midi(channels, game_title, song_name, song_num):
                                       velocity=0, channel=midi_ch, time=ticks))
 
         mid.tracks.append(track)
+
+    # Track 5: APU register SysEx stream (for hardware-accurate replay)
+    if frames is not None:
+        sysex_track = mido.MidiTrack()
+        sysex_track.append(mido.MetaMessage('track_name', name='APU Registers'))
+
+        # Channel register base addresses
+        ch_regs = [
+            (0x4000, 0x4001, 0x4002, 0x4003),  # Pulse 1
+            (0x4004, 0x4005, 0x4006, 0x4007),  # Pulse 2
+            (0x4008, 0x4009, 0x400A, 0x400B),  # Triangle
+            (0x400C, 0x400D, 0x400E, 0x400F),  # Noise
+        ]
+
+        # Build full register state (not just deltas)
+        full_state = {}
+        for r in range(0x4000, 0x4018):
+            full_state[r] = 0
+
+        sysex_count = 0
+        for frame_idx, state in enumerate(frames):
+            # Update full state with this frame's changes
+            for r, v in state.items():
+                full_state[r] = v
+
+            # $4015 is write-only on real hardware; py65 flat memory often
+            # reads back 0x00. Derive enable from volume/period instead:
+            # a channel is "enabled" if it has non-zero volume (pulse/noise)
+            # or non-zero linear counter (triangle).
+            enable = 0
+            if (full_state[0x4000] & 0x0F) > 0:  # Pulse 1 vol > 0
+                enable |= 1
+            if (full_state[0x4004] & 0x0F) > 0:  # Pulse 2 vol > 0
+                enable |= 2
+            if (full_state[0x4008] & 0x7F) > 0:  # Triangle linear > 0
+                enable |= 4
+            if (full_state[0x400C] & 0x0F) > 0:  # Noise vol > 0
+                enable |= 8
+
+            # Emit SysEx for each channel
+            # Format: F0 7D 01 ch r0_lo r0_hi r1_lo r1_hi r2_lo r2_hi r3_lo r3_hi en F7
+            # Each register byte split into two 7-bit values: (val & 0x7F), ((val >> 7) & 0x01)
+            first_ch = True
+            for ch_idx, regs in enumerate(ch_regs):
+                r0 = full_state[regs[0]]
+                r1 = full_state[regs[1]]
+                r2 = full_state[regs[2]]
+                r3 = full_state[regs[3]]
+                en = (enable >> ch_idx) & 1
+
+                # SysEx data (after F0, before F7) — all bytes must be 0-127
+                data = [
+                    0x7D,       # Non-commercial SysEx ID
+                    0x01,       # Message type: APU frame
+                    ch_idx,     # Channel 0-3
+                    r0 & 0x7F, (r0 >> 7) & 0x01,
+                    r1 & 0x7F, (r1 >> 7) & 0x01,
+                    r2 & 0x7F, (r2 >> 7) & 0x01,
+                    r3 & 0x7F, (r3 >> 7) & 0x01,
+                    en,         # Channel enable bit
+                ]
+
+                # Time: first SysEx in frame gets TICKS_PER_FRAME delta,
+                # subsequent channels in same frame get delta=0
+                if first_ch:
+                    delta = TICKS_PER_FRAME
+                    first_ch = False
+                else:
+                    delta = 0
+
+                sysex_track.append(mido.Message('sysex', data=data, time=delta))
+                sysex_count += 1
+
+        mid.tracks.append(sysex_track)
+        print(f"    SysEx: {sysex_count} register messages ({sysex_count // 4} frames)")
 
     return mid
 
@@ -471,7 +593,7 @@ def process_song(emu, song_num, song_name, duration_sec, output_dir):
     # MIDI
     midi_dir = os.path.join(output_dir, "midi")
     os.makedirs(midi_dir, exist_ok=True)
-    mid = build_midi(channels, emu.title, song_name, song_num)
+    mid = build_midi(channels, emu.title, song_name, song_num, frames=frames)
     midi_path = os.path.join(midi_dir, f"{game_slug}_{song_num:02d}_{song_slug}_v1.mid")
     mid.save(midi_path)
 
@@ -481,13 +603,17 @@ def process_song(emu, song_num, song_name, duration_sec, output_dir):
     print(f"    Notes: P1={note_counts[0]} P2={note_counts[1]} Tri={note_counts[2]} Noise={note_counts[3]}")
     print(f"    CCs:   P1={cc_counts[0]} P2={cc_counts[1]} Tri={cc_counts[2]}")
 
-    # REAPER project
+    # REAPER project (via generate_project.py — the canonical RPP builder)
     rpp_dir = os.path.join(output_dir, "reaper")
     os.makedirs(rpp_dir, exist_ok=True)
-    rpp_content = build_rpp(midi_path, song_name, duration_sec)
     rpp_path = os.path.join(rpp_dir, f"{game_slug}_{song_num:02d}_{song_slug}_v1.rpp")
-    with open(rpp_path, 'w') as f:
-        f.write(rpp_content)
+    import subprocess
+    gen_script = os.path.join(os.path.dirname(__file__), "generate_project.py")
+    subprocess.run([
+        sys.executable, gen_script,
+        "--midi", midi_path, "--nes-native",
+        "-o", rpp_path,
+    ], check=True)
     print(f"  REAPER: {rpp_path}")
 
     # WAV preview

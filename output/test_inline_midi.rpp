@@ -1,0 +1,58 @@
+<REAPER_PROJECT 0.1 "7.27/win64" 1707000000
+  RIPPLE 0
+  GROUPOVERRIDE 0 0 0
+  AUTOXFADE 129
+  TEMPO 120 4 4
+  PLAYRATE 1 0 0.25 4
+  MASTERAUTOMODE 0
+  MASTER_VOLUME 1 0 -1 -1 1
+  MASTER_NCH 2 2
+  SAMPLERATE 44100 0 0
+  <TRACK
+    NAME "Test Pulse"
+    PEAKCOL 16576606
+    BEAT -1
+    AUTOMODE 0
+    VOLPAN 1 0 -1 -1 1
+    MUTESOLO 0 0 0
+    NCHAN 2
+    FX 1
+    MAINSEND 1 0
+    REC 0 5088 1 0 0 0 0 0
+    <FXCHAIN
+      SHOW 0
+      LASTSEL 0
+      DOCKED 0
+      <JS "ReapNES Studio/ReapNES_Console.jsfx" ""
+        2 15 1 10 80 10 100 2 1 15 1 5 60 10 80 1 1 0 50 0 0 15 1 0 100 0 0 0.500000 0.500000 0.400000 0.300000 0.800000 0 1 0 0 0 0
+      >
+    >
+    <ITEM
+      POSITION 0
+      LENGTH 10
+      LOOP 0
+      ALLTAKES 0
+      FADEIN 0 0 0 0 0 0 0
+      FADEOUT 0 0 0 0 0 0 0
+      MUTE 0 0
+      SEL 0
+      IGUID {11111111-2222-3333-4444-555555555555}
+      <SOURCE MIDI
+        HASDATA 1 480 QN
+        CCINTERP 32
+        E 0 90 3c 64
+        E 480 80 3c 00
+        E 0 90 3e 64
+        E 480 80 3e 00
+        E 0 90 40 64
+        E 480 80 40 00
+        E 0 90 43 64
+        E 480 80 43 00
+        E 0 90 48 64
+        E 960 80 48 00
+        E 0 b0 7b 00
+        E 0 ff 2f 00
+      >
+    >
+  >
+>

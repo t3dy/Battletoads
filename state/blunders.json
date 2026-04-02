@@ -97,7 +97,15 @@
       "root_cause": "ReapNES_Console.jsfx has ADSR but no CC11/CC12 handlers in @block",
       "fix": "Port lp_cc_active[] system from ReapNES_APU.jsfx. When CC arrives, bypass ADSR",
       "layer": "synth", "repo": "NESMusicStudio",
-      "status": "OPEN"
+      "status": "FIXED"
+    },
+    {
+      "id": "B17", "title": "Mixer formula broken at partial volumes (B06 derivative)",
+      "symptom": "Pulse channels nearly silent at vol=8, drums phase-invert during decay. Mario sounds thin with no body, drums flat",
+      "root_cause": "B06 DC-offset formula (out/15 - 0.5) assumes full 0-15 range. At vol=8: output is 0.033 (15x too quiet). At vol<7.5: output goes NEGATIVE (phase inverts). Drum decay crosses zero mid-envelope",
+      "fix": "Symmetric binary centering: (2*out - peak_vol) / 30. Pulse/noise swing +/-vol/30 regardless of volume level. Triangle keeps (out/15 - 0.5) since it sweeps full 0-15 range",
+      "layer": "synth", "repo": "ReapNES-Studio",
+      "status": "FIXED"
     },
     {
       "id": "B15", "title": "Minimal RPP header breaks keyboard",

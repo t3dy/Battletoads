@@ -1,30 +1,30 @@
 {
-  "last_updated": "2026-03-31",
-  "session": "day4",
+  "last_updated": "2026-04-01",
+  "session": "day5",
   "pipeline_status": {
     "nsf_extraction": "WORKING",
     "midi_generation": "WORKING",
     "rpp_generation": "WORKING — full Console_Test.rpp structure",
-    "synth_file_playback": "BROKEN — Console ignores CC11/CC12",
+    "synth_file_playback": "WORKING — CC11/CC12 bypass ADSR, mixer fixed for partial volumes",
     "synth_keyboard_play": "WORKING — ADSR envelopes + Keyboard Mode",
     "batch_processing": "WORKING — 50 games, 1099 MIDIs"
   },
-  "critical_blocker": {
-    "id": "CC_HANDLING_MISSING",
-    "description": "ReapNES_Console.jsfx does not read CC11 (volume) or CC12 (duty). File playback uses ADSR instead of ground-truth per-frame envelopes.",
-    "impact": "ALL 1099 projects have wrong volume envelopes during file playback",
-    "fix": "Port lp_cc_active[] system from ReapNES_APU.jsfx into Console @block section (~30 lines)",
-    "layer": "synth_interpretation",
-    "blocks": ["file_playback_fidelity", "mario_regression"]
-  },
-  "known_regressions": [
+  "recent_fixes": [
     {
-      "game": "Super_Mario_Bros",
-      "symptom": "Wrong noises, missing melodic elements, no drums compared to previous APU-based projects",
-      "cause": "Switched from APU (reads CC11/CC12) to Console (ignores CC11/CC12)",
-      "fix": "CC_HANDLING_MISSING blocker"
+      "id": "B14",
+      "title": "Console synth ignores CC11/CC12",
+      "status": "FIXED",
+      "session": "day4"
+    },
+    {
+      "id": "B17",
+      "title": "Mixer formula broken at partial volumes",
+      "status": "FIXED",
+      "session": "day5",
+      "description": "B06 DC-offset formula (out/15 - 0.5) only correct at vol=15. At vol=8 output was 15x too quiet; at vol<8 signal phase-inverted. Fixed with symmetric centering: (2*out - peak)/30."
     }
   ],
+  "known_regressions": [],
   "recent_additions": [
     "Dragon_Warrior", "Final_Fantasy", "Metal_Gear", "Ultima_-_Exodus",
     "Faxanadu", "Gargoyles_Quest_II", "Goonies_II_The", "Kid_Icarus",
@@ -35,8 +35,8 @@
     {"game": "Silver_Surfer", "reason": "0 MIDIs produced, SFX-only NSF"}
   ],
   "priority_order": [
-    "1. Port CC11/CC12 handling to Console synth (fixes all games)",
-    "2. Validate drum/noise handling in Console vs APU",
+    "1. Rebuild Mario project and ear-check with fixed mixer",
+    "2. Test $4015 hypothesis for NSF extraction fix",
     "3. Rebuild all Projects after synth fix",
     "4. Iterative ear-check and ADSR tuning per game",
     "5. Expand game_adsr.json with more game presets"
