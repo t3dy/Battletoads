@@ -302,6 +302,7 @@ def build_midi(channels, game_title, song_name, song_num, frames=None,
         prev_midi = 0
         prev_vol = -1
         prev_duty = -1
+        prev_period = 0
         ticks = 0
 
         for frame_data in ch_frames:
@@ -310,6 +311,15 @@ def build_midi(channels, game_title, song_name, song_num, frames=None,
                 vol = frame_data["vol"]
                 duty = frame_data["duty"]
                 midi_note = period_fn(period) if period > 8 and vol > 0 else 0
+
+                # Sweep vibrato hysteresis: if the period change is small
+                # (≤8, typical NES sweep oscillation), keep the current MIDI
+                # note to avoid creating fake trills at semitone boundaries.
+                # Real note changes have period jumps of 50+.
+                if (midi_note != prev_midi and midi_note > 0 and prev_midi > 0
+                        and prev_period > 0 and abs(period - prev_period) <= 8):
+                    midi_note = prev_midi
+                prev_period = period
 
                 # CC12: duty cycle change
                 if duty != prev_duty and midi_note > 0:
