@@ -10,24 +10,38 @@ globs:
 The goal is note-accurate reproduction of original NES game music.
 Every design decision serves this goal.
 
-## 1. Dual-Mode Contract: CC vs ADSR
+## 0. One Synth Plugin (ReapNES Studio)
 
-The synth operates in two mutually exclusive modes **per channel**:
+All functionality lives in ONE JSFX file. Not multiple plugins for
+different modes. The user opens one synth, it auto-detects what to do.
+See docs/SYNTHMERGE.md for the full design.
 
-**CC-driven mode** (file playback):
-- CC11 arrives → volume comes from CC11, ADSR bypassed
-- CC12 arrives → duty comes from CC12, ADSR duty ignored
-- cc_active[ch] flag set on first CC11/CC12 for that channel
-- CC123 or CC121 resets cc_active[] (re-enables ADSR)
+## 1. Three-Priority Input Cascade
 
-**ADSR mode** (keyboard play):
-- No CC11/CC12 received → ADSR envelope shapes note
-- Attack/Decay/Sustain/Release from slider values
-- Game-specific presets in GAME_ADSR dict
+The synth operates in three modes per channel, auto-selected by
+incoming data (highest available priority wins):
 
-Why: NSF-extracted MIDIs contain per-frame volume/duty as CC automation.
-This IS the ground-truth envelope from the NES sound driver. The synth
-must play it back verbatim. ADSR is only an approximation for live input.
+**Priority 1: SysEx register replay** (maximum fidelity):
+- SysEx F0 7D 01 arrives → raw APU register state drives waveform
+- All NES behaviors reproduced: sweep, phase reset, noise mode
+- Volume, duty, period come from register bytes, not MIDI
+- This IS the NES hardware running in software
+
+**Priority 2: CC-driven mode** (file playback, no SysEx):
+- CC11 arrives → volume from CC11, ADSR bypassed
+- CC12 arrives → duty from CC12
+- Period from MIDI note number (semitone-quantized)
+- Misses: sweep vibrato, sub-semitone pitch, noise mode, phase reset
+
+**Priority 3: ADSR keyboard mode** (live composing):
+- No file data received → ADSR envelope shapes note
+- Sweep, vibrato, duty from knob/slider positions
+- Game-specific presets capture each game's characteristic sound
+- CC123 or CC121 resets back to this mode
+
+Why: SysEx register replay bypasses all MIDI encoding limitations.
+CC mode is a fallback for files without SysEx. ADSR is for live play.
+The cascade ensures the best available data always drives the sound.
 
 ## 2. CC11 = Volume (Expression)
 

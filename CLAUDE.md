@@ -2,6 +2,21 @@
 
 NSF/ROM → MIDI → REAPER/WAV/MP4 → YouTube.
 
+## The Product
+
+**ReapNES Studio** is a single unified JSFX synthesizer plugin for REAPER that:
+1. Plays NES game music from MIDI files at ROM-level accuracy (via SysEx register replay)
+2. Works with a MIDI keyboard for modern composers (via ADSR envelopes)
+3. Has a vintage analog synth console UI — knobs, sliders, oscilloscope
+4. Shows parameter changes in real time for video recording (YouTube)
+5. Makes game-to-game timbral differences visible through knob positions
+
+**One synth, not many.** All functionality lives in one plugin. The synth
+auto-detects its input: SysEx → hardware replay, CC11/CC12 → envelope
+playback, keyboard only → ADSR mode. See `docs/SYNTHMERGE.md` for the
+full design and `docs/SOLVINGTHECHIPTUNEVSMIDIPROBLEM.md` for the
+architecture.
+
 ## Priority: Production Pipeline
 
 The primary goal is producing REAPER projects and YouTube videos for all
@@ -53,9 +68,12 @@ Site: https://t3dy.github.io/ReapNES/
 - **Version output files** (v1, v2...). Never overwrite a tested file.
 - **Same opcode ≠ same semantics** across drivers. Check manifest.
 - **generate_project.py is the only way to make RPP files.** Never write RPP by hand.
-- **Synth must be dual-mode**: CC-driven for file playback, ADSR for keyboard.
-  When CC11 or CC12 arrives on a channel, bypass ADSR and let CC data drive.
-  When no CC data (keyboard play), use ADSR envelopes for NES-like feel.
+- **One synth plugin (ReapNES Studio).** Not multiple JSFX files.
+  All playback modes live in one plugin with a three-priority input cascade:
+  Priority 1: SysEx register replay (hardware-exact).
+  Priority 2: CC11/CC12 automation (file playback).
+  Priority 3: ADSR keyboard (live composing).
+  Auto-detects from incoming data. See docs/SYNTHMERGE.md.
 - **Projects must work with zero manual REAPER configuration.** Keyboard,
   MIDI routing, synth settings — everything baked into the RPP file.
 
@@ -63,10 +81,17 @@ Site: https://t3dy.github.io/ReapNES/
 
 Truth flows downhill. Never let a lower layer override a higher one.
 
-1. **ROM/Trace** — APU register dumps from Mesen. Frame-level ground truth.
-2. **NSF emulation** — 6502 CPU runs the sound driver. Per-frame CC11/CC12.
-3. **MIDI file** — CC automation IS the envelope. Synth plays it back verbatim.
-4. **ADSR approximation** — Only for live keyboard when no CC data exists.
+1. **Mesen Trace** — APU register dumps from real gameplay. Frame-level ground truth.
+   NSF may diverge from actual game audio (proven: Battletoads, Mario).
+   When Mesen trace and NSF disagree, Mesen wins.
+2. **SysEx in MIDI** — Lossless register state encoding. Synth replays hardware.
+3. **NSF emulation** — 6502 CPU runs the sound driver. Per-frame CC11/CC12.
+   Convenient but not always faithful to in-game audio.
+4. **CC11/CC12 in MIDI** — Volume + duty envelope. Loses sweep, noise mode, phase.
+5. **ADSR approximation** — Only for live keyboard when no file data exists.
+
+Per-game route decision: if NSF fidelity score (via trace_compare) < 80%,
+use trace pipeline. Battletoads and Mario are confirmed trace-required games.
 
 ## Deckard Boundary (deterministic vs LLM)
 

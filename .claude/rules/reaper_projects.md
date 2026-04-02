@@ -20,13 +20,14 @@ NEVER write RPP files manually. NEVER edit RPP files by hand.
 
 ## Synth Plugin
 
-Use `ReapNES Studio/ReapNES_Console.jsfx` (38 sliders). NOT the old APU (15 sliders).
+Target: `ReapNES Studio/ReapNES_Studio.jsfx` (unified synth, ~40 sliders).
+Until the merge is complete, use `ReapNES Studio/ReapNES_Console.jsfx`.
 
-The Console synth has:
-- ADSR envelopes per channel (for keyboard play)
-- Keyboard Mode (slider34) for live MIDI input
-- Channel Mode (slider33) for per-track routing
-- CC11/CC12 handling that bypasses ADSR when file data is present
+The unified synth design (docs/SYNTHMERGE.md):
+- Three-priority input cascade: SysEx → CC11/CC12 → ADSR keyboard
+- Visual console UI with animated knobs for video recording
+- Per-game presets (Battletoads, Castlevania, Contra, etc.)
+- One plugin for all modes — auto-detects input type
 
 ## RPP Structure (derived from known-good Console_Test.rpp)
 
