@@ -1,226 +1,220 @@
-# Fake Note Changes: The Sweep Oscillation Trill Problem
+# Fake Note Changes: What's Wrong With Our MIDI Encoding
 
-## The Symptom
+## Status Update: v4 Hysteresis Was Wrong
 
-When you listen to the Battletoads Level 1 (Ragnarok's Canyon) output
-in REAPER, the Pulse 2 channel sounds "off" — notes seem unstable, like
-the pitch is wavering between two semitones rapidly. It's not quite the
-right pitch, not quite the wrong pitch. It sounds like something between
-a trill and a tuning error.
+The period hysteresis fix (v4) was reverted. It suppressed 332 note
+changes but 52% of them were real notes that hold for 100+ frames.
+The ±8 threshold was too aggressive — it killed legitimate semitone
+transitions where the period delta happens to be small.
 
-## The Root Cause: Sweep Vibrato vs MIDI Quantization
+**v3 (period mask only, no hysteresis) remains the best version.**
 
-The NES APU has a **sweep unit** on each pulse channel. It automatically
-increments or decrements the period register by a small amount every few
-frames, creating a hardware vibrato effect. In Battletoads, Rare uses
-this aggressively — the period oscillates by ±4 every 1-2 frames.
+The "fake trill" problem from the original analysis is real, but the
+fix approach was wrong. The trills can't be fixed with a simple
+threshold because real note transitions at high pitches have similar
+period deltas to sweep oscillation.
 
-Here's what the raw capture shows on Pulse 2 during the bass groove:
+---
 
-```
-Frame 408: period=669 -> MIDI 52 (E3)   vol=6
-Frame 411: period=665 -> MIDI 52 (E3)   vol=4
-Frame 414: period=673 -> MIDI 52 (E3)   vol=2
-Frame 425: period=665 -> MIDI 52 (E3)   vol=6
-...
-```
+## Problem 1: The "Too High" Opening Note
 
-At low pitches (long periods), the ±4 oscillation stays within the same
-MIDI note. Period 665-673 all round to MIDI 52 (E3). This sounds fine.
+### What You Hear
 
-But at higher pitches (shorter periods), the same ±4 oscillation crosses
-a **semitone boundary**:
+In the first few bars, Pulse 1 has a high note that sounds too high —
+like it's shifted up an octave or two compared to the game.
+
+### What the Data Shows
+
+The trace captures a **rapid descending arpeggio** on P1 at the start:
 
 ```
-Frame 502: period=239 -> MIDI 70 (A#4)  vol=6
-Frame 504: period=239 -> MIDI 70 (A#4)  vol=5
-Frame 506: period=231 -> MIDI 71 (B4)   vol=5   <-- NOTE CHANGE!
-Frame 508: period=231 -> MIDI 71 (B4)   vol=4
-Frame 510: period=239 -> MIDI 70 (A#4)  vol=4   <-- NOTE CHANGE!
-Frame 512: period=239 -> MIDI 70 (A#4)  vol=3
-Frame 514: period=231 -> MIDI 71 (B4)   vol=3   <-- NOTE CHANGE!
-Frame 516: period=231 -> MIDI 71 (B4)   vol=2
-Frame 518: period=239 -> MIDI 70 (A#4)  vol=2   <-- NOTE CHANGE!
+Frame 134: period= 357 -> D#4 (313 Hz) vol=12
+Frame 135: period= 451 -> B3  (248 Hz) vol=12
+Frame 136: period= 507 -> A3  (220 Hz) vol=12
+Frame 137: period= 639 -> F3  (175 Hz) vol=12
+Frame 138: period= 805 -> C#3 (139 Hz) vol=12
+Frame 139: period= 905 -> B2  (124 Hz) vol=12
+Frame 140: period=1143 -> G2  (98 Hz)  vol=12
+Frame 141: period=1285 -> F2  (87 Hz)  vol=12
+Frame 142: period=1625 -> C#2 (69 Hz)  vol=12
 ```
 
-The actual pitch is ~70.5 MIDI — between A#4 and B4. The sweep vibrato
-pushes it just above and below the rounding boundary. Our MIDI converter
-creates a **new note** every time the rounding flips, producing a rapid
-A#4-B4-A#4-B4 trill at ~15 Hz.
+**9 notes in 9 frames (150ms).** Each "note" lasts exactly 1 frame
+(16.7ms). On the NES hardware, this sounds like a single downward
+"thwack" — a percussive sweep. In our MIDI, each frame becomes a
+separate note with its own attack transient, and the D#4 at the top
+sounds like a distinct high-pitched note.
 
-On the NES hardware, this sounds like smooth vibrato. In our MIDI, it
-sounds like a nervous trill between two semitones.
+The NSF extraction for the same section shows simpler bass notes:
+D2, A1, G1 — the "intended" musical pitches. The rapid arpeggio is
+the sound driver's way of creating an attack transient, not 9
+separate musical notes.
 
-## The Numbers
+### By the Numbers
 
-**Pulse 2**: 332 out of 747 note changes (44.4%) are fake — caused by
-±4 period oscillation crossing semitone boundaries.
+P1 has **18 one-frame notes** (2.3% of 796 total). These are all
+attack transient arpeggios, not musical content. The real musical
+notes are 4-9 frames (65% of all notes).
 
-**Pulse 1**: Only 3 out of 505 (0.6%) — Pulse 1 in Battletoads Level 1
-mostly plays at lower pitches where the oscillation stays within one
-semitone.
+### Fix Needed
 
-## Why This Only Affects the CC/MIDI Path
+Filter or merge 1-frame notes that are part of descending arpeggios.
+These should either:
+- Be collapsed into the final note of the arpeggio (the target pitch)
+- Be removed entirely and let the CC11 volume envelope handle the
+  attack transient
+- Be rendered as a pitch sweep (pitchbend from start to end pitch)
 
-The APU2/SysEx path doesn't have this problem. It sends raw period
-register values to the synth, which oscillates smoothly at the exact
-hardware frequency. There's no MIDI note quantization step.
+---
 
-The CC/MIDI path (Console synth) has to convert continuous period values
-into discrete MIDI notes. MIDI is inherently quantized to semitones.
-Sub-semitone pitch variation can only be expressed as pitchbend, which
-we don't currently encode.
+## Problem 2: Sweep Oscillation Trills (Still Unsolved)
 
-## The Fix Options
+### What Happens
 
-### Option A: Period Hysteresis (simplest, implementing this)
+At higher pitches (shorter periods), the ±4 sweep oscillation crosses
+semitone boundaries:
 
-When the period change is small (≤8, the sweep oscillation range), keep
-the current MIDI note instead of computing a new one. This prevents the
-trill while preserving real note changes (which have much larger period
-jumps, typically 50+).
-
-**Pros**: Simple, catches exactly the problem case, no false positives.
-**Cons**: Loses the sub-semitone pitch variation (but MIDI can't
-represent it anyway).
-
-### Option B: Pitchbend Encoding
-
-Encode the ±4 oscillation as MIDI pitchbend centered on the base note.
-This would let the Console synth reproduce the vibrato effect.
-
-**Pros**: Preserves the vibrato in the MIDI path.
-**Cons**: More complex, needs pitchbend range configuration in synth,
-risk of accumulation errors.
-
-### Option C: Running Average Period
-
-Smooth the period over a 4-8 frame window before computing MIDI note.
-The average of the oscillation is the "true" pitch.
-
-**Pros**: Mathematically precise.
-**Cons**: Smears legitimate fast pitch changes (arpeggios) that
-Battletoads uses intentionally.
-
-### Decision
-
-**Option A for now.** The ±8 threshold cleanly separates sweep vibrato
-(delta ≤4) from real note changes (delta ≥50 in this data). The
-sub-semitone vibrato is only faithfully preserved in the APU2 path
-anyway, and that's the intended fidelity path for file playback.
-
-## Everything Else We Found Along the Way
-
-### 1. The Period Mask Bug (already fixed)
-
-Mesen captures store `$4006_period` as raw `$4007<<8|$4006`, including
-length counter bits from $4007[7:3]. NES period register is 11-bit
-(max 2047). Without masking with `& 0x7FF`, MIDI notes were 2 octaves
-too low and 272 Pulse 2 notes were dropped as out-of-range.
-
-**Impact**: Fixed in v3. E1 → E3 (correct), 651 → 923 P2 notes.
-
-### 2. Triangle Linear Counter: Not a Volume, It's a Gate
-
-The triangle channel has no volume control. CC11 is always 127 when
-sounding. But the `$4008_linear` counter has 27 distinct values in
-this capture (3,644 changes). It controls HOW LONG the triangle sounds
-after being triggered — it's a duration gate, not a volume.
-
-Currently we use `linear > 0` as the sounding condition and CC11=127
-as a flat gate signal. This is correct for note-on/note-off, but the
-linear counter's reload value affects the triangle's perceived
-articulation (staccato vs legato). We're losing this nuance.
-
-**Impact**: Triangle notes may sound too sustained or too clipped
-compared to the game. The linear counter's exact behavior determines
-the triangle's "feel."
-
-### 3. Noise Period Mapping: 3 Buckets Isn't Enough
-
-The capture has 7 distinct noise period values, but we map them into
-only 3 GM drum notes (hi-hat ≤4, snare 5-8, kick 9+). The NES has 16
-possible noise periods, each with a distinct timbre. Battletoads uses
-at least 7 of them.
-
-Current mapping:
 ```
-period 0-4  → note 42 (closed hi-hat)
-period 5-8  → note 38 (snare)
-period 9+   → note 36 (kick)
+Period 235 -> MIDI 70 (A#4)  }
+Period 231 -> MIDI 71 (B4)   } alternating every 2 frames
 ```
 
-Better mapping would use more GM drum notes to preserve timbral variety.
-But the Console synth also needs to produce distinct sounds for each —
-it currently has a single noise oscillator that doesn't change timbre
-based on the MIDI note number.
+This creates a rapid A#4↔B4 trill (~15 Hz) where the game has smooth
+vibrato. **44.4% of P2 note changes** are these fake trills.
 
-### 4. Noise Mode Bit: Metallic vs Hiss
+### Why the Hysteresis Fix Failed
 
-`$400E_mode` has only 1 change in this capture (stays at 0 = long
-sequence / hiss). If it changed, it would switch the noise character
-from white noise to metallic/tonal noise. This IS encoded in the SysEx
-track but NOT in the CC/MIDI path. The Console synth has a `noi_mode`
-parameter but nothing in the MIDI sets it.
+We tried suppressing note changes when period delta ≤8. But 52% of
+the suppressed changes were **real notes that persist 100+ frames**.
+At higher pitches, legitimate semitone transitions can have small
+period deltas (e.g., period 231→235 is both a sweep oscillation AND
+a possible real note change depending on context).
 
-### 5. Sweep Register: 5 Changes, Not Just Oscillation
+The oscillation and real transitions are **not separable by period
+delta alone**. You need temporal context: is the pitch bouncing back
+within 2-4 frames (oscillation) or holding steady (real note)?
 
-The `$4001_sweep` register changed 5 times. This is the sweep
-configuration (enable, period, direction, shift), not the oscillation
-itself. The oscillation is automatic once the sweep is enabled. We're
-capturing the EFFECT of the sweep (period changes) in both paths, but
-only the SysEx path captures the sweep CONFIGURATION that controls how
-the oscillation behaves.
+### Better Fix Options
 
-### 6. DPCM: Almost Nothing
+**Option 1: Bounce-back detection.** Only suppress if the pitch
+returns to the previous note within 4 frames. This catches the
+oscillation pattern (A#→B→A#→B) without killing sustained changes.
 
-Only 1 change each for $4010_rate, $4011_dac, $4012_addr, $4013_len.
-Battletoads Level 1 barely uses DPCM. Other tracks (like the title
-screen) may use it more. Not a priority for this segment.
+**Option 2: Minimum note duration.** Don't emit a note change unless
+the new pitch holds for at least 3 frames. This filters oscillation
+while preserving real notes (which always hold 4+ frames).
 
-### 7. Pulse Duty Cycle: 40 Changes on P1, 39 on P2
+**Option 3: Median period over 3-frame window.** Compute MIDI note
+from the median of the current and previous 2 periods. Oscillation
+averages out; sustained changes pass through.
 
-Duty cycle changes ARE encoded as CC12. But with only 40 changes across
-9,495 frames, duty shifts are relatively rare compared to volume (3,259
-changes on P1) and period (4,345 changes on P1). The duty is mostly
-stable per musical phrase, changing mainly at note attacks for timbral
-brightness.
+**Not yet implemented** — waiting for ear-check of v3 to confirm
+this is the audible problem vs. the other issues below.
 
-### 8. Constant Volume Flag: Stays Constant
+---
 
-`$4000_const` and `$4004_const` each change only once (at frame 1, to
-value 1). This means Battletoads uses constant volume mode for both
-pulse channels — the volume register IS the volume, not an envelope
-divider. This is standard for most NES games. Our encoding assumes
-this and is correct.
+## Problem 3: Missing Note Frames (the biggest gap)
 
-## Priority Order for Fixes
+### What the Audit Found
 
-| # | Issue | Impact | Effort | Affects |
-|---|-------|--------|--------|---------|
-| 1 | Sweep trill (fake notes) | HIGH — 44% of P2 notes are wrong | Low | Console path |
-| 2 | Triangle articulation | MEDIUM — feel is off | Medium | Both paths |
-| 3 | Noise timbre variety | LOW — drums sound generic | Medium | Console path |
-| 4 | Pitchbend encoding | LOW — only matters for Console | High | Console path |
-| 5 | Noise mode bit | LOW — mode=0 throughout Level 1 | Low | Console path |
+Comparing trace activity vs MIDI active frames:
 
-## The "Close Enough for Government Work" Bar
+```
+Channel  Trace Active   MIDI Active   Gap
+P1       5,389 (69%)    ~2,653        -2,736 (51% missing)
+P2       7,019 (90%)    ~3,517        -3,502 (50% missing)
+Tri      4,170 (54%)    ~0            ALL MISSING
+Noise    5,987 (77%)    ~198          -5,789 (97% missing)
+```
 
-To get from "best yet" to "close enough":
+### Why This Happens
 
-1. **Fix the sweep trills** — this is the single biggest audible problem.
-   44% of P2 note changes are phantom. Once stabilized, the bass groove
-   should lock in.
+**Pulse channels (P1/P2):** The NES volume envelope decays naturally:
+vol 6→5→4→3→2→1→0 over ~10 frames. When vol hits 0, our code creates
+a `note_off`. The gap before the next attack (4-7 frames of silence)
+is real — but the ~50% coverage gap suggests many CC11 volume updates
+aren't being counted as "active" in my audit.
 
-2. **Verify by ear** — open the fixed output in REAPER, A/B against the
-   reference MP3. If the bass feels right and the melody doesn't wobble,
-   we're there for Level 1.
+Actually, this is a measurement artifact. The MIDI correctly represents
+the decay-silence-attack cycle. The gap is between "frames where the
+hardware has vol>0" vs "frames where a MIDI note is sounding." The MIDI
+approach is correct for playback — you don't want notes sustaining
+through vol=0 frames.
 
-3. **Accept the CC path's limitations** — the Console synth will never
-   perfectly reproduce sweep vibrato, noise mode, or sub-semitone pitch.
-   That's what the APU2 path is for. The CC path's job is to be "close
-   enough" for keyboard play and YouTube renders.
+**Triangle:** ~0 active MIDI frames despite 4,170 active trace frames.
+This is likely a measurement bug in my audit (counting note_on state
+incorrectly), because the MIDI does have 414 triangle notes. Need to
+verify by listening.
 
-The APU2/SysEx path is already encoding all of this correctly. The
-remaining question is whether the APU2 synth is READING it correctly —
-that's the next ear-check.
+**Noise:** Only 198 MIDI hits vs 5,987 active frames. The noise
+channel on NES stays at vol>0 for long stretches (sustained noise
+effects, slowly decaying hits). Our drum detection only triggers on
+vol transitions from 0→positive, and caps at 12 frames. Everything
+after 12 frames is cut off. This is probably correct behavior — you
+don't want 100-frame drum notes. But the 198 hits may be underreporting
+the number of distinct drum events.
+
+---
+
+## Problem 4: NSF vs Trace Alignment
+
+The NSF Song 3 and the Mesen trace capture completely different note
+sequences for the same channel. The NSF starts at the music loop point;
+the trace starts at gameplay begin (which may include an intro that the
+NSF skips).
+
+First 30 P2 notes comparison:
+- **NSF**: G5, G#5, G5, F#5, G5, F#5, F5... (descending chromatic run)
+- **Trace**: E3, E3, E3, A2, E3, E3, E3, A#4, B4... (bass groove)
+
+These are completely different sections of the same song. The trace
+captures the opening bass groove; the NSF starts at a melody section.
+This means: **the NSF cannot be used to validate trace note accuracy.**
+The reference MP3 (which is an NSF render) starts at the NSF loop point,
+not at the trace start point.
+
+---
+
+## What We Know vs What We Assume
+
+### Verified by Data
+
+- Period mask fix is correct: raw values include length counter bits,
+  masking with `& 0x7FF` recovers the 11-bit NES period. P2 went from
+  651 to 923 notes, range shifted from D1-A5 to A1-A5. (CONFIRMED)
+
+- The ±4 period oscillation is real sweep unit vibrato, present on both
+  pulse channels. 5,610 P2 period changes, 4,345 P1 period changes.
+  (CONFIRMED from raw capture)
+
+- The 1-frame notes in P1 are rapid descending arpeggios used as attack
+  transients by the sound driver. 18 such notes, all at phrase starts.
+  (CONFIRMED by frame inspection)
+
+- The NES volume envelope naturally decays to 0 between notes. Vol=0
+  gaps of 4-7 frames are normal. (CONFIRMED by frame inspection)
+
+### Still Unknown
+
+- Whether the "wrong notes" you hear are primarily from the sweep trills,
+  the 1-frame arpeggios, or something else entirely.
+
+- Whether the triangle and noise channels are rendering correctly in
+  REAPER (structural validation shows data exists, but no ear-check).
+
+- Whether the APU2 path sounds better than the Console path for this
+  capture (it should, since it bypasses all MIDI encoding issues).
+
+## Recommended Listening Test
+
+Open both RPPs in REAPER and compare:
+
+1. `output/Battletoads_trace_v3/reaper/Battletoads_trace_01_Ragnoraks_Canyon_v1.rpp`
+   (Console/CC path — has the trill and arpeggio issues)
+
+2. `output/Battletoads_trace_v3/reaper/Battletoads_trace_01_Ragnoraks_Canyon_APU2_v1.rpp`
+   (APU2/SysEx path — should bypass all MIDI encoding issues)
+
+If APU2 sounds significantly better, the encoding issues are confirmed
+and we should focus on improving the CC path encoding. If APU2 also
+sounds "off," the problem is in the synth, not the data.
