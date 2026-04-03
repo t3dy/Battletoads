@@ -145,6 +145,10 @@ def build_pulse_track(frames, prefix, label, midi_ch, program):
     if prev_midi > 0:
         track.append(mido.Message('note_off', note=prev_midi,
                                  velocity=0, channel=midi_ch, time=ticks))
+        ticks = 0
+    # CC123 resets synth cc_file_mode so keyboard works after playback
+    track.append(mido.Message('control_change', channel=midi_ch,
+                             control=123, value=0, time=ticks))
     track.append(mido.MetaMessage('end_of_track', time=0))
     return track
 
@@ -188,6 +192,9 @@ def build_triangle_track(frames, midi_ch=2):
     if prev_midi > 0:
         track.append(mido.Message('note_off', note=prev_midi,
                                  velocity=0, channel=midi_ch, time=ticks))
+        ticks = 0
+    track.append(mido.Message('control_change', channel=midi_ch,
+                             control=123, value=0, time=ticks))
     track.append(mido.MetaMessage('end_of_track', time=0))
     return track
 
@@ -267,6 +274,9 @@ def build_noise_track(frames, midi_ch=3):
     if prev_midi > 0:
         track.append(mido.Message('note_off', note=prev_midi,
                                  velocity=0, channel=midi_ch, time=ticks))
+        ticks = 0
+    track.append(mido.Message('control_change', channel=midi_ch,
+                             control=123, value=0, time=ticks))
     track.append(mido.MetaMessage('end_of_track', time=0))
     return track
 

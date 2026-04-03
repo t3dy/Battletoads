@@ -111,13 +111,44 @@ use trace pipeline. Battletoads and Mario are confirmed trace-required games.
 - Mistake narratives: @docs/MISTAKEBAKED.md
 - Handover (legacy): @docs/HANDOVER.md
 
+## NON-NEGOTIABLE RULES
+
+```
+NON-NEGOTIABLE: Never skip Frame IR.
+Trace-derived exports must follow:
+Trace -> canonical frame state -> Frame IR -> MIDI/CC/SysEx/project projection.
+Raw register changes are not yet musical events.
+Direct period-change-to-note conversion is a known failure mode.
+Validation should fail if a trace route bypasses Frame IR.
+```
+
+**Different ROMs use different music engines.** Do not hard-code one universal
+decoding model. The system must support per-game/per-engine adaptation.
+
+**Three distinct layers that must never be conflated:**
+1. Canonical observed data (FrameState from trace/NSF)
+2. Inferred musical interpretation (Frame IR)
+3. Downstream DAW/playback projection (MIDI/RPP/synth)
+
+**Three distinct use-cases that must never be collapsed:**
+1. Archival/analytical fidelity to ROM behavior
+2. Editable REAPER project generation
+3. Live MIDI keyboard play through synth plugin
+
+Read `docs/ARCHITECTURE_SPEC.md` for the full pipeline rebuild specification.
+
 ## Key Commands
 
 ```bash
+# PRIMARY: kitchen_sink.py generates all routes, validates, compares, blocks on failure
+python scripts/kitchen_sink.py \
+  --capture <trace.csv> --game <Game> --name <Song> -o output/<Game>/
+
+# Legacy single-route (being replaced by kitchen_sink.py):
 python scripts/batch_nsf_all.py                                    # batch all games
 python scripts/nsf_to_reaper.py <nsf> --all -o output/X/          # single game NSF pipeline
+python scripts/trace_to_midi.py <capture.csv> -o output/X/ --auto-segment  # trace pipeline
 python scripts/generate_project.py --midi <f> --nes-native -o <out>  # REAPER from MIDI
-PYTHONPATH=. python scripts/full_pipeline.py <rom> --game-name X   # ROM pipeline (Konami)
 PYTHONPATH=. python scripts/trace_compare.py --frames 1792         # validate CV1 parser
 python scripts/generate_site.py                                     # rebuild website
 ```

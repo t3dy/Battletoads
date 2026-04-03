@@ -37,6 +37,93 @@ from nsf_to_reaper import build_midi, TICKS_PER_FRAME, TICKS_PER_BEAT
 # NES noise period lookup table (timer values for 4-bit index 0-15)
 NOISE_PERIOD_TABLE = [4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068]
 
+# NTSC note names for period table indexing
+NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+
+# Per-game ROM period tables. Key = game slug, value = (base_octave, periods[]).
+# base_octave is the octave of the first entry (index 0).
+# Periods are standard NTSC NES values, 5 octaves (60 entries).
+ROM_PERIOD_TABLES = {
+    "battletoads": (1, [
+        # Extended below ROM table: C1-B1 (computed from C2 values * 2)
+        3420, 3226, 3048, 2876, 2716, 2562, 2416, 2282, 2154, 2034, 1918, 1812,  # C1-B1
+        # ROM $8E22 period table: C2-B6 (60 entries)
+        1710, 1613, 1524, 1438, 1358, 1281, 1208, 1141, 1077, 1016, 959, 905,    # C2-B2
+        854, 806, 761, 718, 678, 640, 604, 570, 538, 508, 479, 452,              # C3-B3
+        427, 403, 380, 359, 338, 319, 301, 284, 268, 253, 239, 226,              # C4-B4
+        213, 201, 189, 179, 169, 159, 150, 142, 134, 126, 119, 112,              # C5-B5
+        106, 100, 94, 89, 84, 79, 75, 70, 66, 63, 59, 56,                        # C6-B6
+    ]),
+}
+
+# Maximum distance (in NES timer units) between a trace period and a table
+# entry for the period to be considered sweep-modified rather than a new note.
+# Battletoads sweep offsets are typically 1-15 units.
+SWEEP_HOLD_TOLERANCE = 20
+
+
+def snap_period_to_table(period, game_slug, held_table_idx=None):
+    """Snap a trace period to the nearest ROM period table entry.
+
+    Args:
+        period: 11-bit masked NES timer period from trace
+        game_slug: key into ROM_PERIOD_TABLES
+        held_table_idx: index of the currently held note in the table,
+            or None if no note is held. When set, the period is first
+            checked against this entry's sweep range before falling back
+            to global closest-match.
+
+    Returns:
+        (table_index, table_period, midi_note) or (None, None, 0) if
+        the period is outside the table range entirely.
+    """
+    if game_slug not in ROM_PERIOD_TABLES:
+        return None, None, 0
+    base_oct, table = ROM_PERIOD_TABLES[game_slug]
+
+    # Sweep hold: if we have a current note, check if the period is
+    # within sweep tolerance of it. This prevents A#4→B4 oscillation
+    # when the sweep unit modifies the period by a few units.
+    if held_table_idx is not None and 0 <= held_table_idx < len(table):
+        held_period = table[held_table_idx]
+        if abs(period - held_period) <= SWEEP_HOLD_TOLERANCE:
+            # C2 = MIDI 36 = index 0 when base_oct=2
+            midi_note = (base_oct * 12 + 12) + held_table_idx
+            return held_table_idx, held_period, midi_note
+
+    # Global closest match
+    best_idx = 0
+    best_dist = abs(period - table[0])
+    for i, t in enumerate(table):
+        d = abs(period - t)
+        if d < best_dist:
+            best_dist = d
+            best_idx = i
+    # Reject if way outside range (> 50 from any entry)
+    if best_dist > 50:
+        return None, None, 0
+    midi_note = (base_oct * 12 + 12) + best_idx
+    return best_idx, table[best_idx], midi_note
+
+
+def table_period_to_midi(period, game_slug="battletoads", is_tri=False,
+                         held_idx=None):
+    """Period-to-MIDI using ROM table snapping + sweep hold.
+
+    Drop-in replacement for period_to_midi_trace when a ROM table is known.
+    For triangle, subtracts 12 (one octave lower, hardware fact).
+    """
+    if period <= (2 if is_tri else 8):
+        return 0, None
+    idx, tbl_period, midi_note = snap_period_to_table(period, game_slug, held_idx)
+    if idx is None:
+        return 0, None
+    if is_tri:
+        midi_note -= 12
+    if midi_note < 21 or midi_note > 120:
+        return 0, None
+    return midi_note, idx
+
 
 def noise_timer_to_index(timer_val):
     """Reverse-map a decoded noise timer value to the 4-bit register index."""
@@ -434,28 +521,290 @@ def extract_segment(channels, start, end):
     return result
 
 
+def build_trace_midi(channels, game_title, song_name, song_num,
+                     period_fn=None, min_note_frames=3, game_slug=None):
+    """Build MIDI from trace data with ROM period table snapping.
+
+    Interpretation pipeline (Frame IR):
+
+    1. ROM table snapping: each trace period is snapped to the nearest
+       entry in the game's ROM period table. This recovers the driver's
+       intended note, eliminating sweep artifacts.
+    2. Sweep hold: once a note is established, subsequent periods within
+       SWEEP_HOLD_TOLERANCE of the held note's table period are treated
+       as the same note (sweep vibrato, not a new note).
+    3. Note change: only occurs when the period jumps far enough to snap
+       to a DIFFERENT table entry (clear pitch boundary from the driver).
+    4. CC11/CC12: emitted per-frame (ground truth envelope, no interpretation).
+    5. Triangle: gated by linear counter > 0 AND period > 2. Table-snapped,
+       minus 12 for hardware octave offset.
+    6. Noise: volume rising-edge detection for drum hits.
+    """
+    if period_fn is None:
+        period_fn = period_to_midi_trace
+    use_table = game_slug and game_slug in ROM_PERIOD_TABLES
+
+    mid = mido.MidiFile(ticks_per_beat=TICKS_PER_BEAT)
+
+    # Track 0: metadata
+    meta_track = mido.MidiTrack()
+    meta_track.append(mido.MetaMessage('set_tempo', tempo=mido.bpm2tempo(128.6)))
+    meta_track.append(mido.MetaMessage('time_signature', numerator=4, denominator=4))
+    meta_track.append(mido.MetaMessage('text', text=f'Game: {game_title}'))
+    meta_track.append(mido.MetaMessage('text', text=f'Song: {song_name}'))
+    meta_track.append(mido.MetaMessage('text', text=f'Source: Mesen trace (frame IR interpreted)'))
+    meta_track.append(mido.MetaMessage('text', text=f'Track: {song_num}'))
+    mid.tracks.append(meta_track)
+
+    track_configs = [
+        ("pulse1", "Square 1 [lead]", 0, 80),
+        ("pulse2", "Square 2 [harmony]", 1, 81),
+        ("triangle", "Triangle [bass]", 2, 38),
+        ("noise", "Noise [drums]", 3, 0),
+    ]
+
+    for ch_name, label, midi_ch, program in track_configs:
+        track = mido.MidiTrack()
+        track.append(mido.MetaMessage('track_name', name=label))
+        if program > 0:
+            track.append(mido.Message('program_change', channel=midi_ch, program=program))
+
+        ch_frames = channels[ch_name]["notes"]
+        ticks = 0
+
+        if ch_name in ("pulse1", "pulse2"):
+            # --- ROM table-snapped note detection for pulse channels ---
+            # The ROM period table gives us the driver's intended notes.
+            # Sweep hold prevents oscillation artifacts (e.g. A#4 ↔ B4).
+            stable_notes = [0] * len(ch_frames)
+
+            if use_table:
+                # Table-snapped path: sweep hold does the stabilization
+                held_idx = None
+                for idx, fd in enumerate(ch_frames):
+                    period = fd["period"]
+                    vol = fd["vol"]
+                    if period <= 8 or vol == 0:
+                        stable_notes[idx] = 0
+                        if vol == 0:
+                            held_idx = None  # reset hold on silence
+                        continue
+                    midi_note, new_idx = table_period_to_midi(
+                        period, game_slug, is_tri=False, held_idx=held_idx)
+                    if new_idx is not None:
+                        held_idx = new_idx
+                    stable_notes[idx] = midi_note
+            else:
+                # Legacy path: raw period->MIDI with stability filter
+                frame_notes = []
+                for fd in ch_frames:
+                    period = fd["period"]
+                    vol = fd["vol"]
+                    midi_note = period_fn(period) if period > 8 and vol > 0 else 0
+                    frame_notes.append(midi_note)
+
+                i = 0
+                while i < len(frame_notes):
+                    note = frame_notes[i]
+                    if note == 0:
+                        stable_notes[i] = 0
+                        i += 1
+                        continue
+                    run_len = 1
+                    while i + run_len < len(frame_notes) and frame_notes[i + run_len] == note:
+                        run_len += 1
+                    if run_len >= min_note_frames:
+                        for j in range(run_len):
+                            stable_notes[i + j] = note
+                    else:
+                        next_stable = 0
+                        lookahead = i + run_len
+                        while lookahead < min(len(frame_notes), i + 15):
+                            if frame_notes[lookahead] == 0:
+                                break
+                            ahead_note = frame_notes[lookahead]
+                            ahead_run = 1
+                            while (lookahead + ahead_run < len(frame_notes)
+                                   and frame_notes[lookahead + ahead_run] == ahead_note):
+                                ahead_run += 1
+                            if ahead_run >= min_note_frames:
+                                next_stable = ahead_note
+                                break
+                            lookahead += ahead_run
+                        if next_stable > 0:
+                            for j in range(run_len):
+                                stable_notes[i + j] = next_stable
+                        else:
+                            prev_stable = stable_notes[i - 1] if i > 0 else 0
+                            if prev_stable > 0 and frame_notes[i] != 0:
+                                for j in range(run_len):
+                                    stable_notes[i + j] = prev_stable
+                            else:
+                                for j in range(run_len):
+                                    stable_notes[i + j] = note
+                    i += run_len
+
+            # Third pass: emit MIDI events from stable notes + CC automation
+            prev_midi = 0
+            prev_vol = -1
+            prev_duty = -1
+            for idx, fd in enumerate(ch_frames):
+                vol = fd["vol"]
+                duty = fd["duty"]
+                midi_note = stable_notes[idx]
+
+                # CC12: duty cycle
+                if duty != prev_duty and midi_note > 0:
+                    cc_duty = [16, 32, 64, 96][min(3, duty)]
+                    track.append(mido.Message('control_change', channel=midi_ch,
+                                             control=12, value=cc_duty, time=ticks))
+                    ticks = 0
+                    prev_duty = duty
+
+                # CC11: volume (per-frame, ground truth)
+                if vol != prev_vol and midi_note > 0:
+                    cc_vol = min(127, vol * 8)
+                    track.append(mido.Message('control_change', channel=midi_ch,
+                                             control=11, value=cc_vol, time=ticks))
+                    ticks = 0
+                    prev_vol = vol
+
+                # Note changes (from stabilized notes, not raw periods)
+                if midi_note != prev_midi:
+                    if prev_midi > 0:
+                        track.append(mido.Message('note_off', note=prev_midi,
+                                                  velocity=0, channel=midi_ch, time=ticks))
+                        ticks = 0
+                    if midi_note > 0:
+                        vel = min(127, vol * 8)
+                        track.append(mido.Message('note_on', note=midi_note,
+                                                  velocity=vel, channel=midi_ch, time=ticks))
+                        ticks = 0
+                    prev_midi = midi_note
+
+                ticks += TICKS_PER_FRAME
+
+        elif ch_name == "triangle":
+            prev_midi = 0
+            tri_held_idx = None
+            for fd in ch_frames:
+                period = fd["period"]
+                linear = fd["linear"]
+                if period <= 2 or linear == 0:
+                    midi_note = 0
+                    if linear == 0:
+                        tri_held_idx = None
+                elif use_table:
+                    midi_note, new_idx = table_period_to_midi(
+                        period, game_slug, is_tri=True, held_idx=tri_held_idx)
+                    if new_idx is not None:
+                        tri_held_idx = new_idx
+                else:
+                    midi_note = period_fn(period, is_tri=True)
+
+                if midi_note != prev_midi:
+                    if prev_midi > 0:
+                        track.append(mido.Message('note_off', note=prev_midi,
+                                                  velocity=0, channel=midi_ch, time=ticks))
+                        ticks = 0
+                    if midi_note > 0:
+                        track.append(mido.Message('control_change', channel=midi_ch,
+                                                  control=11, value=127, time=ticks))
+                        ticks = 0
+                        track.append(mido.Message('note_on', note=midi_note,
+                                                  velocity=127, channel=midi_ch, time=ticks))
+                        ticks = 0
+                    prev_midi = midi_note
+                ticks += TICKS_PER_FRAME
+
+        elif ch_name == "noise":
+            prev_vol = 0
+            prev_midi = 0
+            prev_period = -1
+            for fd in ch_frames:
+                vol = fd["vol"]
+                period_idx = fd["period"]
+                mode = fd["mode"]
+
+                # Drum hit: volume rises from 0, OR period changes while sounding
+                is_hit = (vol > 0 and prev_vol == 0) or \
+                         (vol > 0 and period_idx != prev_period and prev_period >= 0)
+
+                if is_hit:
+                    # End previous hit
+                    if prev_midi > 0:
+                        track.append(mido.Message('note_off', note=prev_midi,
+                                                  velocity=0, channel=midi_ch, time=ticks))
+                        ticks = 0
+                    # Map noise period to GM drum
+                    if period_idx <= 4:
+                        drum_note = 42  # closed hi-hat
+                    elif period_idx <= 8:
+                        drum_note = 38  # snare
+                    elif period_idx <= 12:
+                        drum_note = 45  # mid tom
+                    else:
+                        drum_note = 36  # kick
+                    vel = min(127, vol * 8)
+                    track.append(mido.Message('note_on', note=drum_note,
+                                             velocity=vel, channel=midi_ch, time=ticks))
+                    ticks = 0
+                    prev_midi = drum_note
+                elif vol == 0 and prev_vol > 0:
+                    if prev_midi > 0:
+                        track.append(mido.Message('note_off', note=prev_midi,
+                                                  velocity=0, channel=midi_ch, time=ticks))
+                        ticks = 0
+                        prev_midi = 0
+
+                prev_vol = vol
+                prev_period = period_idx
+                ticks += TICKS_PER_FRAME
+
+        # Final note off
+        if ch_name in ("pulse1", "pulse2"):
+            if prev_midi > 0:
+                track.append(mido.Message('note_off', note=prev_midi,
+                                          velocity=0, channel=midi_ch, time=ticks))
+        elif ch_name == "triangle":
+            if prev_midi > 0:
+                track.append(mido.Message('note_off', note=prev_midi,
+                                          velocity=0, channel=midi_ch, time=ticks))
+        elif ch_name == "noise":
+            if prev_midi > 0:
+                track.append(mido.Message('note_off', note=prev_midi,
+                                          velocity=0, channel=midi_ch, time=ticks))
+
+        track.append(mido.Message('control_change', channel=midi_ch,
+                                  control=123, value=0, time=0))
+        track.append(mido.MetaMessage('end_of_track', time=0))
+        mid.tracks.append(track)
+
+    return mid
+
+
 def process_segment(channels, game, name, seg_num, output_dir,
                     no_sfx_filter=False, registers=None):
     """Convert a segment's channel data to MIDI + REAPER project.
 
-    If registers are provided (from parse_mesen_registers), a SysEx track
-    is appended to the MIDI for APU2 hardware-accurate replay, and an
-    APU2-based REAPER project is also generated.
+    Uses build_trace_midi with smart note detection (frame IR interpretation).
+    Rapid period sweeps are collapsed into target notes instead of creating
+    trills. CC11/CC12 are emitted per-frame for ground-truth envelopes.
     """
-    game_slug = game.replace(' ', '_')
+    game_slug = game.replace(' ', '_').lower()
     name_slug = name.replace(' ', '_').replace("'", "").replace('!', '')
 
     if not no_sfx_filter:
         channels = filter_sfx(channels, verbose=True)
 
-    # Build MIDI
+    # Build MIDI with ROM table snapping (when table available)
     midi_dir = os.path.join(output_dir, "midi")
     os.makedirs(midi_dir, exist_ok=True)
 
-    mid = build_midi(
+    mid = build_trace_midi(
         channels, game, name, seg_num,
         period_fn=period_to_midi_trace,
-        source_text='Mesen APU trace capture (ground truth)',
+        game_slug=game_slug,
     )
 
     # Append SysEx APU register track if we have register data

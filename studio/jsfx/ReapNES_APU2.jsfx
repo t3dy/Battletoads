@@ -6,12 +6,12 @@ out_pin:Right
 
 // ===================================================================
 // Dual-mode NES 2A03 synthesizer:
-//   Mode 1: CC-driven — reads CC11 (volume) and CC12 (duty) from MIDI
+//   Mode 1: CC-driven -- reads CC11 (volume) and CC12 (duty) from MIDI
 //           files produced by nsf_to_reaper.py. Per-frame envelope and
 //           duty changes are played back exactly as captured from the
 //           NES APU. Also reads SysEx register data when available for
 //           additional hardware accuracy (phase reset, noise params).
-//   Mode 2: ADSR Keyboard — when no CC data present, uses ADSR envelopes
+//   Mode 2: ADSR Keyboard -- when no CC data present, uses ADSR envelopes
 //           for live keyboard play with NES-like waveforms.
 //
 // CC11 = volume expression (NES 0-15 mapped to MIDI 0-127)
@@ -116,7 +116,17 @@ lfsr = 1; lfsr_acc = 0; noi_en = 0;
 noi_period_idx = 4; noi_mode = 0;
 
 // ---------------------------------------------------------------
-// CC-driven state (from MIDI CC11/CC12)
+// SysEx register replay state (Priority 1 -- highest fidelity)
+// When SysEx data arrives, these drive the oscillators directly
+// from raw APU register values. Bypasses CC and ADSR entirely.
+// ---------------------------------------------------------------
+// sx[ch*8]: 0=active, 1=vol(0-15), 2=duty(0-3), 3=period(11-bit),
+//           4=enable, 5=sweep, 6=linear_ctr(tri), 7=reserved
+sx = 150;
+i = 0; loop(32, sx[i] = 0; i += 1; );
+
+// ---------------------------------------------------------------
+// CC-driven state (Priority 2 -- from MIDI CC11/CC12)
 // Per channel: cc_active flag, current vol, current duty
 // ---------------------------------------------------------------
 // cc[ch*4]: 0=cc_active, 1=volume (0-15), 2=duty (0-3), 3=reserved
@@ -228,8 +238,12 @@ while ((recv_len = midirecv_buf(offset, midi_buf, 128)) > 0) (
   status_byte = midi_buf[0];
 
   // ---------------------------------------------------------------
-  // SysEx: APU Register Replay (bonus data, not required for sound)
+  // SysEx: APU Register Replay (Priority 1 -- hardware-exact)
   // F0 7D 01 ch r0lo r0hi r1lo r1hi r2lo r2hi r3lo r3hi en F7
+  //
+  // When SysEx is present, it drives the oscillators directly from
+  // raw APU register state. Volume, duty, period, enable -- all come
+  // from the registers. MIDI notes and CCs are ignored.
   // ---------------------------------------------------------------
   status_byte == 0xF0 ? (
     // Check if it's our APU register SysEx
@@ -237,27 +251,88 @@ while ((recv_len = midirecv_buf(offset, midi_buf, 128)) > 0) (
       sx_ch = midi_buf[3];
       // Only process matching channel
       (ch_mode == 4 || ch_mode == sx_ch) ? (
-        // Decode register bytes
+        // Decode all 4 register bytes
         r0 = (midi_buf[4] & 0x7F) | ((midi_buf[5] & 0x01) << 7);
+        r1 = (midi_buf[6] & 0x7F) | ((midi_buf[7] & 0x01) << 7);
+        r2 = (midi_buf[8] & 0x7F) | ((midi_buf[9] & 0x01) << 7);
         r3 = (midi_buf[10] & 0x7F) | ((midi_buf[11] & 0x01) << 7);
+        sx_en = midi_buf[12] & 1;
 
-        // Phase reset on high-byte write (hardware behavior)
-        // Detect r3 changes — on real NES, writing $4003/$4007 resets
-        // the phase sequencer to step 0, creating the characteristic click
-        sx_ch == 0 ? (
-          r3 != p1_prev_r3 ? p1_phase = 0;
-          p1_prev_r3 = r3;
-        );
-        sx_ch == 1 ? (
-          r3 != p2_prev_r3 ? p2_phase = 0;
-          p2_prev_r3 = r3;
+        // Mark this channel as SysEx-active (suppresses CC and ADSR)
+        sx_base = sx_ch * 8;
+        sx[sx_base] = 1;  // active flag
+        sx[sx_base + 4] = sx_en;
+
+        // --- Pulse channels (ch 0, 1) ---
+        sx_ch < 2 ? (
+          // $4000/$4004: [duty:2][loop:1][const:1][vol:4]
+          sx[sx_base + 1] = r0 & 0x0F;          // volume 0-15
+          sx[sx_base + 2] = (r0 >> 6) & 0x03;   // duty 0-3
+          sx[sx_base + 5] = r1;                   // sweep register
+
+          // $4002+$4003 / $4006+$4007: 11-bit period
+          sx_period = r2 | ((r3 & 0x07) << 8);
+          sx[sx_base + 3] = sx_period;
+
+          // Compute oscillator frequency directly from period
+          sx_period >= 8 && sx_en ? (
+            sx_freq = cpu_clk / (16.0 * (sx_period + 1));
+            sx_ch == 0 ? (
+              p1_inc = 8.0 * sx_freq / srate;
+              p1_en = 1;
+            ) : (
+              p2_inc = 8.0 * sx_freq / srate;
+              p2_en = 1;
+            );
+          ) : (
+            // Period too low (ultrasonic) or disabled -- silence
+            sx_ch == 0 ? ( p1_en = 0; ) : ( p2_en = 0; );
+          );
+
+          // Phase reset on r3 write (hardware behavior)
+          sx_ch == 0 ? (
+            r3 != p1_prev_r3 ? p1_phase = 0;
+            p1_prev_r3 = r3;
+          ) : (
+            r3 != p2_prev_r3 ? p2_phase = 0;
+            p2_prev_r3 = r3;
+          );
         );
 
-        // For noise: extract exact period index and mode from register
+        // --- Triangle (ch 2) ---
+        sx_ch == 2 ? (
+          // $4008: linear counter (bits 0-6)
+          sx[sx_base + 6] = r0 & 0x7F;  // linear counter
+          sx[sx_base + 1] = (r0 & 0x7F) > 0 ? 15 : 0;  // tri has no volume, just gate
+
+          // $400A+$400B: 11-bit period
+          sx_period = r2 | ((r3 & 0x07) << 8);
+          sx[sx_base + 3] = sx_period;
+
+          // Triangle uses 32-step sequencer (half the frequency of pulse)
+          sx_period >= 2 && sx_en && (r0 & 0x7F) > 0 ? (
+            sx_freq = cpu_clk / (32.0 * (sx_period + 1));
+            tri_inc = 32.0 * sx_freq / srate;
+            tri_en = 1;
+          ) : (
+            tri_en = 0;
+          );
+        );
+
+        // --- Noise (ch 3) ---
         sx_ch == 3 ? (
-          r2 = (midi_buf[8] & 0x7F) | ((midi_buf[9] & 0x01) << 7);
+          // $400C: [xx][const:1][vol:4]
+          sx[sx_base + 1] = r0 & 0x0F;  // volume 0-15
+
+          // $400E: [mode:1][xxx][period:4]
           noi_period_idx = r2 & 0x0F;
           noi_mode = (r2 >> 7) & 1;
+
+          sx_en && (r0 & 0x0F) > 0 ? (
+            noi_en = 1;
+          ) : (
+            noi_en = 0;
+          );
         );
       );
     );
@@ -290,25 +365,28 @@ while ((recv_len = midirecv_buf(offset, midi_buf, 128)) > 0) (
     use_msg ? (
 
       // --- CC11: Volume (per-frame from NSF extraction) ---
-      status == 0xB0 && midi_buf[1] == 11 ? (
+      // Only activate CC mode if SysEx isn't already driving this channel
+      status == 0xB0 && midi_buf[1] == 11 && !sx[ch * 8] ? (
         nes_vol = floor(midi_buf[2] * 15 / 127 + 0.5);
         cc[ch * 4] = 1;       // Mark channel as CC-active
         cc[ch * 4 + 1] = nes_vol;  // Store volume
       );
 
       // --- CC12: Duty cycle (per-frame from NSF extraction) ---
-      status == 0xB0 && midi_buf[1] == 12 ? (
+      status == 0xB0 && midi_buf[1] == 12 && !sx[ch * 8] ? (
         cc[ch * 4] = 1;       // Mark channel as CC-active
         cc[ch * 4 + 2] = floor(midi_buf[2] / 32);  // Map to 0-3
       );
 
-      // --- CC123/CC121: All Notes Off / Reset — re-enable ADSR ---
+      // --- CC123/CC121: All Notes Off / Reset -- re-enable ADSR ---
       status == 0xB0 && (midi_buf[1] == 123 || midi_buf[1] == 121) ? (
         cc[ch * 4] = 0;  // Deactivate CC mode, re-enable ADSR
       );
 
       // --- Note On ---
-      status == 0x90 && midi_buf[2] > 0 ? (
+      // When SysEx is active, notes are ignored (SysEx drives pitch directly).
+      // Notes only affect oscillators in CC mode or ADSR keyboard mode.
+      status == 0x90 && midi_buf[2] > 0 && !sx[ch * 8] ? (
         ch == 0 ? (
           kb_note[0] = midi_buf[1];
           p1_inc = calc_pulse_inc(note2hz(midi_buf[1]));
@@ -336,7 +414,8 @@ while ((recv_len = midirecv_buf(offset, midi_buf, 128)) > 0) (
       );
 
       // --- Note Off ---
-      (status == 0x80 || (status == 0x90 && midi_buf[2] == 0)) ? (
+      // Also suppressed when SysEx active (SysEx controls enable directly)
+      !sx[ch * 8] && (status == 0x80 || (status == 0x90 && midi_buf[2] == 0)) ? (
         ch == 0 && midi_buf[1] == kb_note[0] ? (
           !cc[0] ? release_env(0);
           kb_note[0] = -1;
@@ -355,8 +434,8 @@ while ((recv_len = midirecv_buf(offset, midi_buf, 128)) > 0) (
         );
       );
 
-      // --- Pitch bend (keyboard mode) ---
-      status == 0xE0 ? (
+      // --- Pitch bend (keyboard mode only) ---
+      !sx[ch * 8] && status == 0xE0 ? (
         pb = ((midi_buf[2] << 7) | midi_buf[1]) - 8192;
         pb_semi = pb / 8192 * 2;
         ch == 0 && kb_note[0] >= 0 ? p1_inc = calc_pulse_inc(note2hz(kb_note[0] + pb_semi));
@@ -375,21 +454,27 @@ while ((recv_len = midirecv_buf(offset, midi_buf, 128)) > 0) (
 // ===================================================================
 
 // ---------------------------------------------------------------
-// Pulse 1
+// Pulse 1 -- Three-priority cascade: SysEx > CC > ADSR
 // ---------------------------------------------------------------
 p1_out = 0;
 (ch_mode == 0 || ch_mode == 4) ? (
-  cc[0] ? (
-    // CC-driven mode: volume and duty from MIDI CC11/CC12
+  sx[0] ? (
+    // Priority 1: SysEx register replay -- vol, duty, period from registers
+    p1_en && sx[1] > 0 ? (
+      p1_out = dt[sx[2] * 8 + (floor(p1_phase) & 7)] * sx[1];
+      p1_phase += p1_inc;
+      p1_phase >= 8.0 ? p1_phase -= 8.0;
+    );
+  ) : cc[0] ? (
+    // Priority 2: CC-driven mode -- vol and duty from MIDI CC11/CC12
     p1_en && cc[1] > 0 ? (
       p1_out = dt[cc[2] * 8 + (floor(p1_phase) & 7)] * cc[1];
       p1_phase += p1_inc;
       p1_phase >= 8.0 ? p1_phase -= 8.0;
     );
-    // Note off: silence (CC mode doesn't use ADSR release)
     kb_note[0] < 0 ? ( p1_en = 0; );
   ) : (
-    // ADSR keyboard mode
+    // Priority 3: ADSR keyboard mode
     p1_env = process_env(0);
     kb_note[0] < 0 && ev[0] == 0 ? p1_en = 0;
     p1_en ? (
@@ -402,11 +487,19 @@ p1_out = 0;
 );
 
 // ---------------------------------------------------------------
-// Pulse 2
+// Pulse 2 -- Three-priority cascade: SysEx > CC > ADSR
 // ---------------------------------------------------------------
 p2_out = 0;
 (ch_mode == 1 || ch_mode == 4) ? (
-  cc[4] ? (
+  sx[8] ? (
+    // Priority 1: SysEx register replay
+    p2_en && sx[9] > 0 ? (
+      p2_out = dt[sx[10] * 8 + (floor(p2_phase) & 7)] * sx[9];
+      p2_phase += p2_inc;
+      p2_phase >= 8.0 ? p2_phase -= 8.0;
+    );
+  ) : cc[4] ? (
+    // Priority 2: CC-driven
     p2_en && cc[5] > 0 ? (
       p2_out = dt[cc[6] * 8 + (floor(p2_phase) & 7)] * cc[5];
       p2_phase += p2_inc;
@@ -414,6 +507,7 @@ p2_out = 0;
     );
     kb_note[1] < 0 ? ( p2_en = 0; );
   ) : (
+    // Priority 3: ADSR keyboard
     p2_env = process_env(1);
     kb_note[1] < 0 && ev[8] == 0 ? p2_en = 0;
     p2_en ? (
@@ -426,30 +520,45 @@ p2_out = 0;
 );
 
 // ---------------------------------------------------------------
-// Triangle
+// Triangle -- Three-priority cascade: SysEx > CC > ADSR
+// Triangle has no volume control on NES hardware -- only gate on/off.
+// Output is always full amplitude (15) when enabled.
 // ---------------------------------------------------------------
 tri_out = 0;
 (ch_mode == 2 || ch_mode == 4) ? (
-  tri_en ? (
-    tri_out = tt[floor(tri_phase) & 31];
-    tri_phase += tri_inc;
-    tri_phase >= 32.0 ? tri_phase -= 32.0;
-  );
-  // In CC mode, note-off silences; in ADSR mode, envelope gates
-  cc[8] ? (
+  sx[16] ? (
+    // Priority 1: SysEx -- gate from linear counter and enable
+    tri_en ? (
+      tri_out = tt[floor(tri_phase) & 31];
+      tri_phase += tri_inc;
+      tri_phase >= 32.0 ? tri_phase -= 32.0;
+    );
+  ) : cc[8] ? (
+    // Priority 2: CC-driven -- note on/off controls gate
+    tri_en ? (
+      tri_out = tt[floor(tri_phase) & 31];
+      tri_phase += tri_inc;
+      tri_phase >= 32.0 ? tri_phase -= 32.0;
+    );
     kb_note[2] < 0 ? ( tri_en = 0; tri_out = 0; );
   ) : (
+    // Priority 3: ADSR keyboard
     tri_env = process_env(2);
     kb_note[2] < 0 && ev[16] == 0 ? ( tri_en = 0; tri_out = 0; );
     tri_env <= 0 && (ev[16] == 4 || ev[16] == 0) ? ( tri_en = 0; tri_out = 0; );
+    tri_en ? (
+      tri_out = tt[floor(tri_phase) & 31];
+      tri_phase += tri_inc;
+      tri_phase >= 32.0 ? tri_phase -= 32.0;
+    );
   );
 );
 
 // ---------------------------------------------------------------
-// Noise
+// Noise -- Three-priority cascade: SysEx > CC > ADSR
 // ---------------------------------------------------------------
-// Drum envelope tick (keyboard mode only)
-!cc[12] && drum_active ? (
+// Drum envelope tick (keyboard mode only -- Priority 3)
+!sx[24] && !cc[12] && drum_active ? (
   drum_timer -= 1;
   drum_timer <= 0 ? (
     drum_vol -= 1;
@@ -472,11 +581,14 @@ noi_out = 0;
       lfsr = (lfsr >> 1) | (fb << 14);
     );
 
-    cc[12] ? (
-      // CC-driven: velocity sets volume on note-on, CC can modulate
+    sx[24] ? (
+      // Priority 1: SysEx -- volume directly from register
+      noi_out = (lfsr & 1) ? 0 : sx[25];
+    ) : cc[12] ? (
+      // Priority 2: CC-driven
       noi_out = (lfsr & 1) ? 0 : cc[13];
     ) : (
-      // Keyboard mode with ADSR or drum envelope
+      // Priority 3: Keyboard with ADSR or drum envelope
       !drum_active ? (
         noi_env = process_env(3);
         kb_note[3] < 0 && ev[24] == 0 ? noi_en = 0;

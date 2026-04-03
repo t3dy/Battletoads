@@ -470,26 +470,58 @@ def rpp_track(
 #  MIDI file conversion
 # ---------------------------------------------------------------------------
 
-def midi_track_to_events(track) -> list[str]:
+def midi_track_to_events(track, sysex_track=None) -> list[str]:
     """Convert a mido track to RPP E/X event lines.
 
-    Only emits channel messages (E lines). Meta events are skipped
-    because REAPER's inline MIDI parser can choke on X meta lines,
-    causing the entire item to appear empty.
+    Channel messages become E lines. SysEx messages become X lines.
+    Meta events are skipped because REAPER's inline MIDI parser can
+    choke on X meta lines, causing the entire item to appear empty.
+
+    If sysex_track is provided, its SysEx events are merged into
+    the output timeline (interleaved by absolute tick position).
+    This is used for APU2 projects where the SysEx register data
+    lives on a separate MIDI track but needs to be embedded in
+    each channel's RPP item.
     """
-    lines = []
-    accumulated_delta = 0
+    # Collect channel events with absolute ticks
+    ch_events = []
+    abs_tick = 0
     for msg in track:
-        accumulated_delta += msg.time
+        abs_tick += msg.time
         if msg.is_meta:
-            # Skip all meta events — accumulate their delta time
             continue
         if msg.type in ("note_on", "note_off", "control_change", "program_change",
                         "pitchwheel", "aftertouch", "polytouch", "channel_pressure"):
             raw = msg.bin()
             hex_data = " ".join(f"{b:02x}" for b in raw)
-            lines.append(f"E {accumulated_delta} {hex_data}")
-            accumulated_delta = 0
+            ch_events.append((abs_tick, f"E", hex_data))
+        elif msg.type == "sysex":
+            # SysEx on this track (F0 already stripped by mido, F7 not included)
+            raw_bytes = [0xF0] + list(msg.data) + [0xF7]
+            hex_data = " ".join(f"{b:02x}" for b in raw_bytes)
+            ch_events.append((abs_tick, "X", hex_data))
+
+    # Collect SysEx events from separate track if provided
+    if sysex_track is not None:
+        abs_tick = 0
+        for msg in sysex_track:
+            abs_tick += msg.time
+            if msg.type == "sysex":
+                raw_bytes = [0xF0] + list(msg.data) + [0xF7]
+                hex_data = " ".join(f"{b:02x}" for b in raw_bytes)
+                ch_events.append((abs_tick, "X", hex_data))
+
+    # Sort by absolute tick (stable sort preserves order for same tick)
+    ch_events.sort(key=lambda e: e[0])
+
+    # Convert to delta-time RPP lines
+    lines = []
+    prev_tick = 0
+    for abs_t, prefix, hex_data in ch_events:
+        delta = abs_t - prev_tick
+        lines.append(f"{prefix} {delta} {hex_data}")
+        prev_tick = abs_t
+
     return lines
 
 
@@ -751,20 +783,35 @@ def generate_midi_project(midi_path: Path, output_path: Path,
             _mid = _mido.MidiFile(str(remapped_path))
             # Find the track that contains data for this NES channel
             target_ch = nes_ch[role]
+            ch_track = None
+            sysex_trk = None
             for _t in _mid.tracks:
                 has_ch = any(
                     hasattr(m, "channel") and m.channel == target_ch
                     for m in _t
                 )
                 if has_ch:
-                    track_events = midi_track_to_events(_t)
-                    break
+                    ch_track = _t
+                # Find the SysEx track (has sysex messages, no channel messages)
+                has_sysex = any(m.type == "sysex" for m in _t)
+                has_notes = any(
+                    hasattr(m, "channel") and m.type == "note_on"
+                    for m in _t
+                )
+                if has_sysex and not has_notes:
+                    sysex_trk = _t
+            if ch_track is not None:
+                # For APU2 projects, merge SysEx track into each channel's item
+                track_events = midi_track_to_events(
+                    ch_track,
+                    sysex_track=sysex_trk if use_apu2 else None,
+                )
 
         midi_file_str = str(remapped_path.resolve()).replace("\\", "/") if has_midi else ""
         lines.append(rpp_track(
             name=name, color=COLORS[role], slider_values=vals,
             midi_file=midi_file_str, midi_length=duration,
-            armed=(not has_midi),  # arm tracks without MIDI items for live play
+            armed=(i == 0),  # first track armed for keyboard play
             selected=(i == 0),
             jsfx_plugin=plugin_name,
             midi_events=track_events,

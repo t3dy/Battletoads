@@ -74,3 +74,48 @@ Example: `phase2_start = max(1, duration - fade_step)`.
 DX reads 2 bytes in CV1, 3/1 in Contra. E8 means different
 things. EC is unused in CV1 but shifts pitch in Contra.
 Never copy command handling without checking the target game.
+
+## 9. Frame IR Is Mandatory (NON-NEGOTIABLE)
+
+No trace -> MIDI conversion without Frame IR generation.
+Trace-derived exports must follow:
+  Trace -> canonical frame state -> Frame IR -> MIDI/CC/SysEx/project
+
+Raw register changes are not yet musical events. Directly
+opening a new MIDI note on every period change is a known
+failure mode (Battletoads v3-v5 proved this). The Frame IR
+layer interprets hardware behavior into stable musical events.
+
+Anti-regression: any script that converts trace directly to
+note events without Frame IR is a regression against the
+proven CV1/Contra approach and must be rejected.
+
+## 10. Different ROMs Use Different Music Engines
+
+Do not hard-code one universal decoding model. Konami uses
+Maezawa commands. Rare uses a dispatch table. Other engines
+may be entirely different. The system must:
+- Support per-game/per-engine profiles
+- Attach route assumptions explicitly
+- Record which assumptions succeeded or failed
+- Allow adaptation without ad hoc improvisation
+
+## 11. Snap Trace Periods to ROM Period Table
+
+When the ROM period table is known, trace periods should be
+snapped to the nearest table entry to determine the driver's
+intended note. Raw trace periods include sweep unit modifications
+and are typically 1-15 units off from the table value.
+
+This is an interpretation decision that belongs in Frame IR,
+not in the MIDI builder.
+
+## 12. Three Layers Must Never Be Conflated
+
+1. Observed hardware state (registers, counters, flags)
+2. Inferred musical interpretation (Frame IR: notes, events, continuity)
+3. Downstream projection (MIDI, RPP, synth, keyboard abstractions)
+
+Each layer has different semantics and different debugging needs.
+Skipping a layer or merging two creates bugs that are invisible
+until the user hears the output.

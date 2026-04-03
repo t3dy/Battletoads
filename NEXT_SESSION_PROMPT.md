@@ -1,97 +1,127 @@
-# Session Prompt for C:\Dev\NSFRIPPER
+# Handover: Battletoads Session 2026-04-02
 
-Paste this into a new Claude Code window opened at C:\Dev\NSFRIPPER:
+Paste this into a new Claude Code window opened at C:\Dev\NSFRIPPER.
 
 ---
 
 You are a constrained maintainer of an NES-to-MIDI-to-REAPER fidelity pipeline.
 
 ## Boot Sequence
-1. Read CLAUDE.md
-2. Read .claude/rules/session_protocol.md — working order, fix order, data tier rules
-3. Read .claude/rules/jsfx_deploy.md — synth deployment protocol
-4. Run `python scripts/session_startup_check.py super_mario_bros`
-5. Read state/STATUS.json
-6. Read state/blunders.json
-7. Read docs/VALIDATION.md — 6-gate validation protocol
 
-## What Happened Last Session
+1. Read CLAUDE.md (auto-loaded)
+2. Read .claude/rules/*.md (auto-loaded)
+3. Read docs/ARCHITECTURE_SPEC.md -- the full architectural directive
+4. Read docs/PIPELINEOVERHAUL42.md -- pipeline redesign rationale
+5. Run `python scripts/session_startup_check.py battletoads`
+6. Read this handover document completely before writing any code
 
-### Infrastructure Built
-- `SCHEMA.sql` + `data/pipeline.db` initialized (14 tables, Mario seeded with 18 tracks)
-- `scripts/session_startup_check.py` — 7-point environment gate
-- `scripts/sync_jsfx.py` — one-command JSFX deploy + cache bust + verify
-- `scripts/mesen_to_midi.py` — converts Mesen APU capture CSV to MIDI
-- `docs/VALIDATION.md` — mandatory 6-gate pre-delivery protocol
-- `.claude/rules/session_protocol.md` — enforced working order and fix order
+## What Happened This Session
 
-### Mario Overworld Status
-- **Mesen capture exists:** `C:\Users\PC\Documents\Mesen2\capture.csv` (102.3s, overworld starts at frame 134)
-- **Melody confirmed correct:** P2 plays E4-E4-E4-C4-E4-G4 (verified against Mesen frame data)
-- **Triangle confirmed correct:** D3 bass with staccato gating via linear counter
-- **Note counts match:** P1=353, P2=341, Tri=328, Noise=168 — all verified against frame state
-- **CC11 envelope correct:** 8->7->6->5->4->0 decay per note matches Mesen frame-by-frame
-- **Duty cycle:** 50% constant on both pulse channels (100% of sounding frames)
-- **Current project:** `Projects/Super_Mario_Bros_v3/Super_Mario_Bros._01_Overworld_mesen_v1.rpp`
-- **User verdict:** "sounds like approximately the right sequence of notes with reasonable durations that captures the swing" but "synth sounds are a bit off and drums are missing something"
+### ROM Analysis (CRITICAL FINDINGS)
 
-### Known Remaining Issues (from frame-level audit)
-1. **Drums are flat** — noise vol is always 12 with no decay. The synth's drum table applies its own envelope but the MIDI just has constant velocity=102. Mario's drums are continuous noise (period changes between 31/201/4067, never goes to vol=0) — need to verify the synth's drum envelope produces an audible rhythmic pattern, not a sustained wash.
-2. **Pulse timbre** — user says "missing body." Duty is 50% constant (confirmed). Volume peaks at 8 not 15, and the decay is only 5 steps. The synth may need the CC11 values mapped differently, or the issue may be in how the synth applies CC-driven volume (the `p1_vol / 15.0` scaling when vol never exceeds 8 means output is at ~53% max amplitude).
-3. **Drum pattern timing** — first hit at frame 0, next not until frame 143. The noise channel has constant vol=12 throughout the opening section but only one period value (31) for the first 143 frames. The period-change detector fires when period changes, but if volume is constant and period is stable, there's no hit to detect. This section may be a sustained hi-hat wash, not discrete hits.
+We found the Battletoads ROM at:
+`D:\All NES Roms (GoodNES)\All NES Roms (GoodNES)\USA\Battletoads (U) [!].nes`
 
-### B14 Status: FIXED
-CC11/CC12 handling ported to ReapNES_Console.jsfx. CC-driven mode bypasses ADSR, keyboard mode uses ADSR. cc_file_mode flag disables keyboard remap during file playback. Triangle env_level=15 and noise env_level=noi_vol in CC mode. All deployed to REAPER AppData, cache busted, ASCII verified.
+Key ROM facts:
+- **Mapper 7 (AxROM)**: 32KB bank switching, 8 banks total (256KB PRG)
+- **Sound bank**: Bank 3 (ROM offset 0x18000-0x1FFFF), matches NSF data 99.9%
+- **Period table**: ROM $8E22, 60 entries (5 octaves C2-B6), standard NTSC values
+- **Song table**: ROM $8B7B (indirection through $8060 -> internal ID -> $95B3/$95B4 pointers)
+- **Song 3 (Level 1) internal ID**: 4 (NSF song index 2 -> internal ID 4)
+- **Channel pointers for Song 3**: P1=$A15E, P2=$A2CF, Tri=$A364, Noise=$A408
+- **Driver architecture**: Rare's custom engine, NOT Konami Maezawa. Uses a dispatch table at $8B7B where every data byte (0x00-0x7F) is a command index into a jump table. Bytes >= $81 are notes, $80 is rest.
+- **Note encoding**: Byte $81+N maps to period_table[N]. So $81=C2, $82=C#2, ..., $BC=B6.
+- **Init routine**: $8054 (TAX, LDA $8060,X to get internal ID, JMP $880E)
+- **Play routine**: $8865
 
-### Critical Architectural Decisions (verified)
-- **Frame state is canonical, not MIDI.** MIDI is a downstream projection.
-- **Mesen trace is ground truth.** NSF (py65) is unreliable for Mario (wrong triangle, halved pulse periods).
-- **Extraction route for Mario:** mesen_trace (recorded in session_decisions table).
-- **Fix order:** pitch -> timing -> volume -> timbre. One hypothesis per cycle.
-- **Pre-delivery gate:** VALIDATION.md Gate F must pass before any "ready to test" claim.
+### The Opening Melody (GROUND TRUTH FROM ROM)
 
-### $4015 Hypothesis (unverified, high potential)
-The ROM hacking research found that SMB1's sound driver reads $4015 (APU status register) to check length counter state. py65 returns 0 for this read (flat RAM), which may cause the driver to take wrong code paths — potentially explaining the period-halving bug. If intercepting $4015 reads in py65 and returning correct status bits fixes pulse periods at the source, the -12 workaround becomes unnecessary and NSF extraction becomes viable again. See docs/HACKINGMARIOWEB.md for full analysis.
+The user describes it as: **"dink dink di-dunk dink dink di-dee"**
 
-### Key Reference Docs
-- `docs/WEBRESEARCHMARIOMUSIC.md` — music theory analysis (key, harmony, rhythm, channel roles)
-- `docs/HACKINGMARIOWEB.md` — ROM sound engine internals and $4015 hypothesis
-- `docs/MARIODISCOVERIES.md` — Mesen vs NSF comparison data
-- `docs/ROM_MUSIC_MYSTERIES.md` — all unresolved unknowns
-- `docs/TOOLAZYTOCHECK.md` — pre-delivery checklist failures and fixes
-- `docs/THINGSWETRIED.md` — chronicle of every fix attempted
-- `docs/HIROPLANTAGENET_MARIO_FIDELITY.md` — 5-layer execution plan
+From trace analysis mapped to ROM period table:
+- **dink** = E3 (period table entry 16, period 678). Trace shows period 669 (off by 9 -- sweep).
+- **dunk** = A2 (period table entry 9, period 1016). Trace shows period 1001 (off by 15 -- sweep).
+- **dee** = A#4 (period table entry 34, period 239). Trace shows period 235 oscillating with 231 (sweep vibrato). **User reports this note is an octave too high in our output.**
 
-## Authority Hierarchy
-1. ROM / Mesen / ground-truth APU runtime state
-2. Extracted NSF runtime behavior
-3. Exported MIDI notes + CC data
-4. Synth interpretation
-5. Keyboard-playability ADSR approximation
+P2 melody pattern (frames): E3, [silence], E3, A2, E3, [silence], E3, [silence], E3, A#4-vibrato, [silence], repeat.
 
-Never let a lower layer silently override a higher one.
+### Critical Finding: Trace Periods vs ROM Table
 
-## Five Validation Dimensions
-Every change must be checked against:
-1. **Routing** — does MIDI reach the correct channel?
-2. **Pitch/Duration** — are notes correct?
-3. **Envelope/CC** — is volume shape faithful to ground truth?
-4. **Timbre/Duty** — is waveform correct?
-5. **Noise/Drums** — do percussion events work?
+**Almost NO trace period matches the ROM table exactly.** Every period is off by 1-15 units because the hardware sweep unit modifies periods after the driver writes them. The correct approach is to SNAP trace periods to the nearest ROM table entry to get the intended note, then use the CC11 volume data as the ground-truth envelope.
 
-## Immediate Priorities
-1. Fix the drum/noise rendering — the continuous noise pattern needs to produce audible rhythmic hits, not a sustained wash
-2. Investigate pulse volume scaling — vol max is 8 not 15, meaning output is at half amplitude
-3. Test the $4015 hypothesis — could fix NSF extraction at source level
-4. Rebuild Mario project after fixes, run full VALIDATION.md gate before delivering
+| Trace period | Closest table | Note | Offset |
+|---|---|---|---|
+| 669 | 678 | E3 | -9 |
+| 1001 | 1016 | A2 | -15 |
+| 235/231/239 | 239 | A#4 | -4/+8/0 |
+| 677/673/681 | 678 | E3 | -1/-5/+3 |
 
-## Working Method
-1. Run `python scripts/session_startup_check.py super_mario_bros` first
-2. After ANY JSFX edit, run `python scripts/sync_jsfx.py`
-3. Identify which layer the problem is in before coding
-4. Make the smallest viable change
-5. Compare against Mesen frame data (the capture at frame 134+)
-6. One hypothesis per test cycle
-7. Run VALIDATION.md Gate F before delivering anything
+### What We Built (v3-v6)
+
+- **v3** (Console synth, raw period->note): "Closest yet" per user, but had trills from sweep artifacts, triangle silence, noise underreporting
+- **v4**: Got worse -- over-filtered fake notes, missing real notes
+- **v5** (APU2 synth, SysEx register replay): Fixed SysEx embedding and note/SysEx conflict, but SysEx replay produces hardware artifacts the NES smooths through analog output
+- **v6** (Console synth, smart note detection with 3-frame stability): Eliminated 299 P2 trills, but music starts 2 beats late, 8th note still too high, phantom notes remain
+
+### Bugs Found and Fixed This Session
+
+1. **APU2 synth never used SysEx for sound** -- only used it for phase reset. Fixed to drive all oscillators from register state.
+2. **SysEx never embedded in RPPs** -- generate_project.py silently dropped SysEx messages. Fixed.
+3. **MIDI notes fought with SysEx** -- note_on events overwrote SysEx-derived frequency. Fixed with !sx[ch*8] guards.
+4. **Smart note detection added** -- build_trace_midi() in trace_to_midi.py now requires 3+ frames of pitch stability before creating a note.
+
+### Remaining Problems
+
+1. **Music starts 2 beats late** -- missing first two notes of the opening phrase
+2. **8th note (A#4 "dee") too high by ~1 octave** -- need to verify our period->MIDI conversion against the ROM table
+3. **Phantom notes** -- notes appearing that aren't in the game audio
+4. **No Frame IR layer** -- we're still going trace -> MIDI directly, skipping the interpretation step that made CV1/Contra work
+5. **Rare driver not decoded** -- dispatch table format means we can't read the ROM music data directly yet (unlike Konami's linear command format)
+6. **No kitchen_sink.py** -- the multi-route pipeline doesn't exist yet
+
+### What the Next Session Must Do
+
+Read docs/ARCHITECTURE_SPEC.md -- the full architectural directive for rebuilding the pipeline. Key priorities:
+
+1. **Build kitchen_sink.py** -- orchestration kernel that generates all routes, validates, compares, blocks on failure
+2. **Build Frame IR layer** -- trace -> frame_ir -> MIDI, never skip this step
+3. **Implement period table snapping** -- use ROM period table to interpret trace periods into intended notes
+4. **Fix the opening melody** -- match "dink dink di-dunk dink dink di-dee" note-for-note against ROM data
+5. **Reverse-engineer Rare's dispatch table** -- decode what each command byte (0x00-0x7F) does to understand track structure, loop points, tempo, envelopes
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `CLAUDE.md` | Project rules with embedded architectural directive |
+| `docs/ARCHITECTURE_SPEC.md` | Full pipeline rebuild specification (verbatim from user) |
+| `docs/PIPELINEOVERHAUL42.md` | What we learned about the pipeline this session |
+| `docs/KITCHENSINKAUDIT.md` | Original gap analysis |
+| `.claude/rules/architecture.md` | Structural rules |
+| `.claude/rules/session_protocol.md` | Working order |
+| `studio/jsfx/ReapNES_APU2.jsfx` | Updated synth with SysEx register replay |
+| `scripts/trace_to_midi.py` | Has build_trace_midi() with smart note detection |
+| `scripts/generate_project.py` | Updated with SysEx embedding |
+| `output/Battletoads_trace_v6/` | Latest output (Console + APU2 RPPs) |
+
+### ROM Reference Data
+
+Period table (ROM $8E22, 60 entries):
+```
+C2=1710 C#2=1613 D2=1524 D#2=1438 E2=1358 F2=1281
+F#2=1208 G2=1141 G#2=1077 A2=1016 A#2=959 B2=905
+C3=854 C#3=806 D3=761 D#3=718 E3=678 F3=640
+F#3=604 G3=570 G#3=538 A3=508 A#3=479 B3=452
+C4=427 C#4=403 D4=380 D#4=359 E4=338 F4=319
+F#4=301 G4=284 G#4=268 A4=253 A#4=239 B4=226
+C5=213 C#5=201 D5=189 D#5=179 E5=169 F5=159
+F#5=150 G5=142 G#5=134 A5=126 A#5=119 B5=112
+C6=106 C#6=100 D6=94 D#6=89 E6=84 F6=79
+F#6=75 G6=70 G#6=66 A6=63 A#6=59 B6=56
+```
+
+Song 3 channel data pointers: P1=$A15E, P2=$A2CF, Tri=$A364, Noise=$A408
+
+Mesen capture: `C:\Users\PC\Documents\Mesen2\capture.csv` (9,495 frames, 158.2s, 2+ loops of Level 1)
 
 ---
