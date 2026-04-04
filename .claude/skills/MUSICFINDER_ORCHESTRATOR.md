@@ -15,20 +15,32 @@ Phase 1: DISCOVERY
   ├── COMMANDFINDER      → full command reference with param counts
   └── SEQUENCEFINDER     → song table, channel pointers, loop structure
 
-Phase 2: PARSING
-  ├── PITCHFINDER        → note bytes + transposition → correct MIDI notes
-  ├── RHYTHMFINDER       → duration encoding → correct note lengths
-  └── ENVELOPEFINDER     → envelope IDs → per-frame volume/duty shapes
+Phase 2: PARSING (produces STRUCTURAL alignment only)
+  ├── PITCHFINDER        → note bytes + transposition → base note indices
+  ├── RHYTHMFINDER       → duration encoding → duration values (raw)
+  └── ENVELOPEFINDER     → envelope IDs → envelope table references
+  ★ "Zero parse errors" at this stage means byte-stream alignment.
+    Parser output is a HYPOTHESIS, not musical truth.
 
-Phase 3: ASSEMBLY
-  ├── Combine pitch + rhythm + envelope into MIDI events
-  ├── Use trace data for VALIDATION (not as primary source)
+Phase 3: EXECUTION SEMANTICS VALIDATION (MANDATORY before assembly)
+  ├── Build frame-level simulator from parsed events + driver model
+  ├── Simulate tempo accumulator, duration counters, pitch modulation,
+  │   volume envelopes, duty cycle per frame
+  ├── Compare simulated per-frame state against Mesen trace
+  ├── Classify mismatches (tempo/duration/arpeggio/envelope/transpo)
+  └── Block assembly until sim matches trace within thresholds
+  ★ Only after this phase passes are parsed events "semantics-validated."
+
+Phase 4: ASSEMBLY (only after Phase 3 passes)
+  ├── Combine validated pitch + rhythm + envelope into Frame IR
+  ├── Project Frame IR to MIDI events
   └── Generate REAPER project via generate_project.py
 
-Phase 4: VALIDATION
+Phase 5: VALIDATION
   ├── Compare ROM-derived MIDI against trace timing (should match)
   ├── Compare ROM-derived pitches against fan MIDI (should match)
   └── Ear-check in REAPER (user confirms)
+  ★ Only after ear-check passes may output be labeled "trusted."
 ```
 
 ## Invocation
@@ -72,28 +84,37 @@ Run ENVELOPEFINDER to decode volume envelopes.
 Verify against trace CC11 data.
 ```
 
-### Step 7: Assemble
+### Step 7: Execution Semantics Validation (MANDATORY before assembly)
 ```
-Combine all parsed data into a MIDI file.
-The MIDI should be generated entirely from ROM data,
-with trace used only for validation and timing reference.
+Before assembling MIDI, validate parsed data against trace:
+1. Build frame-level simulator from parsed events + driver model
+2. Simulate tempo accumulator, duration counters, pitch modulation,
+   volume envelopes, duty cycle per frame
+3. Compare simulated per-frame state against Mesen trace
+4. Produce mismatch taxonomy report
+5. Block assembly until comparison passes thresholds
+
+PASS: Period 90%+ match, volume 80%+ match, boundaries ±1 frame
+FAIL: Diagnose by category, fix parser or model, rerun
+
+★ Parser output is a hypothesis. This step validates it.
+  Zero parse errors (Step 2-6) is structural; this is semantic.
 ```
 
-## Key Principle: ROM Data = Authority
+### Step 8: Assemble
+```
+Only after Step 7 passes:
+Combine validated data into Frame IR, then project to MIDI.
+The MIDI should be generated from semantics-validated events,
+with trace used for validation reference.
+```
 
-The ROM song data contains the composer's INTENT:
-- The notes they wrote
-- The rhythms they chose
-- The envelopes they selected
+## Key Principle
 
-The Mesen trace contains the HARDWARE REALITY:
-- Periods after transposition and arpeggio
-- Timing affected by tempo accumulator
-- Volume after envelope processing
-
-For MIDI generation, use ROM intent for pitch.
-Use trace reality for timing validation and envelope CC data.
-Never generate MIDI from trace periods alone — that was the Battletoads mistake.
+ROM data = composer's intent (pitch source). Trace = hardware reality (validation target).
+For MIDI generation, use ROM intent for pitch, trace for timing/envelope validation.
+Never generate MIDI from trace periods alone. Parser output is hypothesis until
+execution semantics validation passes (see `session_protocol.md` Gate 2).
 
 ## Per-Game State
 
@@ -101,31 +122,9 @@ Each game extraction should maintain:
 - `extraction/manifests/<game>.json` — driver facts, table locations, command map
 - `extraction/drivers/<family>/` — shared driver knowledge
 - `output/<Game>/` — generated MIDI, RPP, validation reports
+- Per-game validation record (use `templates/reports/GAME_VALIDATION_TEMPLATE.md`)
+  with sections for: verified, approximate, hypothesis, unvalidated, artifact trust levels
+- Noise channel documented separately (separate semantic domain)
 
-## Anti-Patterns (from ANXIETY.md)
-
-1. **Don't polish trace-derived pitches** — fix the source (ROM parsing), not the symptom
-2. **Don't assume one game's encoding works for another** — even same driver family can differ
-3. **Don't skip validation against a known reference** — fan MIDI, NSF, or ear-check
-4. **Don't generate MIDI before understanding the full command set** — unknown commands may affect pitch/timing
-5. **When stuck, read the disassembly** — the 6502 code is the ultimate source of truth
-
-## Current Status: Battletoads
-
-### Completed
-- [x] Period table found ($8E22, 60 entries)
-- [x] Note encoding found ($81+N with transposition)
-- [x] Transposition mechanism found ($0354,X, CMD 0x12/0x13)
-- [x] Song table and channel pointers found
-- [x] Loop length confirmed (4029 frames via trace)
-
-### In Progress
-- [ ] Full command parameter count verification (30 commands)
-- [ ] Duration encoding (how note length is specified)
-- [ ] Envelope table location and format
-- [ ] Subroutine/pattern structure (CMD 0x1E call targets)
-- [ ] Complete P2 song data parse with all commands decoded
-
-### Blocked
-- [ ] ROM-derived MIDI generation (needs complete command decoding)
-- [ ] Multi-channel parsing (P1, Triangle, Noise)
+See `.claude/rules/architecture.md` for anti-patterns and enforcement rules.
+See `CLAUDE.md` Game Extraction Status table for per-game progress.
