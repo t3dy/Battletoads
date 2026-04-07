@@ -1,0 +1,3722 @@
+[
+  {
+    "project": "nsfripper",
+    "path": "BATTLETOADSBAKETOIDS.md",
+    "title": "Battletoads: Bake These Into the System",
+    "preview": "Lessons from the Battletoads extraction that should change how we work.",
+    "category": "Project",
+    "filename": "BATTLETOADSBAKETOIDS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "BATTLETOADSPRETTYGOOD.md",
+    "title": "Battletoads: How We Got to \"Pretty Good\"",
+    "preview": "We had a working Rare driver parser (39 commands, 4 channels, zero parse",
+    "category": "Project",
+    "filename": "BATTLETOADSPRETTYGOOD.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "CLAUDE.md",
+    "title": "NES Music Studio",
+    "preview": "NSF/ROM \u2192 MIDI \u2192 REAPER/WAV/MP4 \u2192 YouTube.",
+    "category": "Project",
+    "filename": "CLAUDE.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "CODEXWIZARDSWARRIORS.md",
+    "title": "Wizards & Warriors Project Notes",
+    "preview": "This document records the current reverse-engineering and extraction state for",
+    "category": "Project",
+    "filename": "CODEXWIZARDSWARRIORS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "EXECUTIONSEMANTICSVALIDATION.md",
+    "title": "Execution Semantics Validation",
+    "preview": "A parser that produces zero byte-stream errors has correctly identified the",
+    "category": "Project",
+    "filename": "EXECUTIONSEMANTICSVALIDATION.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "NEXT_SESSION_NES_EMULATOR.md",
+    "title": "Next Session: NES ROM Emulator Music Extraction",
+    "preview": "`scripts/nes_rom_capture.py` \u2014 headless NES emulator for automated music extraction.",
+    "category": "Project",
+    "filename": "NEXT_SESSION_NES_EMULATOR.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "NEXT_SESSION_PROMPT.md",
+    "title": "Handover: Battletoads Session 2026-04-03 (Session 4, corrected)",
+    "preview": "Paste this into a new Claude Code window opened at C:\\Dev\\NSFRIPPER.",
+    "category": "Project",
+    "filename": "NEXT_SESSION_PROMPT.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "README.md",
+    "title": "Battletoads NES Music Reconstruction",
+    "preview": "**Hardware-accurate reproduction of Battletoads (Rare, 1991) game audio using Mesen APU trace captures, MIDI+SysEx encoding, and custom JSFX synthesiz",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "REAPERFUCKERY.md",
+    "title": "REAPER Fuckery",
+    "preview": "I had already changed the repo copy of:",
+    "category": "Project",
+    "filename": "REAPERFUCKERY.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "SKILLSMANUAL.md",
+    "title": "NES Music Studio \u2014 Skills Manual",
+    "preview": "Skills are reusable Claude Code slash commands. Type `/skill-name` and Claude",
+    "category": "Skills",
+    "filename": "SKILLSMANUAL.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "SYNTHROMANDTRANSLATE.md",
+    "title": "Synth, ROM, and Translate",
+    "preview": "This note explains two things:",
+    "category": "Project",
+    "filename": "SYNTHROMANDTRANSLATE.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "ULTIMAINSIGHTS.md",
+    "title": "Ultima Insights",
+    "preview": "This note is grounded in the actual `Ultima: Quest of the Avatar` session you pasted, not just the repo artifacts after the fact.",
+    "category": "Project",
+    "filename": "ULTIMAINSIGHTS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "UltimaInsights2.md",
+    "title": "Ultima Insights",
+    "preview": "This note is grounded in the actual `Ultima: Quest of the Avatar` session you pasted, not just the repo artifacts after the fact.",
+    "category": "Project",
+    "filename": "UltimaInsights2.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "WIZARDSWARRIORS_COMPOSITE_BASS_HANDOVER_2026-04-03.md",
+    "title": "Wizards & Warriors Composite Bass Handover",
+    "preview": "Continue the `Wizards & Warriors` title investigation from the current best",
+    "category": "Project",
+    "filename": "WIZARDSWARRIORS_COMPOSITE_BASS_HANDOVER_2026-04-03.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "WIZARDSWARRIORS_NEW_WINDOW_PROMPT.md",
+    "title": "Prompt For New Window",
+    "preview": "Continue the `Wizards & Warriors` work in `C:\\Dev\\NSFRIPPER`, but reset the",
+    "category": "Project",
+    "filename": "WIZARDSWARRIORS_NEW_WINDOW_PROMPT.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "WIZARDSWARRIORS_NEXT_WINDOW_HANDOVER.md",
+    "title": "Wizards & Warriors Next Window Handover",
+    "preview": "The `Wizards & Warriors` title issue is currently best understood as a **composite articulation problem**, not a missing-note problem.",
+    "category": "Project",
+    "filename": "WIZARDSWARRIORS_NEXT_WINDOW_HANDOVER.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "WIZARDSWARRIORS_TRIANGLE_RESET_HANDOVER.md",
+    "title": "Wizards & Warriors Triangle Reset Handover",
+    "preview": "The current `Wizards & Warriors` title triangle interpretation is still",
+    "category": "Project",
+    "filename": "WIZARDSWARRIORS_TRIANGLE_RESET_HANDOVER.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/rules/architecture.md",
+    "title": "Architecture Rules",
+    "preview": "description: Architectural rules for the extraction pipeline",
+    "category": "Rules",
+    "filename": "architecture.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/rules/debugging-protocol.md",
+    "title": "Debugging Protocol",
+    "preview": "paths:",
+    "category": "Rules",
+    "filename": "debugging-protocol.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/rules/jsfx_deploy.md",
+    "title": "JSFX Deployment Rules",
+    "preview": "After ANY edit to a JSFX file, run:",
+    "category": "Rules",
+    "filename": "jsfx_deploy.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/rules/new-game-parser.md",
+    "title": "New Game Parser Checklist",
+    "preview": "paths:",
+    "category": "Rules",
+    "filename": "new-game-parser.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/rules/output-versioning.md",
+    "title": "Output Versioning",
+    "preview": "paths:",
+    "category": "Analysis",
+    "filename": "output-versioning.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/rules/reaper_projects.md",
+    "title": "REAPER Project Requirements",
+    "preview": "description: RPP generation rules \u2014 Console synth, keyboard input, CC fidelity",
+    "category": "Rules",
+    "filename": "reaper_projects.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/rules/session_protocol.md",
+    "title": "Session Protocol",
+    "preview": "1. Environment validity (session_startup_check.py)",
+    "category": "Rules",
+    "filename": "session_protocol.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/rules/synth_fidelity.md",
+    "title": "Synth Fidelity Rules",
+    "preview": "description: Synth plugin fidelity rules \u2014 CC automation, ADSR, dual-mode contract",
+    "category": "Rules",
+    "filename": "synth_fidelity.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/skills/COMMANDFINDER.md",
+    "title": "COMMANDFINDER",
+    "preview": "name: command-finder",
+    "category": "Skills",
+    "filename": "COMMANDFINDER.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/skills/ENVELOPEFINDER.md",
+    "title": "ENVELOPEFINDER",
+    "preview": "name: envelope-finder",
+    "category": "Skills",
+    "filename": "ENVELOPEFINDER.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/skills/LOOKUPTABLEFINDER.md",
+    "title": "LOOKUPTABLEFINDER",
+    "preview": "name: lookuptable-finder",
+    "category": "Skills",
+    "filename": "LOOKUPTABLEFINDER.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/skills/MUSICFINDER_ORCHESTRATOR.md",
+    "title": "MUSICFINDER ORCHESTRATOR",
+    "preview": "name: musicfinder-orchestrator",
+    "category": "Skills",
+    "filename": "MUSICFINDER_ORCHESTRATOR.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/skills/PITCHFINDER.md",
+    "title": "PITCHFINDER",
+    "preview": "name: pitch-finder",
+    "category": "Skills",
+    "filename": "PITCHFINDER.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/skills/RHYTHMFINDER.md",
+    "title": "RHYTHMFINDER",
+    "preview": "name: rhythm-finder",
+    "category": "Skills",
+    "filename": "RHYTHMFINDER.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/skills/ROMEMULATOR.md",
+    "title": "ROM EMULATOR \u2014 Headless NES Music Extraction",
+    "preview": "name: rom-emulator",
+    "category": "Skills",
+    "filename": "ROMEMULATOR.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/skills/ROMPARSER.md",
+    "title": "ROMPARSER",
+    "preview": "name: rom-parser",
+    "category": "Skills",
+    "filename": "ROMPARSER.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/skills/SEQUENCEFINDER.md",
+    "title": "SEQUENCEFINDER",
+    "preview": "name: sequence-finder",
+    "category": "Skills",
+    "filename": "SEQUENCEFINDER.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/skills/SIMULATORBUILDER.md",
+    "title": "SIMULATOR BUILDER",
+    "preview": "name: simulator-builder",
+    "category": "Skills",
+    "filename": "SIMULATORBUILDER.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": ".claude/skills/SKELETONKEY.md",
+    "title": "SKELETON KEY \u2014 Universal NES Music Driver Decoder",
+    "preview": "name: skeleton-key",
+    "category": "Skills",
+    "filename": "SKELETONKEY.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/331CONTEXTENGINEERINGAPPROACH.md",
+    "title": "Context Engineering Approach for NES Fidelity Pipeline",
+    "preview": "This project requires an LLM to hold simultaneous knowledge of:",
+    "category": "Technical",
+    "filename": "331CONTEXTENGINEERINGAPPROACH.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/331UPDATE.md",
+    "title": "Day 4 Update \u2014 March 31, 2026",
+    "preview": "The NESMusicStudio (extraction pipeline) and ReapNES-Studio (synth/REAPER",
+    "category": "Technical",
+    "filename": "331UPDATE.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/ANXIETY.md",
+    "title": "ANXIETY: Getting Married to Derived Data",
+    "preview": "When working with trace-derived note sequences, there is a persistent failure mode:",
+    "category": "Technical",
+    "filename": "ANXIETY.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/ARCHITECTURE_SPEC.md",
+    "title": "Pipeline Architecture Specification",
+    "preview": "This document is the authoritative architectural directive for the NES music",
+    "category": "Technical",
+    "filename": "ARCHITECTURE_SPEC.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/AVOIDBLUNDERS.md",
+    "title": "AVOIDBLUNDERS.md \u2014 Lessons Learned for REAPER Integration",
+    "preview": "**What happened:** All JSFX plugins lacked `in_pin:none` / `out_pin:Left` / `out_pin:Right`.",
+    "category": "Technical",
+    "filename": "AVOIDBLUNDERS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/BATTLETOADS_SESSION_BLOOPERS.md",
+    "title": "Battletoads Session Bloopers: A Comedy of Errors",
+    "preview": "**The Scene:** Claude discovers that period 231 snaps to B4 instead of A#4 due",
+    "category": "Technical",
+    "filename": "BATTLETOADS_SESSION_BLOOPERS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/BUILDINGTHEENVIRONMENT.md",
+    "title": "Building the Environment to Avoid Our Foibles",
+    "preview": "Concrete recommendations for restructuring the project environment",
+    "category": "Technical",
+    "filename": "BUILDINGTHEENVIRONMENT.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/CHECKLIST.md",
+    "title": "Musical Parameter Checklist",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "CHECKLIST.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/DATABASETAKEAWAYS.md",
+    "title": "Database Takeaways: What an Agentic ROM Music System Needs to Know",
+    "preview": "Observations from five days of NES music reverse engineering, organized",
+    "category": "Technical",
+    "filename": "DATABASETAKEAWAYS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/DATAONTOLOGY.md",
+    "title": "Data Ontology: NES Music Extraction Pipeline",
+    "preview": "A comprehensive schema of every data entity, transformation, and",
+    "category": "Technical",
+    "filename": "DATAONTOLOGY.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/ENVIRONMENTFIXES.md",
+    "title": "Environment Fixes: Working Around the Foibles",
+    "preview": "Concrete changes to the repo, CLAUDE.md, hooks, and session protocol",
+    "category": "Technical",
+    "filename": "ENVIRONMENTFIXES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/FAILURE_MODES.md",
+    "title": "NES Music Studio \u2014 Failure Modes and Anti-Patterns",
+    "preview": "Catalog of failure modes encountered during CV1 and Contra extraction,",
+    "category": "Technical",
+    "filename": "FAILURE_MODES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/FAKENOTECHANGES.md",
+    "title": "Fake Note Changes: What's Wrong With Our MIDI Encoding",
+    "preview": "The period hysteresis fix (v4) was reverted. It suppressed 332 note",
+    "category": "Technical",
+    "filename": "FAKENOTECHANGES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/FINDINGTRACKBOUNDARIES.md",
+    "title": "Finding Track Boundaries",
+    "preview": "Our NSF has 21 numbered songs. The game has named levels. The Mesen",
+    "category": "Technical",
+    "filename": "FINDINGTRACKBOUNDARIES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/FIXINGMARIO1.md",
+    "title": "FIXING MARIO 1 \u2014 Session Log",
+    "preview": "Date: 2026-03-31 / 2026-04-01",
+    "category": "Technical",
+    "filename": "FIXINGMARIO1.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/FRAMEBYFRAME.md",
+    "title": "Frame-by-Frame Analysis: NSF vs Mesen Ground Truth",
+    "preview": "Comparing the NSF extraction of Battletoads Song 2 against the Mesen",
+    "category": "Technical",
+    "filename": "FRAMEBYFRAME.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/glitchy.md",
+    "title": "How Vampire Killer Became Glitch Art",
+    "preview": "One line of JSFX code turned Castlevania into an unrecognizable mess:",
+    "category": "Technical",
+    "filename": "glitchy.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/HACKINGMARIOWEB.md",
+    "title": "Web Research: Super Mario Bros. ROM Music Engine",
+    "preview": "Technical research on the SMB1 sound driver internals, relevant to",
+    "category": "Technical",
+    "filename": "HACKINGMARIOWEB.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/HANDOVER_BATTLETOADS.md",
+    "title": "Handover: Battletoads Session",
+    "preview": "1. **JSFX syntax error fixed** \u2014 empty else branches on lines 403/409 of",
+    "category": "Technical",
+    "filename": "HANDOVER_BATTLETOADS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/HANDOVER_TO_NSFRIPPER.md",
+    "title": "Handover: NESMusicStudio -> NSFRIPPER",
+    "preview": "NSF-rip-to-REAPER (NSFRIPPER) is a clean extraction from NESMusicStudio.",
+    "category": "Technical",
+    "filename": "HANDOVER_TO_NSFRIPPER.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/HARDENING.md",
+    "title": "HARDENING.md \u2014 Environmental Rebuild",
+    "preview": "This is the record of converting the NES Music Studio pipeline from",
+    "category": "Technical",
+    "filename": "HARDENING.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/HIROPLANTAGENET_MARIO_FIDELITY.md",
+    "title": "HiroPlantagenet Analysis: Mario Musical Fidelity",
+    "preview": "| # | Goal | Tag |",
+    "category": "Technical",
+    "filename": "HIROPLANTAGENET_MARIO_FIDELITY.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/INVARIANTS.md",
+    "title": "NES Music Studio -- Invariants Registry",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "INVARIANTS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/KITCHENSINKAUDIT.md",
+    "title": "Kitchen Sink Audit: What We Know But Don't Use",
+    "preview": "An honest accounting of every approach, tool, and data path this",
+    "category": "Technical",
+    "filename": "KITCHENSINKAUDIT.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/LEAVENOTURNUNSTONED.md",
+    "title": "Leave No Turn Unstoned",
+    "preview": "A systematic framework for prompting Claude Code to exhaustively check",
+    "category": "Technical",
+    "filename": "LEAVENOTURNUNSTONED.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/MARIODISCOVERIES.md",
+    "title": "Mario Discoveries \u2014 Mesen Capture vs NSF Analysis",
+    "preview": "Date: 2026-04-01",
+    "category": "Technical",
+    "filename": "MARIODISCOVERIES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/MIDDLE_LAYER_RECOMMENDATION.md",
+    "title": "Middle Layer Recommendation",
+    "preview": "Yes.",
+    "category": "Technical",
+    "filename": "MIDDLE_LAYER_RECOMMENDATION.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/MISTAKEBAKED.md",
+    "title": "Mistakes Baked Into System Files",
+    "preview": "Every mistake that burned 2+ prompts during the CV1, Contra, Battletoads,",
+    "category": "Technical",
+    "filename": "MISTAKEBAKED.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/NESMUSICTRANSLATEDTOMIDI.md",
+    "title": "How NES Music Gets Translated to MIDI and Synth Plugins",
+    "preview": "The NES has no \"music file format.\" There is no score, no sheet music,",
+    "category": "Technical",
+    "filename": "NESMUSICTRANSLATEDTOMIDI.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/NSF_TO_MIDI_PIPELINE.md",
+    "title": "NSF to MIDI Pipeline",
+    "preview": "Converts any NES NSF file into playable REAPER projects with",
+    "category": "Technical",
+    "filename": "NSF_TO_MIDI_PIPELINE.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/OPERATOR_GUIDE.md",
+    "title": "NES Music Lab \u2014 Operator Guide",
+    "preview": "You (the human) do the emulator work. Claude does the data analysis. This document tells you exactly what to do at each step, what to bring back, and ",
+    "category": "Technical",
+    "filename": "OPERATOR_GUIDE.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/PIPELINEOVERHAUL42.md",
+    "title": "Pipeline Overhaul: What We Learned and How It Should Work",
+    "preview": "**Date**: 2026-04-02",
+    "category": "Technical",
+    "filename": "PIPELINEOVERHAUL42.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/PROJECTCASTLEVANIA.md",
+    "title": "Project Log: Castlevania",
+    "preview": "`Castlevania_02_Vampire_Killer_(Courtyard)_v1.mid`",
+    "category": "Technical",
+    "filename": "PROJECTCASTLEVANIA.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/PROJECTCONTRA.md",
+    "title": "Project Log: Contra",
+    "preview": "`contra_02_Jungle_Lvl_1.mid` (Jungle / Level 1)",
+    "category": "Technical",
+    "filename": "PROJECTCONTRA.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/PROJECTMARIO1.md",
+    "title": "Project Log: Super Mario Bros",
+    "preview": "`Super_Mario_Bros._01_Running_About_v1.mid` (Overworld Theme)",
+    "category": "Technical",
+    "filename": "PROJECTMARIO1.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/PROJECTMEGAMAN2.md",
+    "title": "Project Log: Mega Man 2",
+    "preview": "`Mega_Man_2_06_Heat_Man_v1.mid`",
+    "category": "Technical",
+    "filename": "PROJECTMEGAMAN2.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/PROJECTMETROID.md",
+    "title": "Project Log: Metroid",
+    "preview": "`Metroid_03_Brinstar_v1.mid`",
+    "category": "Technical",
+    "filename": "PROJECTMETROID.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/PROJECT_DOC_SUMMARIES.md",
+    "title": "Project Documentation Summaries",
+    "preview": "This summary groups the most heavily documented project threads in the repo by",
+    "category": "Technical",
+    "filename": "PROJECT_DOC_SUMMARIES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/PROMPTENGINEERINGCRITIQUE.md",
+    "title": "Prompt & Context Engineering Critique",
+    "preview": "An honest assessment of what went wrong in the Battletoads session",
+    "category": "Technical",
+    "filename": "PROMPTENGINEERINGCRITIQUE.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/REFINEMENT_PLAN.md",
+    "title": "Refinement Plan: Iterative Fidelity Improvement",
+    "preview": "The Mario project got worse because we switched from ReapNES_APU.jsfx",
+    "category": "Technical",
+    "filename": "REFINEMENT_PLAN.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/REGISTER_MAP.md",
+    "title": "2A03 APU Register Map ($4000\u2013$4017)",
+    "preview": "Quick reference for ReapNES Studio development.",
+    "category": "Technical",
+    "filename": "REGISTER_MAP.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/ROM_MUSIC_MYSTERIES.md",
+    "title": "ROM Music Mysteries \u2014 Unresolved Unknowns",
+    "preview": "Status: Living document. Updated as mysteries are resolved or new ones discovered.",
+    "category": "Technical",
+    "filename": "ROM_MUSIC_MYSTERIES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/SOLVINGTHECHIPTUNEVSMIDIPROBLEM.md",
+    "title": "Solving the Chiptune vs MIDI Problem",
+    "preview": "How to make a synth plugin that produces sounds close to the NES game",
+    "category": "Technical",
+    "filename": "SOLVINGTHECHIPTUNEVSMIDIPROBLEM.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/SYNTHMERGE.md",
+    "title": "Synth Merge Plan: One Plugin To Rule Them All",
+    "preview": "One JSFX synthesizer plugin that:",
+    "category": "Technical",
+    "filename": "SYNTHMERGE.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/TEDSPROMPTSTYLE.md",
+    "title": "Ted's Prompt Style: Strengths and Foibles",
+    "preview": "An honest analysis of recurring patterns in how Ted prompts Claude Code,",
+    "category": "Technical",
+    "filename": "TEDSPROMPTSTYLE.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/THINGSWETRIED.md",
+    "title": "Things We Tried \u2014 Mario Overworld Session",
+    "preview": "A chronicle of every fix attempted, in order, with what each one",
+    "category": "Technical",
+    "filename": "THINGSWETRIED.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/TIPSFORWORKINGWITHTED.md",
+    "title": "Tips for Working with Ted",
+    "preview": "Notes for Claude Code agents on communication patterns, vocabulary",
+    "category": "Technical",
+    "filename": "TIPSFORWORKINGWITHTED.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/TOOLAZYTOCHECK.md",
+    "title": "Too Lazy To Check",
+    "preview": "Things we should have verified before delivering ANY test project,",
+    "category": "Technical",
+    "filename": "TOOLAZYTOCHECK.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/VALIDATION.md",
+    "title": "Validation Protocol",
+    "preview": "A build is not deliverable until it passes every gate.",
+    "category": "Technical",
+    "filename": "VALIDATION.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/VALIDATION_REPORT_BATTLETOADS_L1.md",
+    "title": "Validation Report: Battletoads Level 1 (Ragnarok's Canyon)",
+    "preview": "**Date**: 2026-04-01",
+    "category": "Technical",
+    "filename": "VALIDATION_REPORT_BATTLETOADS_L1.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/WEBRESEARCHMARIOMUSIC.md",
+    "title": "Web Research: Super Mario Bros. Music Theory",
+    "preview": "Composed by Koji Kondo (b. 1961), Nintendo's first dedicated composer.",
+    "category": "Technical",
+    "filename": "WEBRESEARCHMARIOMUSIC.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/WHATWORKEDWITHCONTRAANDCASTLEVANIA.md",
+    "title": "What Worked with Contra and Castlevania",
+    "preview": "How we got from broken extractions to 0-mismatch fidelity, and what",
+    "category": "Technical",
+    "filename": "WHATWORKEDWITHCONTRAANDCASTLEVANIA.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/WHYSUCHABADSTARTWITHBATTLETOADS.md",
+    "title": "Why Such a Bad Start with Battletoads",
+    "preview": "Battletoads was the first game ripped using the automated NSF pipeline",
+    "category": "Technical",
+    "filename": "WHYSUCHABADSTARTWITHBATTLETOADS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/WIZARDSWARRIORS_IR_AWARE_PLAYBACK_PASS_1.md",
+    "title": "Wizards & Warriors IR-Aware Playback Pass 1",
+    "preview": "This pass implements the smallest credible playback-consumer upgrade for the",
+    "category": "Technical",
+    "filename": "WIZARDSWARRIORS_IR_AWARE_PLAYBACK_PASS_1.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/session_notes/NEWAPPROACHES.md",
+    "title": "New Approaches \u2014 Session 3 (2026-04-02)",
+    "preview": "This session picked up from the Session 2 handover. Session 2 ended with a",
+    "category": "Technical",
+    "filename": "NEWAPPROACHES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "docs/session_notes/PARSERALIGNED.md",
+    "title": "Parser Aligned: From Command Discovery to Working Parser",
+    "preview": "Read the 6502 machine code for every handler in the Rare driver's dispatch",
+    "category": "Technical",
+    "filename": "PARSERALIGNED.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/CLAUDE_EXTRACTION.md",
+    "title": "Extraction Engine",
+    "preview": "The NES sound driver is a **stateful frame-based interpreter**, not a data format. Same byte means different things depending on execution context. Ca",
+    "category": "Extraction",
+    "filename": "CLAUDE_EXTRACTION.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_apu2_consumer_algorithm_sketch.md",
+    "title": "Wizards & Warriors APU2 Consumer Algorithm Sketch",
+    "preview": "This note describes the smallest consumer-side behavior change that would let",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_apu2_consumer_algorithm_sketch.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_control_byte_pass_1.md",
+    "title": "Wizards & Warriors Control Byte Pass 1",
+    "preview": "This pass answers one narrow question:",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_control_byte_pass_1.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_handler_semantics_pass_1.md",
+    "title": "Wizards & Warriors Handler Semantics Pass 1",
+    "preview": "This pass keeps the scope intentionally small:",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_handler_semantics_pass_1.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_hidden_apu_state_breakthrough.md",
+    "title": "Wizards & Warriors Hidden APU State Breakthrough",
+    "preview": "This pass checks whether we have been misreading APU setup registers as live",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_hidden_apu_state_breakthrough.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_hidden_apu_state_pass_2.md",
+    "title": "Wizards & Warriors Hidden APU State Pass 2",
+    "preview": "This pass adds a standard 2A03-style hidden-state model over the title phrase:",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_hidden_apu_state_pass_2.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_middle_layer_coverage_matrix.md",
+    "title": "Wizards & Warriors Middle-Layer Coverage Matrix",
+    "preview": "This matrix asks one narrow question:",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_middle_layer_coverage_matrix.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_middle_layer_implementation_target.md",
+    "title": "Wizards & Warriors Middle-Layer Implementation Target",
+    "preview": "This note answers a practical question:",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_middle_layer_implementation_target.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_missing_layer_hypothesis_weights.md",
+    "title": "Wizards & Warriors Missing-Layer Hypothesis Weights",
+    "preview": "We need a way to move forward without fake certainty.",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_missing_layer_hypothesis_weights.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_noise_partial_semantics.md",
+    "title": "Wizards & Warriors Noise Partial Semantics",
+    "preview": "This note captures the noise-channel semantics that are already strong enough",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_noise_partial_semantics.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_noise_survey.md",
+    "title": "Wizards & Warriors Noise Survey",
+    "preview": "This note records the current state of the `Wizards & Warriors` noise channel",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_noise_survey.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_nsf_semantics_sweep.md",
+    "title": "Wizards & Warriors NSF Semantics Sweep",
+    "preview": "This report compares the current `Wizards & Warriors` structural simulator",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_nsf_semantics_sweep.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_playback_missing_data_inventory.md",
+    "title": "Wizards & Warriors Playback Missing Data Inventory",
+    "preview": "This note inventories likely information loss between:",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_playback_missing_data_inventory.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_pulse_envelope_flattening_note.md",
+    "title": "Wizards & Warriors Pulse Envelope Flattening Note",
+    "preview": "This note isolates one specific likely failure mode in the current playback",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_pulse_envelope_flattening_note.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_articulation_breakthrough.md",
+    "title": "Wizards & Warriors Title Articulation Breakthrough",
+    "preview": "The missing title articulation is not triangle-only. The disputed phrase contains",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_articulation_breakthrough.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_audible_state_ir_report.md",
+    "title": "Wizards & Warriors Title Audible-State IR Report",
+    "preview": "- This artifact promotes the title breakthrough into a first-class middle layer.",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_audible_state_ir_report.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_composite_bass_audit.md",
+    "title": "Wizards & Warriors Title Composite Bass Audit",
+    "preview": "Why does the disputed title phrase sound like a plucked/muted bass in the game",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_composite_bass_audit.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_envelope_semantics_note.md",
+    "title": "Wizards & Warriors Title Envelope Semantics Note",
+    "preview": "This note answers a focused question for the title phrase:",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_envelope_semantics_note.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_hidden_apu_state_ir_report.md",
+    "title": "Wizards & Warriors Title Hidden APU State IR Report",
+    "preview": "- This artifact preserves hidden-state interpretations that the current export path flattens.",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_hidden_apu_state_ir_report.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_playback_contract_update.md",
+    "title": "Wizards & Warriors Title Playback Contract Update",
+    "preview": "The playback path now has a distinct audible-state sideband in addition to raw",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_playback_contract_update.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_pulse_contribution_contract.md",
+    "title": "Wizards & Warriors Title Pulse Contribution Contract",
+    "preview": "This note turns the current pulse-envelope findings into a playback-facing",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_pulse_contribution_contract.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_pulse_validation.md",
+    "title": "Wizards & Warriors Title Pulse Validation",
+    "preview": "This report records the current execution-semantics validation state for the",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_pulse_validation.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_release_ir_report.md",
+    "title": "Wizards & Warriors Title Release IR Report",
+    "preview": "- This artifact classifies frame-level triangle body behavior in the disputed title phrase.",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_release_ir_report.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_three_frame_contract.md",
+    "title": "Wizards & Warriors Title Three-Frame Contract",
+    "preview": "This note freezes the strongest current interpretation of the disputed title",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_three_frame_contract.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_triangle_first_principles_audit.md",
+    "title": "Wizards & Warriors Title Triangle First-Principles Audit",
+    "preview": "This audit resets the title triangle interpretation from first principles.",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_triangle_first_principles_audit.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_triangle_mismatch_report.md",
+    "title": "Wizards & Warriors Title Triangle Mismatch Report",
+    "preview": "This report reopens the `Wizards & Warriors` title triangle interpretation.",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_triangle_mismatch_report.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_title_triangle_release_pass_1.md",
+    "title": "Wizards & Warriors Title Triangle Release Pass 1",
+    "preview": "This pass asks one narrow question:",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_title_triangle_release_pass_1.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_track_readiness.md",
+    "title": "Wizards & Warriors Track Readiness",
+    "preview": "This file answers the practical question: how much of the `Wizards & Warriors`",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_track_readiness.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/wizards_and_warriors_validation_record.md",
+    "title": "Wizards & Warriors \u2014 Validation Status",
+    "preview": "**Last updated:** 2026-04-03",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_validation_record.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/reconciled/ww_evidence_db_guide.md",
+    "title": "Wizards & Warriors Evidence DB Guide",
+    "preview": "Database file: `C:\\Dev\\NSFRIPPER\\extraction\\analysis\\reconciled\\ww_evidence_db.json`",
+    "category": "Extraction",
+    "filename": "ww_evidence_db_guide.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/analysis/static/wizards_and_warriors_song_survey.md",
+    "title": "Wizards & Warriors Song Survey",
+    "preview": "This note summarizes a structural survey of all 16 `Wizards & Warriors` songs",
+    "category": "Extraction",
+    "filename": "wizards_and_warriors_song_survey.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/capcom/NOTES.md",
+    "title": "Capcom Sound Driver \u2014 Research Notes",
+    "preview": "Capcom's NES sound driver evolved across the Mega Man series and was reused in several other titles. Notable for complex envelope systems and multi-sp",
+    "category": "Extraction",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/famitracker/NOTES.md",
+    "title": "FamiTracker Driver \u2014 Research Notes",
+    "preview": "FamiTracker is a modern NES music tracker with a well-documented NSF export driver. Its format serves as an excellent validation target since the data",
+    "category": "Extraction",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/konami/NOTES.md",
+    "title": "Konami Sound Driver \u2014 Research Notes",
+    "preview": "Konami used a series of related sound drivers across their NES library. The base driver (pre-VRC) appears in titles from ~1986\u20131990 and shares structu",
+    "category": "Extraction",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/konami/spec.md",
+    "title": "Konami Pre-VRC Sound Driver \u2014 Specification",
+    "preview": "Primary sources:",
+    "category": "Extraction",
+    "filename": "spec.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/konami/docs/ChannelMemoryMap.md",
+    "title": "Konami CV1 Channel Memory Map",
+    "preview": "The sound engine uses 6 channel slots, each occupying 16 bytes in zero-page RAM.",
+    "category": "Technical",
+    "filename": "ChannelMemoryMap.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/konami/docs/CommandReference.md",
+    "title": "Konami CV1 Command Byte Reference",
+    "preview": "Complete command set for the Castlevania 1 (Maezawa variant) sound driver.",
+    "category": "Technical",
+    "filename": "CommandReference.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/konami/docs/DrumSystem.md",
+    "title": "Konami CV1 Drum / Percussion System",
+    "preview": "Castlevania 1 has only 2 drum sounds, triggered by inline commands within",
+    "category": "Technical",
+    "filename": "DrumSystem.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/konami/docs/EnvelopeSystem.md",
+    "title": "Konami CV1 Envelope System",
+    "preview": "Unlike FamiTracker or modern chiptune tools that store instrument envelopes as",
+    "category": "Technical",
+    "filename": "EnvelopeSystem.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/konami/docs/InstrumentFormat.md",
+    "title": "Konami CV1 Instrument Format",
+    "preview": "Instruments are not standalone definitions \u2014 they're always set as part of a",
+    "category": "Technical",
+    "filename": "InstrumentFormat.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/konami/docs/NotePeriodTable.md",
+    "title": "Konami CV1 Note Period Table",
+    "preview": "ROM offset: $079A (CPU address: $878A)",
+    "category": "Technical",
+    "filename": "NotePeriodTable.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/konami/docs/TimingAndTempo.md",
+    "title": "Konami CV1 Timing and Tempo System",
+    "preview": "```",
+    "category": "Technical",
+    "filename": "TimingAndTempo.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/nintendo/NOTES.md",
+    "title": "Nintendo First-Party Sound Drivers \u2014 Research Notes",
+    "preview": "Nintendo did not use a single shared sound driver across their first-party NES titles. Each major title or team developed its own engine. This \"family",
+    "category": "Extraction",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/rare/COMMANDDETECTION.md",
+    "title": "Command Detection in the Rare Driver",
+    "preview": "The Rare driver processes song data one byte at a time in a loop. Each",
+    "category": "Extraction",
+    "filename": "COMMANDDETECTION.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/rare/SUBROUTINECALLMECH.md",
+    "title": "Subroutine Call Mechanism in the Rare Driver",
+    "preview": "The Rare driver doesn't store song data linearly. It uses reusable",
+    "category": "Extraction",
+    "filename": "SUBROUTINECALLMECH.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "extraction/drivers/sunsoft/NOTES.md",
+    "title": "Sunsoft Sound Driver \u2014 Research Notes",
+    "preview": "Sunsoft's NES driver is known for aggressive DPCM sample usage to simulate bass guitar and percussion, plus complex duty cycling for rich pulse channe",
+    "category": "Extraction",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/CapcomChips.md",
+    "title": "Capcom NES Sound Engines: What We're Learning",
+    "preview": "Capcom released ~30 NES games between 1987-1993. Their sound team (led by composers like Manami Matsumae, Takashi Tateishi, and Yasuaki Fujita) produc",
+    "category": "Analysis",
+    "filename": "CapcomChips.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/KidIcarusSuccess.md",
+    "title": "Kid Icarus: How We Cracked It",
+    "preview": "Kid Icarus for NES had the most hostile music extraction we've encountered. The NSF file was from the wrong platform (FDS, not NES cart). The music en",
+    "category": "Analysis",
+    "filename": "KidIcarusSuccess.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/KidIcarusTakeaways.md",
+    "title": "Kid Icarus Takeaways: What This Rip Teaches Us About Future ROMs",
+    "preview": "Kid Icarus broke an assumption we didn't know we were making: that the NSF file and the game ROM contain the same music. Every previous game in our pi",
+    "category": "Analysis",
+    "filename": "KidIcarusTakeaways.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/NES_SOUNDTRACK_TIER_LIST.md",
+    "title": "NES Soundtrack Extraction Tier List",
+    "preview": "| Tier | Difficulty | Method | What It Means |",
+    "category": "Analysis",
+    "filename": "NES_SOUNDTRACK_TIER_LIST.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/PROCESS_ADAPTATIONS.md",
+    "title": "Process Adaptations: How to Extract Music From Any NES ROM",
+    "preview": "```",
+    "category": "Analysis",
+    "filename": "PROCESS_ADAPTATIONS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/SESSION_RESULTS.md",
+    "title": "Session Results: The Day We Built a Universal NES Music Extractor",
+    "preview": "Starting from a single Mesen capture of Kid Icarus Song 1, we built a headless NES emulator (`nes_rom_capture.py`) that boots any NES ROM, simulates t",
+    "category": "Analysis",
+    "filename": "SESSION_RESULTS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/SOUND_ENGINE_COMPARISON.md",
+    "title": "NES Sound Engine Comparison: Lessons From Seven Games",
+    "preview": "A comparative analysis of every music driver we've reverse-engineered or extracted in the ReapNES pipeline. Each game taught something different about",
+    "category": "Analysis",
+    "filename": "SOUND_ENGINE_COMPARISON.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/TAXONOMY.md",
+    "title": "NES Music Encoding Taxonomy",
+    "preview": "A catalog of every music encoding architecture we've encountered across 9+ games, organized by how notes get from ROM to speaker.",
+    "category": "Analysis",
+    "filename": "TAXONOMY.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/WarholDriver.md",
+    "title": "David Warhol NES Sound Driver",
+    "preview": "Information from VGMpf Wiki: David Warhol (NES Driver)",
+    "category": "Analysis",
+    "filename": "WarholDriver.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/Kid_Icarus/KID_ICARUS_BRUTE_FORCE_APPROACH.md",
+    "title": "Kid Icarus: The Brute Force Approach",
+    "preview": "We've reverse-engineered the Kid Icarus NES cart music engine deep enough to know:",
+    "category": "Analysis",
+    "filename": "KID_ICARUS_BRUTE_FORCE_APPROACH.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/Kid_Icarus/KID_ICARUS_CODE_AS_MUSIC.md",
+    "title": "Kid Icarus: Code as Music",
+    "preview": "After tracing the song routing through three layers of indirection, we arrived at the dispatch targets expecting to find music data pointers. Instead,",
+    "category": "Analysis",
+    "filename": "KID_ICARUS_CODE_AS_MUSIC.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/Kid_Icarus/KID_ICARUS_HARNESS_AND_EXECUTION_SEMANTICS.md",
+    "title": "Kid Icarus: Harness Architecture and Execution Semantics",
+    "preview": "A harness is a minimal 6502 program that wraps a game's music engine so it can run outside the game. Think of it like ripping a car engine out of the ",
+    "category": "Analysis",
+    "filename": "KID_ICARUS_HARNESS_AND_EXECUTION_SEMANTICS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/Kid_Icarus/KID_ICARUS_NES_EMULATOR_APPROACH.md",
+    "title": "Kid Icarus: The NES Emulator Approach",
+    "preview": "`scripts/nes_rom_capture.py` is a headless NES emulator that boots an NES ROM from its RESET vector, fires NMI interrupts at 60Hz (NTSC timing), and c",
+    "category": "Analysis",
+    "filename": "KID_ICARUS_NES_EMULATOR_APPROACH.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/Kid_Icarus/KID_ICARUS_SONG_ROUTING_PROBLEM.md",
+    "title": "Kid Icarus: The Song Routing Problem",
+    "preview": "Song routing is the mechanism that turns \"play song N\" into actual music data pointers. The game needs to know: when the player enters the overworld, ",
+    "category": "Analysis",
+    "filename": "KID_ICARUS_SONG_ROUTING_PROBLEM.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/Kid_Icarus/KID_ICARUS_THE_FAMICOM_GHOST.md",
+    "title": "Kid Icarus: The Famicom Ghost in the NES Machine",
+    "preview": "Kid Icarus looked like a straightforward NSF extraction. 34 songs came out, REAPER projects built, everything ran. The user listened and said \"it star",
+    "category": "Analysis",
+    "filename": "KID_ICARUS_THE_FAMICOM_GHOST.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/Kid_Icarus/KID_ICARUS_WHY_THIS_IS_HARD.md",
+    "title": "Kid Icarus: Why This Is Hard (And What Would Actually Work)",
+    "preview": "For Castlevania and Contra, we found the song data quickly: pointer table in ROM, follow the pointers, decode the note stream, done. Why can't we do t",
+    "category": "Analysis",
+    "filename": "KID_ICARUS_WHY_THIS_IS_HARD.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/Super_Mario_Bros_3/Mario3Challenges.md",
+    "title": "Super Mario Bros. 3: What the ROM Emulator Taught Us",
+    "preview": "After cracking Kid Icarus with the headless NES emulator, we applied the same method to SMB3 \u2014 mapper 4 (MMC3), 256KB PRG, the most popular NES game e",
+    "category": "Analysis",
+    "filename": "Mario3Challenges.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "output/Super_Mario_Bros_3/SMB3_ROM_CAPTURE_STATUS.md",
+    "title": "Super Mario Bros. 3: ROM Capture Status",
+    "preview": "Applied the headless NES emulator approach from Kid Icarus to SMB3.",
+    "category": "Analysis",
+    "filename": "SMB3_ROM_CAPTURE_STATUS.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "templates/reports/GAME_VALIDATION_TEMPLATE.md",
+    "title": "[Game Name] \u2014 Validation Status",
+    "preview": "**Last updated:** [date]",
+    "category": "Project",
+    "filename": "GAME_VALIDATION_TEMPLATE.md"
+  },
+  {
+    "project": "nsfripper",
+    "path": "templates/reports/PROJECT_TEMPLATE.md",
+    "title": "Project Log: {GAME_NAME}",
+    "preview": "`{filename}`",
+    "category": "Project",
+    "filename": "PROJECT_TEMPLATE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "about.md",
+    "title": "About ReapNES",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "about.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "ANTIGRAVITYADVENTURES.md",
+    "title": "Antigravity Adventures: The NES Music Mashup Project",
+    "preview": "Our quest began with a mission to create glorious musical mashups by combining the intricate, mathematical beauty of J.S. Bach's compositions (via MID",
+    "category": "Project",
+    "filename": "ANTIGRAVITYADVENTURES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "CLAUDE.md",
+    "title": "NES Music Studio",
+    "preview": "NSF/ROM \u2192 MIDI \u2192 REAPER/WAV/MP4 \u2192 YouTube.",
+    "category": "Project",
+    "filename": "CLAUDE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "CLAUDEREPORTSONANTIGRAVITY.md",
+    "title": "Claude's Report on the Antigravity Session",
+    "preview": "Audit date: 2026-03-29",
+    "category": "Project",
+    "filename": "CLAUDEREPORTSONANTIGRAVITY.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "CV2BREAKTHROUGH.md",
+    "title": "The CV2 Breakthrough",
+    "preview": "What happened, why it matters, and what it changes.",
+    "category": "Project",
+    "filename": "CV2BREAKTHROUGH.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "DOCUMENTAIRTRAFFICCONTROL.md",
+    "title": "Document Air Traffic Control",
+    "preview": "Where to look for what. Read this before diving into docs/.",
+    "category": "Project",
+    "filename": "DOCUMENTAIRTRAFFICCONTROL.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "downloads.md",
+    "title": "Downloads",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "downloads.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "FLEXIBILITYGOALS.md",
+    "title": "Flexibility Goals",
+    "preview": "How to hold what we know without letting it calcify into dogma.",
+    "category": "Project",
+    "filename": "FLEXIBILITYGOALS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "HOWCV2ISGOING.md",
+    "title": "How CV2 Is Going",
+    "preview": "Reflections on the third game decode, written mid-session.",
+    "category": "Project",
+    "filename": "HOWCV2ISGOING.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "index.md",
+    "title": "ReapNES",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "index.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "NEXT_SESSION_PROMPT.md",
+    "title": "Startup Prompt \u2014 Paste Into New Claude Code Window",
+    "preview": "You are continuing work on NES Music Studio at C:/Dev/NESMusicStudio/.",
+    "category": "Project",
+    "filename": "NEXT_SESSION_PROMPT.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "README.md",
+    "title": "ReapNES -- NES Music Reverse Engineering Studio",
+    "preview": "**Extract, validate, and reproduce NES game music at frame-level fidelity**",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "STATUS.md",
+    "title": "NES Music Studio \u2014 Status",
+    "preview": "- **ReapNES_APU.jsfx synth plugin** \u2014 4-channel NES synth (Pulse 1, Pulse 2, Triangle, Noise) with interactive GUI, drum engine with decay envelopes, ",
+    "category": "Project",
+    "filename": "STATUS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "WINSWISHES.md",
+    "title": "Wins & Wishes",
+    "preview": "A retrospective on what worked, what we learned, and what we still want.",
+    "category": "Project",
+    "filename": "WINSWISHES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "WISHESADVENTURE.md",
+    "title": "The Wishes Adventure",
+    "preview": "What we learned by investigating all 14 wishes from WINSWISHES.md.",
+    "category": "Project",
+    "filename": "WISHESADVENTURE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/rules/architecture.md",
+    "title": "Architecture Rules",
+    "preview": "description: Architectural rules for the extraction pipeline",
+    "category": "Rules",
+    "filename": "architecture.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/rules/debugging-protocol.md",
+    "title": "Debugging Protocol",
+    "preview": "paths:",
+    "category": "Rules",
+    "filename": "debugging-protocol.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/rules/new-game-parser.md",
+    "title": "New Game Parser Checklist",
+    "preview": "paths:",
+    "category": "Rules",
+    "filename": "new-game-parser.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/rules/output-versioning.md",
+    "title": "Output Versioning",
+    "preview": "paths:",
+    "category": "Analysis",
+    "filename": "output-versioning.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/rules/reaper_projects.md",
+    "title": "REAPER Project Requirements",
+    "preview": "description: RPP generation rules \u2014 Console synth, keyboard input, CC fidelity",
+    "category": "Rules",
+    "filename": "reaper_projects.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/rules/synth_fidelity.md",
+    "title": "Synth Fidelity Rules",
+    "preview": "description: Synth plugin fidelity rules \u2014 CC automation, ADSR, dual-mode contract",
+    "category": "Rules",
+    "filename": "synth_fidelity.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/skills/nes-batch.md",
+    "title": "NES Batch Extract",
+    "preview": "name: nes-batch",
+    "category": "Skills",
+    "filename": "nes-batch.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/skills/nes-capture.md",
+    "title": "NES Capture & Render",
+    "preview": "name: nes-capture",
+    "category": "Skills",
+    "filename": "nes-capture.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/skills/nes-find-pointer-table.md",
+    "title": "NES Pointer Table Finder",
+    "preview": "name: nes-find-pointer-table",
+    "category": "Skills",
+    "filename": "nes-find-pointer-table.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/skills/nes-nesmdb.md",
+    "title": "NES nesmdb Reference Renderer",
+    "preview": "name: nes-nesmdb",
+    "category": "Skills",
+    "filename": "nes-nesmdb.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/skills/nes-rip.md",
+    "title": "NES Adaptive Orchestrator",
+    "preview": "name: nes-rip",
+    "category": "Skills",
+    "filename": "nes-rip.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/skills/nes-scan-rom.md",
+    "title": "NES ROM Scanner",
+    "preview": "name: nes-scan-rom",
+    "category": "Skills",
+    "filename": "nes-scan-rom.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/skills/nes-segment.md",
+    "title": "NES Track Segmentation",
+    "preview": "name: nes-segment",
+    "category": "Skills",
+    "filename": "nes-segment.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/skills/nes-separate-sfx.md",
+    "title": "NES SFX Separation",
+    "preview": "name: nes-separate-sfx",
+    "category": "Skills",
+    "filename": "nes-separate-sfx.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".claude/skills/nes-validate.md",
+    "title": "NES Single Track Validation",
+    "preview": "name: nes-validate",
+    "category": "Skills",
+    "filename": "nes-validate.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": ".pytest_cache/README.md",
+    "title": "pytest cache directory #",
+    "preview": "This directory contains data from the pytest's cache plugin,",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "code/contra_parser.md",
+    "title": "contra_parser.py -- Contra-Specific Parser",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "contra_parser.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "code/frame_ir.md",
+    "title": "frame_ir.py -- Frame IR and Volume Strategies",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "frame_ir.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "code/index.md",
+    "title": "Annotated Source Code",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "index.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "code/midi_export.md",
+    "title": "midi_export.py -- MIDI Export with CC11 Automation",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "midi_export.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "code/parser.md",
+    "title": "parser.py \u2014 Castlevania 1 Parser and Shared Event Types",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "parser.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "code/trace_compare.md",
+    "title": "trace_compare.py -- Trace Validation Tool",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "trace_compare.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/331CONTEXTENGINEERINGAPPROACH.md",
+    "title": "Context Engineering Approach for NES Fidelity Pipeline",
+    "preview": "This project requires an LLM to hold simultaneous knowledge of:",
+    "category": "Technical",
+    "filename": "331CONTEXTENGINEERINGAPPROACH.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/331UPDATE.md",
+    "title": "Day 4 Update \u2014 March 31, 2026",
+    "preview": "The NESMusicStudio (extraction pipeline) and ReapNES-Studio (synth/REAPER",
+    "category": "Technical",
+    "filename": "331UPDATE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/APIerror.md",
+    "title": "APIerror.md -- What Happened",
+    "preview": "An API error appeared in the Claude Code interface during the session.",
+    "category": "Technical",
+    "filename": "APIerror.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/AUDIT_REPORT.md",
+    "title": "NES Music Studio \u2014 Phase 2 Audit Report",
+    "preview": "Generated: 2026-03-28",
+    "category": "Technical",
+    "filename": "AUDIT_REPORT.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/AVOIDBLUNDERS.md",
+    "title": "AVOIDBLUNDERS.md \u2014 Lessons Learned for REAPER Integration",
+    "preview": "**What happened:** All JSFX plugins lacked `in_pin:none` / `out_pin:Left` / `out_pin:Right`.",
+    "category": "Technical",
+    "filename": "AVOIDBLUNDERS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/BGMPATTERNFINDING.md",
+    "title": "BGM Pattern Finding: How It Worked Across Games",
+    "preview": "Every NES game that plays background music needs a way to say \"play",
+    "category": "Technical",
+    "filename": "BGMPATTERNFINDING.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/BIONIC_COMMANDO_STATUS.md",
+    "title": "Bionic Commando: Current Status",
+    "preview": "Bank 0 at $8000: 20-entry master table. Each entry points to a",
+    "category": "Technical",
+    "filename": "BIONIC_COMMANDO_STATUS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/BLOOPERS.md",
+    "title": "ReapNES Studio Blooper Reel",
+    "preview": "A chronicle of every format trap, silent failure, and misguided assumption",
+    "category": "Technical",
+    "filename": "BLOOPERS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CAPCOMNSFINDINGS.md",
+    "title": "Capcom NSF Findings",
+    "preview": "A minimal NSF player using py65, a Python 6502 CPU emulator.",
+    "category": "Technical",
+    "filename": "CAPCOMNSFINDINGS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CAPCOM_ENGINE_STATUS.md",
+    "title": "Capcom Engine Status: What We Know and Don't Know",
+    "preview": "From community research, Capcom used three distinct sound engines:",
+    "category": "Technical",
+    "filename": "CAPCOM_ENGINE_STATUS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CAPCOM_HONEST_STATUS.md",
+    "title": "Capcom: Honest Status",
+    "preview": "- Bionic Commando: 2 trace renders that sound correct (Stage 1 + Map)",
+    "category": "Technical",
+    "filename": "CAPCOM_HONEST_STATUS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CHECKLIST.md",
+    "title": "Musical Parameter Checklist",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "CHECKLIST.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/COMMAND_MANIFEST.md",
+    "title": "Konami Maezawa NES Sound Driver -- Byte-Level Command Reference",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "COMMAND_MANIFEST.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/COMMAND_VARIABILITY.md",
+    "title": "NES Sound Driver Command Variability",
+    "preview": "How command systems differ across NES sound drivers, and what that means",
+    "category": "Technical",
+    "filename": "COMMAND_VARIABILITY.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/COMMUNITYSEARCHREPORT.md",
+    "title": "Community Search Report: Konami NES Sound Driver Intelligence",
+    "preview": "Research conducted 2026-03-27 across NESdev forums, VGMPF wiki, romhacking.net,",
+    "category": "Technical",
+    "filename": "COMMUNITYSEARCHREPORT.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CONTEXTENGTAKEAWAYS.md",
+    "title": "Context Engineering Takeaways",
+    "preview": "How to progressively reveal what the LLM needs to know about NES",
+    "category": "Technical",
+    "filename": "CONTEXTENGTAKEAWAYS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CONTRACOMPARISON.md",
+    "title": "Contra \u2014 Trace Comparison Results",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "CONTRACOMPARISON.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CONTRACONTEXTENGINEERING.md",
+    "title": "Context Engineering: What Was Built and Why",
+    "preview": "After CV1 and Contra extraction, two patterns were burning prompts:",
+    "category": "Technical",
+    "filename": "CONTRACONTEXTENGINEERING.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CONTRAGOALLINE.md",
+    "title": "Contra \u2014 The Goal Line",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "CONTRAGOALLINE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CONTRALESSONS.md",
+    "title": "Contra: Lessons from the Second Extraction",
+    "preview": "11/11 music tracks extracted on the first attempt. Zero failures.",
+    "category": "Technical",
+    "filename": "CONTRALESSONS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CONTRALESSONSTOCV1.md",
+    "title": "Applying Contra Lessons to Castlevania 1",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "CONTRALESSONSTOCV1.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CONTRAVERSIONS.md",
+    "title": "Contra Extraction: Version History",
+    "preview": "Ran the CV1 pipeline directly against the Contra ROM. Used the CV1",
+    "category": "Technical",
+    "filename": "CONTRAVERSIONS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/CV2_TRACE_ANALYSIS.md",
+    "title": "CV2 Bloody Tears \u2014 First Trace Analysis",
+    "preview": "Source: `extraction/traces/cv2/bloody_tears.csv`",
+    "category": "Technical",
+    "filename": "CV2_TRACE_ANALYSIS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/DECKARDCONTRASTAGE2.md",
+    "title": "Deckard Boundary Analysis: NES Driver Reverse Engineering",
+    "preview": "After extracting CV1 (complete) and Contra (v4, in progress), we now face",
+    "category": "Technical",
+    "filename": "DECKARDCONTRASTAGE2.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/DECKARDTOOLREPORT.md",
+    "title": "Deckard Tool Report: NES Music Extraction Landscape",
+    "preview": "Our goal: **ROM -> full-fidelity extraction (notes + instruments + envelopes + duty cycles) -> REAPER project that sounds like the original NES game.*",
+    "category": "Technical",
+    "filename": "DECKARDTOOLREPORT.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/DECKARD_SUPERC_BOUNDARIES.md",
+    "title": "Deckard Boundary Analysis: NES Music Studio ROM Extraction Pipeline",
+    "preview": "Applied to: the process of extracting music from new NES ROMs, with",
+    "category": "Technical",
+    "filename": "DECKARD_SUPERC_BOUNDARIES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/DONEBEFORE.md",
+    "title": "Has This Been Done Before? A Survey of NES Music Extraction",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "DONEBEFORE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/DRIVER_FAMILIES.md",
+    "title": "NES Sound Driver Families",
+    "preview": "NES music is not stored in a universal format. Each game (or group of games) uses a **sound driver** \u2014 a custom engine that reads proprietary data str",
+    "category": "Technical",
+    "filename": "DRIVER_FAMILIES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/DRIVER_IDENTIFICATION.md",
+    "title": "NES Sound Driver Identification Methods",
+    "preview": "A technical reference for identifying the sound driver in an unknown NES",
+    "category": "Technical",
+    "filename": "DRIVER_IDENTIFICATION.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/DRIVER_MODEL.md",
+    "title": "The Konami Maezawa NES Sound Driver",
+    "preview": "driver_family: konami_maezawa",
+    "category": "Technical",
+    "filename": "DRIVER_MODEL.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/DRIVER_TAXONOMY.md",
+    "title": "NES Sound Driver Taxonomy",
+    "preview": "A reference taxonomy of known NES sound driver families, organized by",
+    "category": "Technical",
+    "filename": "DRIVER_TAXONOMY.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/ENVELOPE_SYSTEMS.md",
+    "title": "NES Sound Driver Envelope Systems \u2014 Taxonomy",
+    "preview": "This document catalogs envelope system types across NES sound drivers,",
+    "category": "Technical",
+    "filename": "ENVELOPE_SYSTEMS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/FAILURE_MODES.md",
+    "title": "NES Music Studio \u2014 Failure Modes and Anti-Patterns",
+    "preview": "Catalog of failure modes encountered during CV1 and Contra extraction,",
+    "category": "Technical",
+    "filename": "FAILURE_MODES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/FidelityAudit_CV1.md",
+    "title": "Fidelity Audit: Castlevania 1 Vampire Killer",
+    "preview": "Compared parser output against APU emulator trace (`extraction/traces/castlevania/stage1.csv`)",
+    "category": "Technical",
+    "filename": "FidelityAudit_CV1.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/FIRSTEXPERIMENT.md",
+    "title": "FIRSTEXPERIMENT.md -- Bach Through Castlevania",
+    "preview": "Map Bach keyboard works onto NES Castlevania instrument palettes. The Castlevania series has some of the most baroque-influenced music on the NES -- i",
+    "category": "Technical",
+    "filename": "FIRSTEXPERIMENT.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/FIRSTIMPRESSIONSBIONIC.md",
+    "title": "First Impressions: Bionic Commando vs Konami Models",
+    "preview": "| Property | Bionic Commando | CV1 | Contra | Gradius |",
+    "category": "Technical",
+    "filename": "FIRSTIMPRESSIONSBIONIC.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/FIRSTSTEPSVAMPKILL.md",
+    "title": "First Steps: Vampire Killer from ROM to REAPER",
+    "preview": "A chronicle of the first successful extraction of Castlevania's \"Vampire Killer\"",
+    "category": "Technical",
+    "filename": "FIRSTSTEPSVAMPKILL.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/FIRST_TARGET_FAMILY.md",
+    "title": "First Target Family: Konami Pre-VRC",
+    "preview": "1. **Available ROM:** Castlevania (U) (V1.0) is in `roms/`, mapper 2 (UxROM), 128K PRG.",
+    "category": "Technical",
+    "filename": "FIRST_TARGET_FAMILY.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/FLEXIBLE_PARSER_ARCHITECTURE.md",
+    "title": "Flexible Parser Architecture",
+    "preview": "Architectural blueprint for handling multiple NES sound drivers in",
+    "category": "Technical",
+    "filename": "FLEXIBLE_PARSER_ARCHITECTURE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/GAME_MATRIX.md",
+    "title": "Konami Maezawa-Family NES Game Matrix",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "GAME_MATRIX.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/GRINDINGONTHEPOINTERTABLE.md",
+    "title": "Grinding on the Pointer Table: What We Learned",
+    "preview": "We spent approximately 90 minutes and 15+ code iterations trying to",
+    "category": "Technical",
+    "filename": "GRINDINGONTHEPOINTERTABLE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HANDOVER.md",
+    "title": "NES Music Studio \u2014 Session Handover",
+    "preview": "Extracts music from NES ROM files, converts to MIDI with per-frame",
+    "category": "Technical",
+    "filename": "HANDOVER.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HANDOVER_FIDELITY.md",
+    "title": "Handover: Fidelity Iteration on Vampire Killer",
+    "preview": "The extraction pipeline now produces **zero pitch errors** and **<0.5% volume",
+    "category": "Technical",
+    "filename": "HANDOVER_FIDELITY.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HANDOVER_SESSION2.md",
+    "title": "NES Music Studio \u2014 Session Handover (2026-03-28)",
+    "preview": "Started with Contra at v4 (notes close, dynamics flat). Ended with:",
+    "category": "Technical",
+    "filename": "HANDOVER_SESSION2.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HARDENING.md",
+    "title": "HARDENING.md \u2014 Environmental Rebuild",
+    "preview": "This is the record of converting the NES Music Studio pipeline from",
+    "category": "Technical",
+    "filename": "HARDENING.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HARDWARE_VARIANTS.md",
+    "title": "NES Audio Hardware Variants",
+    "preview": "Reference document for NES Music Studio. Covers the base APU and all",
+    "category": "Technical",
+    "filename": "HARDWARE_VARIANTS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HIRO_NEW_ROM_PIPELINE.md",
+    "title": "HiroPlantagenet Analysis: New ROM Extraction Pipeline",
+    "preview": "Applied to the prompt: \"Bake all lessons for how to operate more",
+    "category": "Technical",
+    "filename": "HIRO_NEW_ROM_PIPELINE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HOWGRADIUSWENTPREANDPOSTCAPTURE.md",
+    "title": "How Gradius Went: Pre- and Post-Capture",
+    "preview": "The research swarm agent wrote HYPOTHESES_GRADIUS.md with these claims:",
+    "category": "Technical",
+    "filename": "HOWGRADIUSWENTPREANDPOSTCAPTURE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HOWTOBEMOREFLEXIBLE.md",
+    "title": "How to Be More Flexible in NES Music Reverse Engineering",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "HOWTOBEMOREFLEXIBLE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HOWTOREADACAPTURE.md",
+    "title": "How to Read an APU Capture File",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "HOWTOREADACAPTURE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HUGEBREAKTHROUGH329DAYTWO.md",
+    "title": "Huge Breakthrough: March 29 Day Two",
+    "preview": "We were stuck on Bionic Commando. We had:",
+    "category": "Technical",
+    "filename": "HUGEBREAKTHROUGH329DAYTWO.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HYPOTHESESCV3.md",
+    "title": "CV3 (Castlevania III: Dracula's Curse) \u2014 Hypotheses",
+    "preview": "| Property | Value |",
+    "category": "Technical",
+    "filename": "HYPOTHESESCV3.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HYPOTHESES_GOONIES2.md",
+    "title": "The Goonies II (Konami, 1987) \u2014 Hypotheses",
+    "preview": "| Property | Value |",
+    "category": "Technical",
+    "filename": "HYPOTHESES_GOONIES2.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HYPOTHESES_GRADIUS.md",
+    "title": "Gradius (NES, Konami 1986) \u2014 Hypotheses",
+    "preview": "| Property | Value |",
+    "category": "Technical",
+    "filename": "HYPOTHESES_GRADIUS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HYPOTHESES_JACKAL.md",
+    "title": "Jackal (Konami, 1988) -- Hypotheses",
+    "preview": "| Property | Value |",
+    "category": "Technical",
+    "filename": "HYPOTHESES_JACKAL.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HYPOTHESES_LIFEFORCE.md",
+    "title": "Life Force / Salamander (Konami, 1988) \u2014 Hypotheses",
+    "preview": "| Property | Value |",
+    "category": "Technical",
+    "filename": "HYPOTHESES_LIFEFORCE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HYPOTHESES_SUPER_C.md",
+    "title": "Super C (Super Contra) -- Hypotheses",
+    "preview": "| Property | Value |",
+    "category": "Technical",
+    "filename": "HYPOTHESES_SUPER_C.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/HYPOTHESES_TMNT.md",
+    "title": "TMNT (Teenage Mutant Ninja Turtles) \u2014 Hypotheses",
+    "preview": "| Property | Value | Source |",
+    "category": "Technical",
+    "filename": "HYPOTHESES_TMNT.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/INSTRUMENTS.md",
+    "title": "INSTRUMENTS.md \u2014 ReapNES JSFX Plugin Status Report",
+    "preview": "Three JSFX plugins that model the NES 2A03 APU:",
+    "category": "Technical",
+    "filename": "INSTRUMENTS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/INVARIANTS.md",
+    "title": "NES Music Studio -- Invariants Registry",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "INVARIANTS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/KONAMITAKEAWAY.md",
+    "title": "Konami NES Music Coding: What We Know",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "KONAMITAKEAWAY.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/LATESTFIXES.md",
+    "title": "Latest Fixes and Reverse Engineering Learnings",
+    "preview": "**Problem**: Every note was one octave too high. A3 in the game played as A4.",
+    "category": "Technical",
+    "filename": "LATESTFIXES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/LIVE_MIDI_TIMBRE_AUDIT.md",
+    "title": "Live MIDI Timbre Audit",
+    "preview": "Engineering report: why live keyboard input sounded different from MIDI",
+    "category": "Technical",
+    "filename": "LIVE_MIDI_TIMBRE_AUDIT.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/LLM_METHODOLOGY.md",
+    "title": "Using LLMs to Reverse Engineer NES Music",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "LLM_METHODOLOGY.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/MERGE_INIT_PROMPT.md",
+    "title": "Initialization Prompt for NES Music Studio (Merged Project)",
+    "preview": "Copy everything below the line into a new Claude Code session.",
+    "category": "Technical",
+    "filename": "MERGE_INIT_PROMPT.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/MESENCAPTURE.md",
+    "title": "Mesen APU Trace Capture \u2014 Workflow Guide",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "MESENCAPTURE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/METROIDBLOOPERS.md",
+    "title": "Metroid Extraction Blooper Reel",
+    "preview": "On 2026-03-29, we ran `batch_nsf_all.py` to process 19 games through",
+    "category": "Technical",
+    "filename": "METROIDBLOOPERS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/MIDI.md",
+    "title": "MIDI.md \u2014 MIDI Routing, Playback, and Import Status Report",
+    "preview": "REAPER tracks can receive MIDI from two sources:",
+    "category": "Technical",
+    "filename": "MIDI.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/MIDI_MAPPING.md",
+    "title": "MIDI Import & NES Remapping",
+    "preview": "ReapNES Studio can take any MIDI file and map it onto NES-style instruments, generating a REAPER project ready to play.",
+    "category": "Technical",
+    "filename": "MIDI_MAPPING.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/MILESTONE_CHECKLIST.md",
+    "title": "Minimum Playable Studio \u2014 Milestone Checklist",
+    "preview": "This defines the smallest version that proves the ReapNES Studio concept.",
+    "category": "Technical",
+    "filename": "MILESTONE_CHECKLIST.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/MISTAKEBAKED.md",
+    "title": "Mistakes Baked Into System Files",
+    "preview": "Every mistake that burned 2+ prompts during the CV1 and Contra sessions",
+    "category": "Technical",
+    "filename": "MISTAKEBAKED.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/MOVINGONTOCV2.md",
+    "title": "Moving On to Castlevania II",
+    "preview": "When we ran the CV1 pipeline against Castlevania II, Contra, CV3, and",
+    "category": "Technical",
+    "filename": "MOVINGONTOCV2.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/NESMUSICTRANSLATEDTOMIDI.md",
+    "title": "How NES Music Gets Translated to MIDI and Synth Plugins",
+    "preview": "The NES has no \"music file format.\" There is no score, no sheet music,",
+    "category": "Technical",
+    "filename": "NESMUSICTRANSLATEDTOMIDI.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/NESREAPERMEETSSTUDIO.md",
+    "title": "NES REAPER Meets Studio \u2014 Project Merger Handover",
+    "preview": "A complete handover for merging two existing projects into one unified repo:",
+    "category": "Technical",
+    "filename": "NESREAPERMEETSSTUDIO.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/NEW_ROM_WORKFLOW.md",
+    "title": "New ROM Workflow \u2014 Step-by-Step Onboarding Playbook",
+    "preview": "This document is the canonical guide for tackling any new NES ROM in the",
+    "category": "Technical",
+    "filename": "NEW_ROM_WORKFLOW.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/NOTEDURATIONS.md",
+    "title": "Note Duration Dynamics \u2014 Everything That Affects What You Hear",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "NOTEDURATIONS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/NSF_TO_MIDI_PIPELINE.md",
+    "title": "NSF to MIDI Pipeline",
+    "preview": "Converts any NES NSF file into playable REAPER projects with",
+    "category": "Technical",
+    "filename": "NSF_TO_MIDI_PIPELINE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/NSF_TO_SYNTH_PLUGINS.md",
+    "title": "NSF to Synth Instrument Plugins",
+    "preview": "The project uses a custom JSFX plugin (`studio/jsfx/ReapNES_APU.jsfx`)",
+    "category": "Technical",
+    "filename": "NSF_TO_SYNTH_PLUGINS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/OCTAVETOOLOWONPULSE.md",
+    "title": "Octave Too Low on Pulse Channels",
+    "preview": "After generating VampireKiller_v4.rpp with all envelope and articulation",
+    "category": "Technical",
+    "filename": "OCTAVETOOLOWONPULSE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/OPERATOR_GUIDE.md",
+    "title": "NES Music Lab \u2014 Operator Guide",
+    "preview": "You (the human) do the emulator work. Claude does the data analysis. This document tells you exactly what to do at each step, what to bring back, and ",
+    "category": "Technical",
+    "filename": "OPERATOR_GUIDE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/PATTERNMATCHING.md",
+    "title": "Pattern Matching: What We Learned",
+    "preview": "We're trying to find specific data structures inside NES ROM files.",
+    "category": "Technical",
+    "filename": "PATTERNMATCHING.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/PERCUSSION_MODELS.md",
+    "title": "NES Percussion and DPCM Models",
+    "preview": "Research catalog of percussion implementations in NES sound drivers,",
+    "category": "Technical",
+    "filename": "PERCUSSION_MODELS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/PHASED_PLAN.md",
+    "title": "NES Music Lab \u2014 Phased Plan (Revised)",
+    "preview": "**Goal:** Establish three-pipeline architecture, symbolic model, and scaffolding.",
+    "category": "Technical",
+    "filename": "PHASED_PLAN.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/POINTER_MODELS.md",
+    "title": "NES Sound Driver Pointer and Memory Addressing Models",
+    "preview": "Reference catalog for pointer table structures and address resolution",
+    "category": "Technical",
+    "filename": "POINTER_MODELS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/PROJECTCASTLEVANIA.md",
+    "title": "Project Log: Castlevania",
+    "preview": "`Castlevania_02_Vampire_Killer_(Courtyard)_v1.mid`",
+    "category": "Technical",
+    "filename": "PROJECTCASTLEVANIA.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/PROJECTCONTRA.md",
+    "title": "Project Log: Contra",
+    "preview": "`contra_02_Jungle_Lvl_1.mid` (Jungle / Level 1)",
+    "category": "Technical",
+    "filename": "PROJECTCONTRA.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/PROJECTMARIO1.md",
+    "title": "Project Log: Super Mario Bros",
+    "preview": "`Super_Mario_Bros._01_Running_About_v1.mid` (Overworld Theme)",
+    "category": "Technical",
+    "filename": "PROJECTMARIO1.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/PROJECTMEGAMAN2.md",
+    "title": "Project Log: Mega Man 2",
+    "preview": "`Mega_Man_2_06_Heat_Man_v1.mid`",
+    "category": "Technical",
+    "filename": "PROJECTMEGAMAN2.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/PROJECTMETROID.md",
+    "title": "Project Log: Metroid",
+    "preview": "`Metroid_03_Brinstar_v1.mid`",
+    "category": "Technical",
+    "filename": "PROJECTMETROID.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/PROJECTS.md",
+    "title": "PROJECTS.md \u2014 RPP Project Generation Status Report",
+    "preview": "Creates REAPER .RPP project files with:",
+    "category": "Technical",
+    "filename": "PROJECTS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/PROJECT_GENERATION.md",
+    "title": "REAPER Project Generation",
+    "preview": "`scripts/generate_project.py` creates ready-to-open REAPER `.RPP` project files with:",
+    "category": "Technical",
+    "filename": "PROJECT_GENERATION.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/REAPER_PROGRAMMING_REFERENCE.md",
+    "title": "REAPER Programming Reference for ReapNES Studio",
+    "preview": "This document captures everything we've learned about REAPER file formats,",
+    "category": "Technical",
+    "filename": "REAPER_PROGRAMMING_REFERENCE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/REFINEMENT_PLAN.md",
+    "title": "Refinement Plan: Iterative Fidelity Improvement",
+    "preview": "The Mario project got worse because we switched from ReapNES_APU.jsfx",
+    "category": "Technical",
+    "filename": "REFINEMENT_PLAN.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/REGISTER_MAP.md",
+    "title": "2A03 APU Register Map ($4000\u2013$4017)",
+    "preview": "Quick reference for ReapNES Studio development.",
+    "category": "Technical",
+    "filename": "REGISTER_MAP.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/REQUIREMENTSFORMIDI.md",
+    "title": "Requirements for NES-Quality MIDI Files",
+    "preview": "What we learned the hard way about what makes a MIDI file work well",
+    "category": "Technical",
+    "filename": "REQUIREMENTSFORMIDI.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/REQUIREMENTSFORSYNTH.md",
+    "title": "Requirements for NES Synth Plugins (JSFX)",
+    "preview": "What we learned building ReapNES_APU.jsfx about what makes an NES synth",
+    "category": "Technical",
+    "filename": "REQUIREMENTSFORSYNTH.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/RESEARCH_LOG.md",
+    "title": "NES Music Studio -- Research Log",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "RESEARCH_LOG.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/SKILL_ARCHITECTURE.md",
+    "title": "HiroPlantagenet Analysis: NES Music Studio Skill Architecture",
+    "preview": "| # | Goal | Tag |",
+    "category": "Technical",
+    "filename": "SKILL_ARCHITECTURE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/SONG_BUNDLES.md",
+    "title": "Song Bundles (Song Sets)",
+    "preview": "A song bundle is a JSON file that describes a complete NES instrument palette for a specific song or game context. It maps NES channels to specific pr",
+    "category": "Technical",
+    "filename": "SONG_BUNDLES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/STUDIO_GUIDE.md",
+    "title": "ReapNES Studio Guide",
+    "preview": "ReapNES Studio is a REAPER-based NES music production environment. It lets you compose, arrange, and experiment with authentic NES sounds inside REAPE",
+    "category": "Technical",
+    "filename": "STUDIO_GUIDE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/STUDIO_WORKFLOW.md",
+    "title": "ReapNES Studio \u2014 Complete Workflow Guide",
+    "preview": "```bash",
+    "category": "Technical",
+    "filename": "STUDIO_WORKFLOW.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/SUCCESSANDFAIL.md",
+    "title": "SUCCESSANDFAIL.md \u2014 Honest Progress Report",
+    "preview": "\"I can open REAPER and immediately start making music with NES-style sounds, templates, and imported material without fighting the interface.\"",
+    "category": "Technical",
+    "filename": "SUCCESSANDFAIL.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/SUPERCONMAEZAWA.md",
+    "title": "What Super C Taught Us About Maezawa",
+    "preview": "We searched the Super C ROM for the Maezawa period table six",
+    "category": "Technical",
+    "filename": "SUPERCONMAEZAWA.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/SWARMAGENTIDS.md",
+    "title": "Swarm Agent Roster \u2014 Methodological Refactor",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "SWARMAGENTIDS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/SWARMPERFORMED1.md",
+    "title": "Swarm Performance Analysis \u2014 First Deployment",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "SWARMPERFORMED1.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/SYNTHDESIGN.md",
+    "title": "SYNTHDESIGN.md -- ReapNES Synth Plugin Design",
+    "preview": "A REAPER synth plugin should behave identically to any VSTi instrument:",
+    "category": "Technical",
+    "filename": "SYNTHDESIGN.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/TraceComparison_Contra.md",
+    "title": "Trace Comparison: CONTRA (track: jungle)",
+    "preview": "Comparing parser output against emulator APU trace.",
+    "category": "Technical",
+    "filename": "TraceComparison_Contra.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/TraceComparison_CV1.md",
+    "title": "Trace Comparison: CV1 (track: 2)",
+    "preview": "Comparing parser output against emulator APU trace.",
+    "category": "Technical",
+    "filename": "TraceComparison_CV1.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/TRACE_CAPTURE_GUIDE.md",
+    "title": "Trace Capture Guide",
+    "preview": "NES Music Lab's pipeline begins with APU register write traces \u2014 timestamped logs of every value written to the NES sound hardware during emulation. T",
+    "category": "Technical",
+    "filename": "TRACE_CAPTURE_GUIDE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/TRACE_VALIDATION_NOTES.md",
+    "title": "Trace Validation System \u2014 Audit Notes",
+    "preview": "Generated: 2026-03-28",
+    "category": "Technical",
+    "filename": "TRACE_VALIDATION_NOTES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/TRACE_WORKFLOW.md",
+    "title": "Trace Comparison Workflow",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "TRACE_WORKFLOW.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/TRACKINGITOUT.md",
+    "title": "Tracking It Out: How Track Boundary Detection Evolved",
+    "preview": "CV1 was our first game and we had every advantage: a known",
+    "category": "Technical",
+    "filename": "TRACKINGITOUT.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/UNKNOWNS.md",
+    "title": "NES Music Studio -- Open Unknowns",
+    "preview": "layout: default",
+    "category": "Technical",
+    "filename": "UNKNOWNS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/VERSION4STORY.md",
+    "title": "Version 4 Story: Vampire Killer Fidelity",
+    "preview": "Version 3 had **zero pitch mismatches** across all 3 channels for the full",
+    "category": "Technical",
+    "filename": "VERSION4STORY.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/WHATELSEWETRIED.md",
+    "title": "WHATELSEWETRIED.md -- Full Troubleshooting Log",
+    "preview": "ReapNES_Full.jsfx does not produce sound when loaded via RPP project file, even though:",
+    "category": "Technical",
+    "filename": "WHATELSEWETRIED.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/WHEELSNOTTOREINVENT.md",
+    "title": "Wheels Not To Reinvent",
+    "preview": "Detailed technical study of three existing projects whose work we should build on",
+    "category": "Technical",
+    "filename": "WHEELSNOTTOREINVENT.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/WHYNSFMATTERS.md",
+    "title": "Why NSF Matters: The Universal NES Music Reverse Engineering Tool",
+    "preview": "The goal is NOT to produce WAV files. WAVs are a byproduct.",
+    "category": "Technical",
+    "filename": "WHYNSFMATTERS.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_01_CONTRA_TRACE.md",
+    "title": "WISH #1: Contra Trace Validation to Zero Mismatches",
+    "preview": "Reduce Contra Jungle's trace comparison mismatches from their current",
+    "category": "Technical",
+    "filename": "WISH_01_CONTRA_TRACE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_02_TRIANGLE_PRECISION.md",
+    "title": "WISH #2: Triangle Linear Counter Precision",
+    "preview": "Replace the approximate integer formula for triangle linear counter",
+    "category": "Technical",
+    "filename": "WISH_02_TRIANGLE_PRECISION.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_03_SUPER_C.md",
+    "title": "WISH #3: Super C -- The Third Konami Data Point",
+    "preview": "Complete the Super C (1990) extraction to full-pipeline status: all",
+    "category": "Technical",
+    "filename": "WISH_03_SUPER_C.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_04_VIBRATO.md",
+    "title": "WISH #4: Vibrato and Pitch Envelopes (EB Command)",
+    "preview": "Implement support for the EB vibrato command in the Konami Maezawa",
+    "category": "Technical",
+    "filename": "WISH_04_VIBRATO.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_05_DPCM_SAMPLES.md",
+    "title": "WISH #5: DMC Sample Decoding",
+    "preview": "Add DPCM (Delta Pulse Code Modulation) sample playback to the rendering",
+    "category": "Technical",
+    "filename": "WISH_05_DPCM_SAMPLES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_06_EXPANSION_AUDIO.md",
+    "title": "WISH #6: Expansion Audio (VRC6, MMC5)",
+    "preview": "Add support for NES cartridge expansion audio chips to the extraction",
+    "category": "Technical",
+    "filename": "WISH_06_EXPANSION_AUDIO.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_07_ADDRESS_RESOLVER.md",
+    "title": "WISH #7: Address Resolver Abstraction",
+    "preview": "Replace the two hardcoded CPU-to-ROM address conversion functions",
+    "category": "Technical",
+    "filename": "WISH_07_ADDRESS_RESOLVER.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_08_MANIFEST_LOADING.md",
+    "title": "WISH #8: Runtime Manifest Loading",
+    "preview": "Make parsers load their per-game configuration from manifest JSON files",
+    "category": "Technical",
+    "filename": "WISH_08_MANIFEST_LOADING.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_09_WEBSITE.md",
+    "title": "WISH #9: Website Polish and Deployment",
+    "preview": "Bring the ReapNES Jekyll site (https://t3dy.github.io/ReapNES/) from",
+    "category": "Technical",
+    "filename": "WISH_09_WEBSITE.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_10_FUGUE_MATRIX.md",
+    "title": "WISH #10: The Combinatorial Fugue Matrix Render",
+    "preview": "Render the full combinatorial matrix of Bach-meets-NES mashups to WAV.",
+    "category": "Technical",
+    "filename": "WISH_10_FUGUE_MATRIX.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_11_CV2_REVISITED.md",
+    "title": "WISH #11: Castlevania II Investigation Revisited",
+    "preview": "Re-evaluate the Castlevania II: Simon's Quest extraction that was",
+    "category": "Technical",
+    "filename": "WISH_11_CV2_REVISITED.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_12_NON_KONAMI.md",
+    "title": "WISH #12: Non-Konami Drivers (Capcom, Sunsoft)",
+    "preview": "Extend NES Music Studio beyond the Konami Maezawa driver family to",
+    "category": "Technical",
+    "filename": "WISH_12_NON_KONAMI.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_13_NOISE_CHANNEL.md",
+    "title": "WISH #13: Noise Channel Modeling",
+    "preview": "Replace the single generic white-noise synthesizer in `render_wav.py`",
+    "category": "Technical",
+    "filename": "WISH_13_NOISE_CHANNEL.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "docs/wishes/WISH_14_COMMIT_STRATEGY.md",
+    "title": "WISH #14: Commit Strategy for Antigravity Work",
+    "preview": "Define a clean commit strategy for the remaining untracked Antigravity",
+    "category": "Technical",
+    "filename": "WISH_14_COMMIT_STRATEGY.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/CLAUDE_EXTRACTION.md",
+    "title": "Extraction Engine",
+    "preview": "The NES sound driver is a **stateful frame-based interpreter**, not a data format. Same byte means different things depending on execution context. Ca",
+    "category": "Extraction",
+    "filename": "CLAUDE_EXTRACTION.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/capcom/NOTES.md",
+    "title": "Capcom Sound Driver \u2014 Research Notes",
+    "preview": "Capcom's NES sound driver evolved across the Mega Man series and was reused in several other titles. Notable for complex envelope systems and multi-sp",
+    "category": "Extraction",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/famitracker/NOTES.md",
+    "title": "FamiTracker Driver \u2014 Research Notes",
+    "preview": "FamiTracker is a modern NES music tracker with a well-documented NSF export driver. Its format serves as an excellent validation target since the data",
+    "category": "Extraction",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/konami/NOTES.md",
+    "title": "Konami Sound Driver \u2014 Research Notes",
+    "preview": "Konami used a series of related sound drivers across their NES library. The base driver (pre-VRC) appears in titles from ~1986\u20131990 and shares structu",
+    "category": "Extraction",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/konami/spec.md",
+    "title": "Konami Pre-VRC Sound Driver \u2014 Specification",
+    "preview": "Primary sources:",
+    "category": "Extraction",
+    "filename": "spec.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/konami/docs/ChannelMemoryMap.md",
+    "title": "Konami CV1 Channel Memory Map",
+    "preview": "The sound engine uses 6 channel slots, each occupying 16 bytes in zero-page RAM.",
+    "category": "Technical",
+    "filename": "ChannelMemoryMap.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/konami/docs/CommandReference.md",
+    "title": "Konami CV1 Command Byte Reference",
+    "preview": "Complete command set for the Castlevania 1 (Maezawa variant) sound driver.",
+    "category": "Technical",
+    "filename": "CommandReference.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/konami/docs/DrumSystem.md",
+    "title": "Konami CV1 Drum / Percussion System",
+    "preview": "Castlevania 1 has only 2 drum sounds, triggered by inline commands within",
+    "category": "Technical",
+    "filename": "DrumSystem.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/konami/docs/EnvelopeSystem.md",
+    "title": "Konami CV1 Envelope System",
+    "preview": "Unlike FamiTracker or modern chiptune tools that store instrument envelopes as",
+    "category": "Technical",
+    "filename": "EnvelopeSystem.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/konami/docs/InstrumentFormat.md",
+    "title": "Konami CV1 Instrument Format",
+    "preview": "Instruments are not standalone definitions \u2014 they're always set as part of a",
+    "category": "Technical",
+    "filename": "InstrumentFormat.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/konami/docs/NotePeriodTable.md",
+    "title": "Konami CV1 Note Period Table",
+    "preview": "ROM offset: $079A (CPU address: $878A)",
+    "category": "Technical",
+    "filename": "NotePeriodTable.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/konami/docs/TimingAndTempo.md",
+    "title": "Konami CV1 Timing and Tempo System",
+    "preview": "```",
+    "category": "Technical",
+    "filename": "TimingAndTempo.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/nintendo/NOTES.md",
+    "title": "Nintendo First-Party Sound Drivers \u2014 Research Notes",
+    "preview": "Nintendo did not use a single shared sound driver across their first-party NES titles. Each major title or team developed its own engine. This \"family",
+    "category": "Extraction",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "extraction/drivers/sunsoft/NOTES.md",
+    "title": "Sunsoft Sound Driver \u2014 Research Notes",
+    "preview": "Sunsoft's NES driver is known for aggressive DPCM sample usage to simulate bass guitar and percussion, plus complex duty cycling for rich pulse channe",
+    "category": "Extraction",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/batman.md",
+    "title": "Batman",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "batman.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/bionic-commando.md",
+    "title": "Bionic Commando",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "bionic-commando.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/blaster-master.md",
+    "title": "Blaster Master",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "blaster-master.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/castlevania-2---simons-quest.md",
+    "title": "Castlevania 2  Simons Quest",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "castlevania-2---simons-quest.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/castlevania-3---draculas-curse.md",
+    "title": "Castlevania 3  Draculas Curse",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "castlevania-3---draculas-curse.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/castlevania-ii.md",
+    "title": "Castlevania II",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "castlevania-ii.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/castlevania-iii.md",
+    "title": "Castlevania III",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "castlevania-iii.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/castlevania.md",
+    "title": "Castlevania",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "castlevania.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/contra-v2.md",
+    "title": "Contra v2",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "contra-v2.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/contra-v5.md",
+    "title": "Contra v5",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "contra-v5.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/contra-v6.md",
+    "title": "Contra v6",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "contra-v6.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/contra-v7.md",
+    "title": "Contra v7",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "contra-v7.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/contra-v8.md",
+    "title": "Contra v8",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "contra-v8.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/contra.md",
+    "title": "Contra",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "contra.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/mega-man-1.md",
+    "title": "Mega Man 1",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "mega-man-1.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "games/super-c.md",
+    "title": "Super C",
+    "preview": "layout: default",
+    "category": "Project",
+    "filename": "super-c.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/README.md",
+    "title": "Overview",
+    "preview": "This repository contains an annotated disassembly of the _Contra_ (US) NES ROM",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/Aim Documentation.md",
+    "title": "Aiming",
+    "preview": "16 enemies aim towards the player to target them.  Some of those enemies, for",
+    "category": "Technical",
+    "filename": "Aim Documentation.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/Bugs.md",
+    "title": "Overview",
+    "preview": "This document outlines the bugs discovered in the code during the disassembly",
+    "category": "Technical",
+    "filename": "Bugs.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/Contra Control Flow.md",
+    "title": "Game Loop",
+    "preview": "The control flow of _Contra_ is dictated by the CPU memory address",
+    "category": "Technical",
+    "filename": "Contra Control Flow.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/Enemy Glossary.md",
+    "title": "Enemies",
+    "preview": "In _Contra_ there are various enemies, each enemy type is assigned a number.",
+    "category": "Technical",
+    "filename": "Enemy Glossary.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/Enemy Routines.md",
+    "title": "Overview",
+    "preview": "Enemy logic is controlled by enemy routines, every enemy has a set of routines",
+    "category": "Technical",
+    "filename": "Enemy Routines.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/Game Completion Modifier.md",
+    "title": "Overview",
+    "preview": "_Contra_ is already a challenging game.  However, it gets even more difficult",
+    "category": "Technical",
+    "filename": "Game Completion Modifier.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/Graphics Documentation.md",
+    "title": "Overview",
+    "preview": "In the NES, a frame consists of the background and the sprites.  Both the",
+    "category": "Technical",
+    "filename": "Graphics Documentation.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/How Contra Prints High Score.md",
+    "title": "How Contra Prints the High Score",
+    "preview": "There are 3 scores stored in CPU memory for _Contra_: high score, player 1",
+    "category": "Technical",
+    "filename": "How Contra Prints High Score.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/Level Headers.md",
+    "title": "Overview",
+    "preview": "_Contra_ loads various level-specific configuration data from in bank 2. These",
+    "category": "Technical",
+    "filename": "Level Headers.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/Probotector.md",
+    "title": "Overview",
+    "preview": "This file outlines the differences between _Contra_ (US) and _Probotector_.",
+    "category": "Technical",
+    "filename": "Probotector.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/ROM Map.md",
+    "title": "ROM Map",
+    "preview": "Below is a detailed overview of the layout of the Contra ROM file's contents.",
+    "category": "Technical",
+    "filename": "ROM Map.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/Sound Documentation.md",
+    "title": "Overview",
+    "preview": "A song or sound can be composed of multiple instruments or channels.  The NES",
+    "category": "Technical",
+    "filename": "Sound Documentation.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/docs/sprite_library/README.md",
+    "title": "Sprite Table",
+    "preview": "This folder contains every sprite that can be loaded in Contra.  The sprites",
+    "category": "Technical",
+    "filename": "README.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/src/assets/README.md",
+    "title": "README",
+    "preview": "This folder contains the assets (audio and graphics) required to build the rom.",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/src/assets/audio_data/README.md",
+    "title": "README",
+    "preview": "This folder contains the audio assets required to build the rom.",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "references/nes-contra-us/src/assets/graphic_data/README.md",
+    "title": "README",
+    "preview": "This folder contains the graphics assets required to build the rom.",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "studio/CLAUDE_STUDIO.md",
+    "title": "Studio Environment -- Claude Code Instructions",
+    "preview": "Read this file when working on studio/, scripts/, JSFX, RPP, or MIDI files.",
+    "category": "Project",
+    "filename": "CLAUDE_STUDIO.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "studio/reaper_projects/bach_mashups/MASHUPSSOURCES.md",
+    "title": "Classical x NES Mashups \u2014 Sources and Design Rationale",
+    "preview": "This directory contains 1,246 REAPER projects that pair classical MIDI",
+    "category": "Project",
+    "filename": "MASHUPSSOURCES.md"
+  },
+  {
+    "project": "NESMusicStudio",
+    "path": "templates/reports/PROJECT_TEMPLATE.md",
+    "title": "Project Log: {GAME_NAME}",
+    "preview": "`{filename}`",
+    "category": "Project",
+    "filename": "PROJECT_TEMPLATE.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "330REFACTOR.md",
+    "title": "330REFACTOR \u2014 Infrastructure Refactor Plan",
+    "preview": "topics: [infrastructure, refactor, planning, rpp-fix, state-management]",
+    "category": "Project",
+    "filename": "330REFACTOR.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "CLAUDE.md",
+    "title": "ReapNES Studio -- Claude Code Instructions",
+    "preview": "ReapNES Studio (codename: ReapNESClod) is a REAPER-based NES music production environment.",
+    "category": "Project",
+    "filename": "CLAUDE.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "CREATIVESOLUTIONS.md",
+    "title": "Creative Solutions: MIDI Keyboard \u2192 Per-Track NES Synth",
+    "preview": "topics: [midi-routing, keyboard-input, reaper, rpp, jsfx, creative-solutions]",
+    "category": "Project",
+    "filename": "CREATIVESOLUTIONS.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "DOCSASADATAPROBLEM.md",
+    "title": "Docs As a Data Problem \u2014 Deckard Boundary Analysis",
+    "preview": "ReapNES-Studio has 23+ markdown docs, 4 problem reports, a concatenated prompt",
+    "category": "Technical",
+    "filename": "DOCSASADATAPROBLEM.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "HANDOVER_KEYBOARD_AND_SYNTH.md",
+    "title": "Handover: MIDI Keyboard Routing + Synth Console Polish",
+    "preview": "Read these files in this order (token-efficient progressive reveal):",
+    "category": "Project",
+    "filename": "HANDOVER_KEYBOARD_AND_SYNTH.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "NEXTPHASES.md",
+    "title": "Next Phases: Synth Console + Educational Platform",
+    "preview": "topics: [synth-console, presets, website, education, comparison-study]",
+    "category": "Project",
+    "filename": "NEXTPHASES.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "PLUGINEXPECTATIONS.md",
+    "title": "JSFX/VST3 Plugin Expectations for MIDI Keyboard Input",
+    "preview": "topics: [jsfx, vst3, plugin, midi, synth, requirements]",
+    "category": "Project",
+    "filename": "PLUGINEXPECTATIONS.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "PROJECTEXPECTATIONS.md",
+    "title": "RPP Project Expectations for MIDI Keyboard Input",
+    "preview": "topics: [rpp, reaper, project, midi, routing, requirements]",
+    "category": "Project",
+    "filename": "PROJECTEXPECTATIONS.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "PROMPTSCONCATENATED.md",
+    "title": "ReapNES Studio \u2014 All User Prompts Concatenated",
+    "preview": "All user prompts from this conversation session (2026-03-29 to 2026-03-30),",
+    "category": "Project",
+    "filename": "PROMPTSCONCATENATED.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "README.md",
+    "title": "ReapNES Studio",
+    "preview": "A REAPER-based NES music production environment. Choose a game palette, generate a project, import MIDI, and start composing.",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "SYNTHPROBLEM.md",
+    "title": "ReapNES Studio \u2014 Synth Routing Problem",
+    "preview": "One synth plugin that:",
+    "category": "Project",
+    "filename": "SYNTHPROBLEM.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "UPDATETHESYNTHANDEVERYTHINGELSE.md",
+    "title": "Update Plan: ReapNES Studio Synth & Project Infrastructure",
+    "preview": "- VST3 plugin builds and loads in REAPER (JUCE + MSVC)",
+    "category": "Project",
+    "filename": "UPDATETHESYNTHANDEVERYTHINGELSE.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "WHATIMLEARNINGABOUTMIDIKEYBOARDINPUT.md",
+    "title": "What I'm Learning About MIDI Keyboard Input in REAPER",
+    "preview": "We spent several hours trying to get a MIDI keyboard to play through our",
+    "category": "Project",
+    "filename": "WHATIMLEARNINGABOUTMIDIKEYBOARDINPUT.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": ".pytest_cache/README.md",
+    "title": "pytest cache directory #",
+    "preview": "This directory contains data from the pytest's cache plugin,",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/BREAKING_CHANGES.md",
+    "title": "JUCE breaking changes",
+    "preview": "The signatures of some member functions of ci::Device have been changed:",
+    "category": "Project",
+    "filename": "BREAKING_CHANGES.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/CHANGE_LIST.md",
+    "title": "Major JUCE features and updates",
+    "preview": "This file lists the more notable headline features. For more detailed info",
+    "category": "Project",
+    "filename": "CHANGE_LIST.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/CODE_OF_CONDUCT.md",
+    "title": "Contributor Covenant Code of Conduct",
+    "preview": "We as members, contributors, and leaders pledge to make participation in our",
+    "category": "Project",
+    "filename": "CODE_OF_CONDUCT.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/LICENSE.md",
+    "title": "The JUCE Library",
+    "preview": "**BY DOWNLOADING, INSTALLING OR USING ANY PART OF THE JUCE LIBRARY, YOU AGREE",
+    "category": "Project",
+    "filename": "LICENSE.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/README.md",
+    "title": "README",
+    "preview": "![alt text](https://assets.juce.com/juce/JUCE_banner_github.png \"JUCE\")",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/.github/contributing.md",
+    "title": "contributing",
+    "preview": "Any feature requests should be posted to the [Feature",
+    "category": "Project",
+    "filename": "contributing.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/.github/pull_request_template.md",
+    "title": "pull request template",
+    "preview": "Thank you for submitting a pull request.",
+    "category": "Project",
+    "filename": "pull_request_template.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/docs/Accessibility.md",
+    "title": "JUCE Accessibility",
+    "preview": "Currently JUCE supports Narrator on Windows, VoiceOver on macOS and iOS, and",
+    "category": "Technical",
+    "filename": "Accessibility.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/docs/ARA.md",
+    "title": "ARA plugin support",
+    "preview": "JUCE supports the development of ARA enabled hosts and plugins. Since the ARA SDK is not included",
+    "category": "Technical",
+    "filename": "ARA.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/docs/CMake API.md",
+    "title": "The JUCE CMake API",
+    "preview": "- All project types require CMake 3.22 or higher.",
+    "category": "Technical",
+    "filename": "CMake API.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/docs/JUCE Module Format.md",
+    "title": "The JUCE Module Format",
+    "preview": "A JUCE module is a collection of header and source files which can be added to a project",
+    "category": "Technical",
+    "filename": "JUCE Module Format.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/docs/Linux Dependencies.md",
+    "title": "JUCE Dependencies on Linux",
+    "preview": "Below is a list of the current dependencies required to build JUCE projects on",
+    "category": "Technical",
+    "filename": "Linux Dependencies.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/docs/README.md",
+    "title": "JUCE Documentation",
+    "preview": "This directory contains files documenting the JUCE Module Format, and the JUCE",
+    "category": "Technical",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/examples/Plugins/extern/LICENSE.md",
+    "title": "LICENSE",
+    "preview": "The files in this folder were copied from the [reaper-sdk",
+    "category": "Project",
+    "filename": "LICENSE.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/modules/juce_audio_devices/native/oboe/README.md",
+    "title": "README",
+    "preview": "The files in this directory are reproduced from the official Oboe repository, which can be found at",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/modules/juce_audio_devices/native/oboe/src/common/README.md",
+    "title": "Notes on Implementation",
+    "preview": "There are two components of the latency. The resampler itself, and a buffer that",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/modules/juce_audio_devices/native/oboe/src/flowgraph/resampler/README.md",
+    "title": "Sample Rate Converter",
+    "preview": "This folder contains a sample rate converter, or \"resampler\".",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/modules/juce_audio_formats/codecs/oggvorbis/libvorbis-1.3.7/README.md",
+    "title": "Vorbis",
+    "preview": "[![GitLab Build Status](https://gitlab.xiph.org/xiph/vorbis/badges/master/pipeline.svg)](https://gitlab.xiph.org/xiph/vorbis/-/pipelines)",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/modules/juce_audio_processors/format_types/LV2_SDK/README.md",
+    "title": "README",
+    "preview": "The source code for lilv and its dependent libraries have been copied into this",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/modules/juce_audio_processors/format_types/VST3_SDK/JUCE_README.md",
+    "title": "JUCE README",
+    "preview": "This list details modifications made to the VST3 SDK in order to facilitate",
+    "category": "Project",
+    "filename": "JUCE_README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/modules/juce_audio_processors/format_types/VST3_SDK/README.md",
+    "title": "Welcome to VST SDK 3.7.x",
+    "preview": "<div style=\"text-align:center\">",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/modules/juce_audio_processors/format_types/VST3_SDK/base/README.md",
+    "title": "Welcome to VST SDK 3 base",
+    "preview": "Here you can find some helper classes useful for developing **VST 3** plug-ins.",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/modules/juce_audio_processors/format_types/VST3_SDK/pluginterfaces/README.md",
+    "title": "Welcome to VST 3 SDK Interfaces",
+    "preview": "Here are located all **VST 3** interfaces definitions (including VST Component/Controller, UI, Test).",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/modules/juce_audio_processors/format_types/VST3_SDK/public.sdk/README.md",
+    "title": "Welcome to VST 3 SDK public_sdk",
+    "preview": "Here are located:",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "build/_deps/juce-src/modules/juce_audio_processors/format_types/VST3_SDK/public.sdk/source/vst/moduleinfo/ReadMe.md",
+    "title": "ModuleInfoLib",
+    "preview": "This is a c++17 library to parse and create the Steinberg moduleinfo.json files.",
+    "category": "Project",
+    "filename": "ReadMe.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/APIerror.md",
+    "title": "APIerror.md -- What Happened",
+    "preview": "An API error appeared in the Claude Code interface during the session.",
+    "category": "Technical",
+    "filename": "APIerror.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/AVOIDBLUNDERS.md",
+    "title": "AVOIDBLUNDERS.md \u2014 Lessons Learned for REAPER Integration",
+    "preview": "**What happened:** All JSFX plugins lacked `in_pin:none` / `out_pin:Left` / `out_pin:Right`.",
+    "category": "Technical",
+    "filename": "AVOIDBLUNDERS.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/BLOOPERS.md",
+    "title": "ReapNES Studio Blooper Reel",
+    "preview": "A chronicle of every format trap, silent failure, and misguided assumption",
+    "category": "Technical",
+    "filename": "BLOOPERS.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/FIRSTEXPERIMENT.md",
+    "title": "FIRSTEXPERIMENT.md -- Bach Through Castlevania",
+    "preview": "Map Bach keyboard works onto NES Castlevania instrument palettes. The Castlevania series has some of the most baroque-influenced music on the NES -- i",
+    "category": "Technical",
+    "filename": "FIRSTEXPERIMENT.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/INSTRUMENTS.md",
+    "title": "INSTRUMENTS.md \u2014 ReapNES JSFX Plugin Status Report",
+    "preview": "Three JSFX plugins that model the NES 2A03 APU:",
+    "category": "Technical",
+    "filename": "INSTRUMENTS.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/MERGE_INIT_PROMPT.md",
+    "title": "Initialization Prompt for NES Music Studio (Merged Project)",
+    "preview": "Copy everything below the line into a new Claude Code session.",
+    "category": "Technical",
+    "filename": "MERGE_INIT_PROMPT.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/MIDI.md",
+    "title": "MIDI.md \u2014 MIDI Routing, Playback, and Import Status Report",
+    "preview": "REAPER tracks can receive MIDI from two sources:",
+    "category": "Technical",
+    "filename": "MIDI.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/MIDI_MAPPING.md",
+    "title": "MIDI Import & NES Remapping",
+    "preview": "ReapNES Studio can take any MIDI file and map it onto NES-style instruments, generating a REAPER project ready to play.",
+    "category": "Technical",
+    "filename": "MIDI_MAPPING.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/MILESTONE_CHECKLIST.md",
+    "title": "Minimum Playable Studio \u2014 Milestone Checklist",
+    "preview": "This defines the smallest version that proves the ReapNES Studio concept.",
+    "category": "Technical",
+    "filename": "MILESTONE_CHECKLIST.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/NESREAPERMEETSSTUDIO.md",
+    "title": "NES REAPER Meets Studio \u2014 Project Merger Handover",
+    "preview": "A complete handover for merging two existing projects into one unified repo:",
+    "category": "Technical",
+    "filename": "NESREAPERMEETSSTUDIO.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/PROJECTS.md",
+    "title": "PROJECTS.md \u2014 RPP Project Generation Status Report",
+    "preview": "Creates REAPER .RPP project files with:",
+    "category": "Technical",
+    "filename": "PROJECTS.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/PROJECT_GENERATION.md",
+    "title": "REAPER Project Generation",
+    "preview": "`scripts/generate_project.py` creates ready-to-open REAPER `.RPP` project files with:",
+    "category": "Technical",
+    "filename": "PROJECT_GENERATION.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/REAPER_PROGRAMMING_REFERENCE.md",
+    "title": "REAPER Programming Reference for ReapNES Studio",
+    "preview": "This document captures everything we've learned about REAPER file formats,",
+    "category": "Technical",
+    "filename": "REAPER_PROGRAMMING_REFERENCE.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/REGISTER_MAP.md",
+    "title": "2A03 APU Register Map ($4000\u2013$4017)",
+    "preview": "Quick reference for ReapNES Studio development.",
+    "category": "Technical",
+    "filename": "REGISTER_MAP.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/REQUIREMENTSFORMIDI.md",
+    "title": "Requirements for NES-Quality MIDI Files",
+    "preview": "What we learned the hard way about what makes a MIDI file work well",
+    "category": "Technical",
+    "filename": "REQUIREMENTSFORMIDI.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/REQUIREMENTSFORSYNTH.md",
+    "title": "Requirements for NES Synth Plugins (JSFX)",
+    "preview": "What we learned building ReapNES_APU.jsfx about what makes an NES synth",
+    "category": "Technical",
+    "filename": "REQUIREMENTSFORSYNTH.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/SONG_BUNDLES.md",
+    "title": "Song Bundles (Song Sets)",
+    "preview": "A song bundle is a JSON file that describes a complete NES instrument palette for a specific song or game context. It maps NES channels to specific pr",
+    "category": "Technical",
+    "filename": "SONG_BUNDLES.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/STUDIO_GUIDE.md",
+    "title": "ReapNES Studio Guide",
+    "preview": "ReapNES Studio is a REAPER-based NES music production environment. It lets you compose, arrange, and experiment with authentic NES sounds inside REAPE",
+    "category": "Technical",
+    "filename": "STUDIO_GUIDE.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/STUDIO_WORKFLOW.md",
+    "title": "ReapNES Studio \u2014 Complete Workflow Guide",
+    "preview": "```bash",
+    "category": "Technical",
+    "filename": "STUDIO_WORKFLOW.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/SUCCESSANDFAIL.md",
+    "title": "SUCCESSANDFAIL.md \u2014 Honest Progress Report",
+    "preview": "\"I can open REAPER and immediately start making music with NES-style sounds, templates, and imported material without fighting the interface.\"",
+    "category": "Technical",
+    "filename": "SUCCESSANDFAIL.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/SYNTHDESIGN.md",
+    "title": "SYNTHDESIGN.md -- ReapNES Synth Plugin Design",
+    "preview": "A REAPER synth plugin should behave identically to any VSTi instrument:",
+    "category": "Technical",
+    "filename": "SYNTHDESIGN.md"
+  },
+  {
+    "project": "ReapNES-Studio",
+    "path": "docs/WHATELSEWETRIED.md",
+    "title": "WHATELSEWETRIED.md -- Full Troubleshooting Log",
+    "preview": "ReapNES_Full.jsfx does not produce sound when loaded via RPP project file, even though:",
+    "category": "Technical",
+    "filename": "WHATELSEWETRIED.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "CASTLEVANIAANALYSIS.md",
+    "title": "Castlevania Stage 1 \"Vampire Killer\" \u2014 APU Analysis",
+    "preview": "- **ROM:** Castlevania (U) (V1.0) [!].nes",
+    "category": "Project",
+    "filename": "CASTLEVANIAANALYSIS.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "CLAUDE.md",
+    "title": "Claude Code Instructions \u2014 NES Music Lab",
+    "preview": "Research-grade NES music extraction and reconstruction pipeline. Every design decision prioritizes **correctness, provenance, and determinism** over c",
+    "category": "Project",
+    "filename": "CLAUDE.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "README.md",
+    "title": "NES Music Lab",
+    "preview": "A research-grade toolchain for studying commercial NES ROM music engines, capturing runtime audio behavior, reconstructing symbolic musical structure,",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/agents/documentation-editor.md",
+    "title": "Documentation Editor",
+    "preview": "name: documentation-editor",
+    "category": "Project",
+    "filename": "documentation-editor.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/agents/driver-family-researcher.md",
+    "title": "Driver Family Researcher",
+    "preview": "name: driver-family-researcher",
+    "category": "Project",
+    "filename": "driver-family-researcher.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/agents/export-specialist.md",
+    "title": "Export Specialist",
+    "preview": "name: export-specialist",
+    "category": "Project",
+    "filename": "export-specialist.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/agents/parser-auditor.md",
+    "title": "Parser Auditor",
+    "preview": "name: parser-auditor",
+    "category": "Project",
+    "filename": "parser-auditor.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/agents/symbolic-model-auditor.md",
+    "title": "Symbolic Model Auditor",
+    "preview": "name: symbolic-model-auditor",
+    "category": "Project",
+    "filename": "symbolic-model-auditor.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/skills/apu-trace-analysis.md",
+    "title": "APU Trace Analysis",
+    "preview": "name: apu-trace-analysis",
+    "category": "Skills",
+    "filename": "apu-trace-analysis.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/skills/instrument-reconstruction.md",
+    "title": "Instrument Reconstruction",
+    "preview": "name: instrument-reconstruction",
+    "category": "Skills",
+    "filename": "instrument-reconstruction.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/skills/midi-export-audit.md",
+    "title": "MIDI Export Audit",
+    "preview": "name: midi-export-audit",
+    "category": "Skills",
+    "filename": "midi-export-audit.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/skills/nes-driver-recon.md",
+    "title": "NES Driver Reconnaissance",
+    "preview": "name: nes-driver-recon",
+    "category": "Skills",
+    "filename": "nes-driver-recon.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/skills/reaper-export.md",
+    "title": "REAPER Export",
+    "preview": "name: reaper-export",
+    "category": "Skills",
+    "filename": "reaper-export.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/skills/research-audit.md",
+    "title": "Research Audit",
+    "preview": "name: research-audit",
+    "category": "Skills",
+    "filename": "research-audit.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/skills/sequence-reconstruction.md",
+    "title": "Sequence Reconstruction",
+    "preview": "name: sequence-reconstruction",
+    "category": "Skills",
+    "filename": "sequence-reconstruction.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".claude/skills/trace-static-reconciliation.md",
+    "title": "Trace-Static Reconciliation",
+    "preview": "name: trace-static-reconciliation",
+    "category": "Skills",
+    "filename": "trace-static-reconciliation.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": ".pytest_cache/README.md",
+    "title": "pytest cache directory #",
+    "preview": "This directory contains data from the pytest's cache plugin,",
+    "category": "Project",
+    "filename": "README.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "docs/DRIVER_FAMILIES.md",
+    "title": "NES Sound Driver Families",
+    "preview": "NES music is not stored in a universal format. Each game (or group of games) uses a **sound driver** \u2014 a custom engine that reads proprietary data str",
+    "category": "Technical",
+    "filename": "DRIVER_FAMILIES.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "docs/FIRST_TARGET_FAMILY.md",
+    "title": "First Target Family: Konami Pre-VRC",
+    "preview": "1. **Available ROM:** Castlevania (U) (V1.0) is in `roms/`, mapper 2 (UxROM), 128K PRG.",
+    "category": "Technical",
+    "filename": "FIRST_TARGET_FAMILY.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "docs/OPERATOR_GUIDE.md",
+    "title": "NES Music Lab \u2014 Operator Guide",
+    "preview": "You (the human) do the emulator work. Claude does the data analysis. This document tells you exactly what to do at each step, what to bring back, and ",
+    "category": "Technical",
+    "filename": "OPERATOR_GUIDE.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "docs/PHASED_PLAN.md",
+    "title": "NES Music Lab \u2014 Phased Plan (Revised)",
+    "preview": "**Goal:** Establish three-pipeline architecture, symbolic model, and scaffolding.",
+    "category": "Technical",
+    "filename": "PHASED_PLAN.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "docs/TRACE_CAPTURE_GUIDE.md",
+    "title": "Trace Capture Guide",
+    "preview": "NES Music Lab's pipeline begins with APU register write traces \u2014 timestamped logs of every value written to the NES sound hardware during emulation. T",
+    "category": "Technical",
+    "filename": "TRACE_CAPTURE_GUIDE.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "drivers/capcom/NOTES.md",
+    "title": "Capcom Sound Driver \u2014 Research Notes",
+    "preview": "Capcom's NES sound driver evolved across the Mega Man series and was reused in several other titles. Notable for complex envelope systems and multi-sp",
+    "category": "Project",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "drivers/famitracker/NOTES.md",
+    "title": "FamiTracker Driver \u2014 Research Notes",
+    "preview": "FamiTracker is a modern NES music tracker with a well-documented NSF export driver. Its format serves as an excellent validation target since the data",
+    "category": "Project",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "drivers/konami/NOTES.md",
+    "title": "Konami Sound Driver \u2014 Research Notes",
+    "preview": "Konami used a series of related sound drivers across their NES library. The base driver (pre-VRC) appears in titles from ~1986\u20131990 and shares structu",
+    "category": "Project",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "drivers/konami/spec.md",
+    "title": "Konami Pre-VRC Sound Driver \u2014 Specification",
+    "preview": "- **Family name**: konami_pre_vrc",
+    "category": "Project",
+    "filename": "spec.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "drivers/nintendo/NOTES.md",
+    "title": "Nintendo First-Party Sound Drivers \u2014 Research Notes",
+    "preview": "Nintendo did not use a single shared sound driver across their first-party NES titles. Each major title or team developed its own engine. This \"family",
+    "category": "Project",
+    "filename": "NOTES.md"
+  },
+  {
+    "project": "NESMusicLab",
+    "path": "drivers/sunsoft/NOTES.md",
+    "title": "Sunsoft Sound Driver \u2014 Research Notes",
+    "preview": "Sunsoft's NES driver is known for aggressive DPCM sample usage to simulate bass guitar and percussion, plus complex duty cycling for rich pulse channe",
+    "category": "Project",
+    "filename": "NOTES.md"
+  }
+]

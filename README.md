@@ -1,8 +1,30 @@
-# Battletoads NES Music Reconstruction
+# NES Music Extraction & Synthesis
 
-**Hardware-accurate reproduction of Battletoads (Rare, 1991) game audio using Mesen APU trace captures, MIDI+SysEx encoding, and custom JSFX synthesizers in REAPER.**
+**Automated extraction of NES game music via headless ROM emulation, with MIDI conversion, REAPER project generation, and a browsable tone database.**
 
-This repository documents five days of reverse engineering, pipeline building, debugging, and hard-won architectural lessons in the pursuit of note-accurate NES music reproduction.
+## NES Tone Database
+
+**[Browse the NES Tone Database](output/tone_database/index.html)** — 625+ instrument profiles across 66 games, with ADSR envelope analysis, duty cycle patterns, and SVG waveform sparklines. Includes a Games tab (160+ REAPER projects) and a Documents tab (465 technical documents).
+
+## Headless NES Emulator
+
+`scripts/nes_rom_capture.py` boots any NES ROM, simulates the CPU at 60Hz, captures APU register writes, and outputs MIDI + REAPER projects. Supports 6 mapper types (NROM, MMC1, UxROM, CNROM, MMC3, AxROM) covering ~95% of the NES library.
+
+```bash
+# Extract title screen music from any supported ROM
+python scripts/nes_rom_capture.py <rom.nes> -o output/ --frames 4800 --game Name --song title
+
+# Multi-song extraction (e.g., Final Fantasy: poke ZP $4B for each song)
+python scripts/nes_rom_capture.py <rom.nes> --poke-at "5:0x4B=0x50" --game FF1 --song Battle
+```
+
+## The Original Story
+
+This project began as Battletoads NES music reconstruction and grew into a universal NES music extraction pipeline.
+
+**Hardware-accurate reproduction of NES game audio using Mesen APU trace captures, MIDI+SysEx encoding, and custom JSFX synthesizers in REAPER.**
+
+This repository documents reverse engineering, pipeline building, debugging, and hard-won architectural lessons in the pursuit of note-accurate NES music reproduction.
 
 ---
 
