@@ -525,6 +525,34 @@ def midi_track_to_events(track, sysex_track=None) -> list[str]:
     return lines
 
 
+def midi_file_to_events(mid) -> list[str]:
+    """Merge all non-meta MIDI events from a file into one RPP event stream."""
+    merged = []
+    for track in mid.tracks:
+        abs_tick = 0
+        for msg in track:
+            abs_tick += msg.time
+            if msg.is_meta:
+                continue
+            if msg.type == "sysex":
+                raw_bytes = [0xF0] + list(msg.data) + [0xF7]
+                hex_data = " ".join(f"{b:02x}" for b in raw_bytes)
+                merged.append((abs_tick, "X", hex_data))
+            else:
+                raw = msg.bin()
+                hex_data = " ".join(f"{b:02x}" for b in raw)
+                merged.append((abs_tick, "E", hex_data))
+
+    merged.sort(key=lambda e: e[0])
+    lines = []
+    prev_tick = 0
+    for abs_t, prefix, hex_data in merged:
+        delta = abs_t - prev_tick
+        lines.append(f"{prefix} {delta} {hex_data}")
+        prev_tick = abs_t
+    return lines
+
+
 def analyze_midi(midi_path: Path) -> dict:
     """Analyze MIDI file for auto-mapping.
 
@@ -698,7 +726,8 @@ def generate_song_set_project(song_set_path: Path, output_path: Path) -> None:
 def generate_midi_project(midi_path: Path, output_path: Path,
                           song_set_path: Path | None = None,
                           nes_native: bool = False,
-                          synth: str = "console") -> None:
+                          synth: str = "console",
+                          full_apu: bool = False) -> None:
     """Generate project with MIDI items, optionally remapping channels to 0-3.
 
     Creates a remapped MIDI copy where active channels are assigned to
@@ -746,6 +775,32 @@ def generate_midi_project(midi_path: Path, output_path: Path,
     print(f"  Channel mapping:")
 
     lines = [rpp_header(tempo=tempo, title=title)]
+
+    if full_apu:
+        full_events = midi_file_to_events(midi_info["mid"])
+        vals = apu2_slider_values(game=game_name, channel="pulse1") if use_apu2 else console_slider_values(game=game_name, channel="pulse1")
+        if use_apu2:
+            vals[APU2_CH_MODE_IDX] = 4
+            vals[1] = 0
+        else:
+            vals[CONSOLE_CH_MODE_IDX] = 4
+        lines.append(rpp_track(
+            name="NES - Full APU",
+            color=16576,
+            slider_values=vals,
+            midi_length=duration,
+            armed=True,
+            selected=True,
+            jsfx_plugin=plugin_name,
+            midi_events=full_events,
+            ticks_per_beat=midi_info["ticks_per_beat"],
+        ))
+        lines.append(">")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text("\n".join(lines), encoding="utf-8")
+        print("    full_apu   <- merged channels 0-3 + SysEx")
+        print(f"Generated: {output_path}")
+        return
 
     roles = ["pulse1", "pulse2", "triangle", "noise"]
     for i, role in enumerate(roles):
@@ -861,6 +916,8 @@ def main() -> None:
                         help="MIDI already uses NES channels 0-3 (skip remapping)")
     parser.add_argument("--synth", choices=["console", "apu2"], default="console",
                         help="Synth plugin: console (ADSR) or apu2 (register replay)")
+    parser.add_argument("--full-apu", action="store_true",
+                        help="Generate a single full-APU playback track instead of per-channel tracks")
 
     args = parser.parse_args()
 
@@ -883,7 +940,7 @@ def main() -> None:
             sys.exit(1)
         ss = SONG_SETS_DIR / f"{args.palette}.json" if args.palette else None
         out = Path(args.output) if args.output else PROJECTS_DIR / f"{midi.stem}_nes.rpp"
-        generate_midi_project(midi, out, ss, nes_native=args.nes_native, synth=args.synth)
+        generate_midi_project(midi, out, ss, nes_native=args.nes_native, synth=args.synth, full_apu=args.full_apu)
     elif args.all:
         generate_all()
     else:
