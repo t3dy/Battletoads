@@ -111,7 +111,7 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
     <span class="tag tag-green">Unknown</span>
     <span class="tag tag-cyan">3 channels active</span>
-    <span class="tag">15,519 notes captured</span>
+    <span class="tag">18,060 notes captured</span>
 </div>
 
 <h2>Sound Architecture</h2>
@@ -138,7 +138,7 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     
         <p>In Faxanadu, Square 1 uses 50% duty cycle consistently — warm, full, and round — a pure square wave with that classic NES lead character, like a low recorder. At full volume (peak 127/127), it plays dense staccato phrases averaging 110ms per note.</p>
         <p>The envelope is consistently sustained: sustained at near-constant volume — a smooth, organ-like tone where notes flow into each other.</p>
-        <p>Carries the lead melody, though Square 2 is actually busier (625 vs 226 notes) — this channel provides the main theme while Sq2 fills in the texture.</p>
+        <p>Carries the lead melody, though Square 2 is actually busier (664 vs 226 notes) — this channel provides the main theme while Sq2 fills in the texture.</p>
         
                 </div>
 
@@ -188,13 +188,13 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
         <div class="instrument" style="border-left: 4px solid #ffa94d">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-sq2">Square 2</h3>
-                <span class="tag">625 notes · 121ms avg</span>
+                <span class="tag">664 notes · 120ms avg</span>
             </div>
             <div class="instrument-body">
 
                 <div class="harmonic-text">
                     
-        <p>In Faxanadu, Square 2 uses 50% duty cycle consistently — warm, full, and round — a pure square wave with that classic NES lead character, like a low recorder. At full volume (peak 102/127), it plays extremely dense staccato phrases averaging 121ms per note.</p>
+        <p>In Faxanadu, Square 2 uses 50% duty cycle consistently — warm, full, and round — a pure square wave with that classic NES lead character, like a low recorder. At full volume (peak 102/127), it plays extremely dense staccato phrases averaging 120ms per note.</p>
         <p>The envelope is consistently sustained: sustained at near-constant volume — a smooth, organ-like tone where notes flow into each other.</p>
         <p>Plays harmony / countermelody at noticeably lower volume (peak 102 vs Sq1's 127) — sits behind the lead, adding depth without competing.</p>
         
@@ -203,7 +203,7 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
-                        <svg width="200" height="60" class="sparkline"><polyline points="0,4 7,4 14,4 21,4 28,4 34,9 41,5 48,5 55,5 62,5 69,6 76,10 83,6 90,6 97,6 103,7 110,7 117,11 124,9 131,9 138,9 145,10 152,12 159,13 166,6 172,6 179,7 186,7 193,7 200,11" fill="none" stroke="#ffa94d" stroke-width="2"/></svg>
+                        <svg width="200" height="60" class="sparkline"><polyline points="0,4 7,4 14,4 21,4 28,4 34,9 41,5 48,5 55,5 62,5 69,7 76,10 83,6 90,6 97,6 103,7 110,7 117,11 124,10 131,10 138,10 145,11 152,12 159,14 166,6 172,6 179,7 186,7 193,7 200,11" fill="none" stroke="#ffa94d" stroke-width="2"/></svg>
                         <div class="adsr-pills">
                             <span class="adsr-pill">A: 0ms</span>
                             <span class="adsr-pill">D: 0ms</span>
@@ -246,14 +246,14 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
         <div class="instrument" style="border-left: 4px solid #51cf66">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-tri">Triangle</h3>
-                <span class="tag">631 notes · 88ms avg</span>
+                <span class="tag">684 notes · 84ms avg</span>
             </div>
             <div class="instrument-body">
 
                 <div class="harmonic-text">
                     
         <p>Faxanadu's bass uses the triangle wave — the NES's only sub-bass channel. With no volume control (only on/off gating), all expression comes from note duration: predominantly legato — long, sustained bass notes that provide a smooth harmonic foundation under the melody. The sustained gating creates a warm, continuous low end.</p>
-        <p>At 631 notes and 88ms average duration, the bass is extremely dense. The triangle wave produces only odd harmonics falling off as 1/n² (much faster than the square wave's 1/n), making it the darkest, smoothest tone the NES can generate — like a low flute or a sub-bass synth with the filter wide open.</p>
+        <p>At 684 notes and 84ms average duration, the bass is extremely dense. The triangle wave produces only odd harmonics falling off as 1/n² (much faster than the square wave's 1/n), making it the darkest, smoothest tone the NES can generate — like a low flute or a sub-bass synth with the filter wide open.</p>
         <p>Because the triangle is one octave lower than the pulse channels for the same period value (32-step sequencer vs 16-step), it naturally sits below the melody without competing for frequency space.</p>
         
                 </div>
@@ -261,7 +261,7 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
-                        <svg width="200" height="60" class="sparkline"><polyline points="0,4 7,4 14,4 21,4 28,4 34,4 41,4 48,4 55,4 62,4 69,4 76,4 83,4 90,4 97,4 103,4 110,4 117,4 124,4 131,4 138,4 145,4 152,4 159,4 166,4 172,4 179,4 186,4 193,4 200,4" fill="none" stroke="#51cf66" stroke-width="2"/></svg>
+                        <svg width="200" height="60" class="sparkline"><polyline points="0,4 7,4 14,4 21,4 28,4 34,4 41,4 48,4 55,4 62,4 69,4 76,4 83,4 90,4 97,4 103,4 110,4 117,4 124,56 131,56 138,56 145,56 152,56 159,56 166,56 172,56 179,56 186,56 193,56 200,56" fill="none" stroke="#51cf66" stroke-width="2"/></svg>
                         <div class="adsr-pills">
                             <span class="adsr-pill">A: 0ms</span>
                             <span class="adsr-pill">D: 0ms</span>
@@ -286,7 +286,7 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     <td>The triangle channel generates a 32-step staircase approximation of a triangle wave. Unlike the pulse channels, it has NO volume control — only an on/off gate via the linear counter ($4008). The period register works the same as pulse, but the frequency is ONE OCTAVE LOWER for the same period value because the sequencer has 32 steps instead of 16.</td>
                     <td>In ReapNES Console, set Channel Mode to 2 (Triangle). CC11 is always 127 (gate only — full volume or silence). No CC12 needed (no duty cycle). For MIDI keyboard playing, the triangle channel uses note duration for all articulation — staccato = short notes, legato = long notes. In modern synths, use a triangle oscillator with no filter and no amplitude envelope (just a gate).
             <p style="margin-top:10px"><strong>For Faxanadu specifically:</strong>
-            Average note duration is 88ms —
+            Average note duration is 84ms —
             set short MIDI notes for the staccato bass hits.</p></td>
                 </tr>
             </table>
