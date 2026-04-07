@@ -12590,6 +12590,373 @@
     "game": "Faxanadu",
     "channel": 0,
     "channel_name": "Square 1",
+    "note_count": 18,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 0.96,
+      "release_ms": 0
+    },
+    "peak_volume": 127,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 18
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "3": 1,
+      "2": 17
+    },
+    "envelope_curve": [
+      127,
+      127,
+      127,
+      127,
+      127,
+      119,
+      121,
+      121,
+      121,
+      121,
+      115,
+      113,
+      127,
+      127,
+      127,
+      127,
+      127,
+      119,
+      122,
+      122,
+      122,
+      122,
+      116,
+      113,
+      127,
+      127,
+      127,
+      127,
+      127,
+      119
+    ],
+    "note_range": [
+      32,
+      48
+    ],
+    "avg_duration_ms": 842,
+    "description": "50% duty cycle pulse wave. Smooth sustained tone. Attack: 0ms, Decay: 0ms, Sustain: 96%, Release: 0ms. Peak volume 127/127."
+  },
+  {
+    "game": "Faxanadu",
+    "channel": 1,
+    "channel_name": "Square 2",
+    "note_count": 367,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 1.0,
+      "release_ms": 0
+    },
+    "peak_volume": 102,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 366,
+      "decaying": 1
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "2": 366,
+      "1": 1
+    },
+    "envelope_curve": [
+      102,
+      102,
+      102,
+      102,
+      102,
+      93,
+      99,
+      99,
+      99,
+      99,
+      97,
+      91,
+      97,
+      97,
+      97,
+      95,
+      95,
+      88,
+      91,
+      91,
+      91,
+      89,
+      85,
+      83,
+      95,
+      95,
+      93,
+      93,
+      93,
+      86
+    ],
+    "note_range": [
+      43,
+      76
+    ],
+    "avg_duration_ms": 121,
+    "description": "50% duty cycle pulse wave. Smooth sustained tone. Attack: 0ms, Decay: 0ms, Sustain: 100%, Release: 0ms. Peak volume 102/127."
+  },
+  {
+    "game": "Faxanadu",
+    "channel": 2,
+    "channel_name": "Triangle",
+    "note_count": 360,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 1.0,
+      "release_ms": 0
+    },
+    "peak_volume": 127,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 360
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "2": 360
+    },
+    "envelope_curve": [
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127
+    ],
+    "note_range": [
+      42,
+      70
+    ],
+    "avg_duration_ms": 91,
+    "description": "Triangle wave bass. No volume control \u2014 only on/off gating. One octave below pulse for the same period value. Average note duration 91ms. Staccato articulation."
+  },
+  {
+    "game": "Faxanadu",
+    "channel": 0,
+    "channel_name": "Square 1",
+    "note_count": 137,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 0.96,
+      "release_ms": 0
+    },
+    "peak_volume": 127,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 125,
+      "decaying": 12
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "3": 1,
+      "2": 136
+    },
+    "envelope_curve": [
+      127,
+      127,
+      127,
+      127,
+      127,
+      119,
+      119,
+      119,
+      119,
+      119,
+      110,
+      110,
+      113,
+      113,
+      113,
+      106,
+      106,
+      105,
+      105,
+      105,
+      105,
+      97,
+      96,
+      96,
+      95,
+      95,
+      88,
+      87,
+      92,
+      92
+    ],
+    "note_range": [
+      30,
+      69
+    ],
+    "avg_duration_ms": 369,
+    "description": "50% duty cycle pulse wave. Smooth sustained tone. Attack: 0ms, Decay: 0ms, Sustain: 96%, Release: 0ms. Peak volume 127/127."
+  },
+  {
+    "game": "Faxanadu",
+    "channel": 1,
+    "channel_name": "Square 2",
+    "note_count": 423,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 1.0,
+      "release_ms": 0
+    },
+    "peak_volume": 102,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 422,
+      "decaying": 1
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "2": 421,
+      "1": 2
+    },
+    "envelope_curve": [
+      102,
+      102,
+      102,
+      102,
+      102,
+      93,
+      100,
+      100,
+      100,
+      100,
+      98,
+      91,
+      98,
+      98,
+      98,
+      96,
+      96,
+      89,
+      92,
+      92,
+      92,
+      90,
+      86,
+      83,
+      95,
+      95,
+      94,
+      93,
+      93,
+      86
+    ],
+    "note_range": [
+      43,
+      76
+    ],
+    "avg_duration_ms": 128,
+    "description": "50% duty cycle pulse wave. Smooth sustained tone. Attack: 0ms, Decay: 0ms, Sustain: 100%, Release: 0ms. Peak volume 102/127."
+  },
+  {
+    "game": "Faxanadu",
+    "channel": 2,
+    "channel_name": "Triangle",
+    "note_count": 439,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 1.0,
+      "release_ms": 0
+    },
+    "peak_volume": 127,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 439
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "2": 439
+    },
+    "envelope_curve": [
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127
+    ],
+    "note_range": [
+      42,
+      70
+    ],
+    "avg_duration_ms": 90,
+    "description": "Triangle wave bass. No volume control \u2014 only on/off gating. One octave below pulse for the same period value. Average note duration 90ms. Staccato articulation."
+  },
+  {
+    "game": "Faxanadu",
+    "channel": 0,
+    "channel_name": "Square 1",
     "note_count": 119,
     "adsr": {
       "attack_ms": 0,
