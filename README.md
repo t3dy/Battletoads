@@ -1,10 +1,12 @@
 # NES Music Extraction & Synthesis
 
+### [Browse the NES Tone Database](https://t3dy.github.io/Battletoads/output/tone_database/index.html)
+
 **Automated extraction of NES game music via headless ROM emulation, with MIDI conversion, REAPER project generation, and a browsable tone database.**
 
-## NES Tone Database
+625+ instrument profiles across 66 games | 160+ REAPER projects | 465 technical documents
 
-**[Browse the NES Tone Database](output/tone_database/index.html)** — 625+ instrument profiles across 66 games, with ADSR envelope analysis, duty cycle patterns, and SVG waveform sparklines. Includes a Games tab (160+ REAPER projects) and a Documents tab (465 technical documents).
+[![Tone Database](https://img.shields.io/badge/Tone_Database-Live-00ff88)](https://t3dy.github.io/Battletoads/output/tone_database/index.html)
 
 ## Headless NES Emulator
 
