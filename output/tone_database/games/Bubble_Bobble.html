@@ -130,9 +130,18 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
         <div class="instrument" style="border-left: 4px solid #ff6b6b">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-sq1">Square 1</h3>
-                <span class="tag">18 notes</span>
+                <span class="tag">18 notes · 200ms avg</span>
             </div>
             <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>In Bubble Bobble, Square 1 uses 50% duty cycle consistently — warm, full, and round — a pure square wave with that classic NES lead character, like a low recorder. At full volume (peak 110/127), it plays sparse moderate phrases averaging 200ms per note.</p>
+        <p>The envelope is consistently percussive: sharp attack then quick fade — a plucked, percussive quality where each note pops out distinctly.</p>
+        <p>Shares melodic duties with Square 2 (18 vs 19 notes) — the two pulse channels trade phrases and harmonize.</p>
+        
+                </div>
+
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
@@ -152,29 +161,45 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     </div>
                 </div>
 
-                
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>True square wave — symmetrical, HIGH and LOW for equal time. Duty value 2 ($80 in register). The richest harmonic content of any NES duty cycle.</td>
-                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.</td>
+                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.
+            <p style="margin-top:10px"><strong>For Bubble Bobble specifically:</strong>
+            Set attack to 0ms, decay to 83ms,
+            sustain to 29%.
+            The percussive envelope means CC11 drops quickly — the captured automation already contains the pluck/decay, no additional ADSR needed.</p></td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — 50% Duty Cycle</h4>
                 <div class="duty-viz">▁▁▁▁████</div>
-                <p>Contains ONLY odd harmonics (1st, 3rd, 5th, 7th, 9th...) with amplitudes falling off as 1/n. This is what gives the square wave its warm, hollow, 'woody' quality. It sounds like a clarinet in its low register or a recorder. The absence of even harmonics distinguishes it sharply from a sawtooth wave. This is the most commonly used duty cycle for lead melodies across all NES games because it has the fullest body without brightness.</p>
+                <p>Contains only odd harmonics (1st, 3rd, 5th, 7th...) falling off as 1/n. This gives the square wave its warm, hollow, woody quality — the richest pulse tone the NES can produce.</p>
             </div>
-            
+            </div>
+                </details>
             </div>
         </div>
         
         <div class="instrument" style="border-left: 4px solid #ffa94d">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-sq2">Square 2</h3>
-                <span class="tag">19 notes</span>
+                <span class="tag">19 notes · 200ms avg</span>
             </div>
             <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>In Bubble Bobble, Square 2 uses 50% duty cycle consistently — warm, full, and round — a pure square wave with that classic NES lead character, like a low recorder. At full volume (peak 110/127), it plays sparse moderate phrases averaging 200ms per note.</p>
+        <p>The envelope is consistently percussive: sharp attack then quick fade — a plucked, percussive quality where each note pops out distinctly.</p>
+        <p>Provides harmony / countermelody alongside Square 1 — the two channels create Bubble Bobble's characteristic pulse texture.</p>
+        
+                </div>
+
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
@@ -194,20 +219,27 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     </div>
                 </div>
 
-                
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>True square wave — symmetrical, HIGH and LOW for equal time. Duty value 2 ($80 in register). The richest harmonic content of any NES duty cycle.</td>
-                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.</td>
+                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.
+            <p style="margin-top:10px"><strong>For Bubble Bobble specifically:</strong>
+            Set attack to 0ms, decay to 83ms,
+            sustain to 29%.
+            The percussive envelope means CC11 drops quickly — the captured automation already contains the pluck/decay, no additional ADSR needed.</p></td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — 50% Duty Cycle</h4>
                 <div class="duty-viz">▁▁▁▁████</div>
-                <p>Contains ONLY odd harmonics (1st, 3rd, 5th, 7th, 9th...) with amplitudes falling off as 1/n. This is what gives the square wave its warm, hollow, 'woody' quality. It sounds like a clarinet in its low register or a recorder. The absence of even harmonics distinguishes it sharply from a sawtooth wave. This is the most commonly used duty cycle for lead melodies across all NES games because it has the fullest body without brightness.</p>
+                <p>Contains only odd harmonics (1st, 3rd, 5th, 7th...) falling off as 1/n. This gives the square wave its warm, hollow, woody quality — the richest pulse tone the NES can produce.</p>
             </div>
-            
+            </div>
+                </details>
             </div>
         </div>
         

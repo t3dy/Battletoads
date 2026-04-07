@@ -299,65 +299,251 @@ CH_COLORS = {0: '#ff6b6b', 1: '#ffa94d', 2: '#51cf66', 3: '#748ffc'}
 CH_CSS = {0: 'ch-sq1', 1: 'ch-sq2', 2: 'ch-tri', 3: 'ch-noi'}
 
 
+def describe_instrument(inst, all_instruments, game_name, driver_name):
+    """Generate game-specific, data-driven prose for one instrument channel.
+
+    Reads the actual ADSR values, duty distributions, shape distributions,
+    note counts, and durations and writes prose that describes what THIS
+    channel sounds like in THIS game, and how it differs from the other channels.
+    """
+    ch = inst['channel']
+    ch_name = inst['channel_name']
+    adsr = inst['adsr']
+    shape = inst.get('dominant_shape', 'unknown')
+    notes = inst['note_count']
+    avg_dur = inst.get('avg_duration_ms', 0)
+    peak = inst.get('peak_volume', 0)
+    curve = inst.get('envelope_curve', [])
+    shape_dist = inst.get('shape_distribution', {})
+    duty_dist = inst.get('duty_distribution', {})
+    duty = inst.get('dominant_duty', 2)
+    display_name = game_name.replace('_', ' ')
+
+    # Compute derived characteristics
+    articulation = 'rapid staccato' if avg_dur < 80 else 'staccato' if avg_dur < 150 else 'moderate' if avg_dur < 300 else 'legato' if avg_dur < 600 else 'very long sustained'
+    density = 'extremely dense' if notes > 500 else 'dense' if notes > 200 else 'moderate' if notes > 50 else 'sparse'
+    volume_character = 'full volume' if peak > 100 else 'moderate volume' if peak > 50 else 'quiet' if peak > 20 else 'very quiet'
+
+    # Check for timbral variety (duty switching)
+    num_duties = len([k for k, v in duty_dist.items() if int(v) > 3])
+    duty_varies = num_duties > 1
+
+    # Check for envelope variety (shape mixing)
+    num_shapes = len([k for k, v in shape_dist.items() if int(v) > 3])
+    shape_varies = num_shapes > 1
+
+    # Envelope curve character
+    if curve and len(curve) > 3 and max(curve) > 0:
+        mx = max(curve)
+        start_ratio = curve[0] / mx
+        mid_ratio = curve[len(curve)//2] / mx if len(curve) > 2 else 0
+        end_ratio = curve[-1] / mx if curve[-1] > 0 else 0
+        if start_ratio < 0.5 and mid_ratio > 0.8:
+            env_character = "fades in (swell) — unusual for NES, creates an expressive, breath-like quality"
+        elif start_ratio > 0.8 and mid_ratio < 0.4:
+            env_character = "sharp attack then quick fade — a plucked, percussive quality where each note pops out distinctly"
+        elif start_ratio > 0.8 and mid_ratio > 0.7:
+            env_character = "sustained at near-constant volume — a smooth, organ-like tone where notes flow into each other"
+        elif mid_ratio > start_ratio:
+            env_character = "builds after the initial attack — creates a delayed swell effect"
+        else:
+            env_character = "gradual natural decay — like a plucked string fading"
+    else:
+        env_character = "minimal envelope shaping"
+
+    # Find other channels for comparison
+    other_pulse = [i for i in all_instruments if i['channel'] < 2 and i['channel'] != ch]
+
+    # Build the prose
+    duty_names = {0: '12.5%', 1: '25%', 2: '50%', 3: '75%'}
+
+    if ch < 2:  # Pulse channels
+        # Duty cycle description
+        dn = duty_names.get(duty, '50%')
+        if duty_varies:
+            duty_list = ', '.join(f"{duty_names.get(int(k), k)} ({v}×)" for k, v in sorted(duty_dist.items(), key=lambda x: -int(x[1])) if int(v) > 3)
+            duty_prose = f"switches between multiple duty cycles ({duty_list}), creating timbral animation — the tone color shifts throughout the melody like a singer changing vowels"
+        else:
+            sonic_qual = {
+                0: "thin, nasal, and buzzy — like a kazoo or muted trumpet, all high-frequency bite",
+                1: "bright and hollow — like a clarinet or oboe, clear without being harsh",
+                2: "warm, full, and round — a pure square wave with that classic NES lead character, like a low recorder",
+                3: "same harmonic content as 25% (inverted phase), bright and hollow",
+            }
+            duty_prose = f"uses {dn} duty cycle consistently — {sonic_qual.get(duty, 'standard pulse tone')}"
+
+        # Envelope description with game-specific detail
+        if shape_varies:
+            shape_list = ', '.join(f"{k} ({v}×)" for k, v in sorted(shape_dist.items(), key=lambda x: -int(x[1])) if int(v) > 3)
+            env_prose = f"The envelope is dynamic — notes use a mix of shapes ({shape_list}), meaning {display_name} varies the attack character throughout the song. Some notes punch hard (percussive), others ring out (sustained), creating rhythmic interest beyond just the melody."
+        else:
+            env_prose = f"The envelope is consistently {shape}: {env_character}."
+
+        # Role and comparison
+        if ch == 0:
+            role = "lead melody"
+            if other_pulse:
+                op = other_pulse[0]
+                if op['note_count'] > notes * 1.5:
+                    role_prose = f"Carries the {role}, though Square 2 is actually busier ({op['note_count']} vs {notes} notes) — this channel provides the main theme while Sq2 fills in the texture."
+                elif notes > op['note_count'] * 1.5:
+                    role_prose = f"Dominates as the {role} with {notes} notes (vs Sq2's {op['note_count']}) — this is clearly the star of {display_name}'s arrangement."
+                else:
+                    role_prose = f"Shares melodic duties with Square 2 ({notes} vs {op['note_count']} notes) — the two pulse channels trade phrases and harmonize."
+            else:
+                role_prose = f"Carries the {role} with {notes} notes."
+        else:
+            role = "harmony / countermelody"
+            if other_pulse:
+                op = other_pulse[0]
+                vol_diff = peak - op.get('peak_volume', 0)
+                if vol_diff < -20:
+                    role_prose = f"Plays {role} at noticeably lower volume (peak {peak} vs Sq1's {op.get('peak_volume', 0)}) — sits behind the lead, adding depth without competing."
+                elif avg_dur > op.get('avg_duration_ms', 0) * 2:
+                    role_prose = f"Plays long sustained notes ({avg_dur}ms avg vs Sq1's {op.get('avg_duration_ms', 0)}ms) — functions as a pad/chord channel underneath the lead melody."
+                else:
+                    role_prose = f"Provides {role} alongside Square 1 — the two channels create {display_name}'s characteristic pulse texture."
+            else:
+                role_prose = f"Provides {role}."
+
+        # Harmonic content
+        harmonic_map = {
+            0: "Contains all harmonics but with a steep spectral tilt — the narrow pulse emphasizes high frequencies, producing a thin, nasal buzz. Missing every 8th harmonic (8th, 16th, 24th).",
+            1: "Missing every 4th harmonic (4th, 8th, 12th, 16th...), creating a hollow, reedy quality. The gaps in the spectrum give it a nasal 'chiptune' character that cuts through a mix.",
+            2: "Contains only odd harmonics (1st, 3rd, 5th, 7th...) falling off as 1/n. This gives the square wave its warm, hollow, woody quality — the richest pulse tone the NES can produce.",
+            3: "Identical harmonic content to 25% duty (phase-inverted). Some drivers alternate between 25% and 75% for a subtle phasing effect.",
+        }
+        harmonics = harmonic_map.get(duty, "Standard pulse harmonic content.")
+
+        description = f"""
+        <p>In {display_name}, {ch_name} {duty_prose}. At {volume_character} (peak {peak}/127), it plays {density} {articulation} phrases averaging {avg_dur}ms per note.</p>
+        <p>{env_prose}</p>
+        <p>{role_prose}</p>
+        """
+
+    elif ch == 2:  # Triangle
+        staccato_pct = int(shape_dist.get('percussive', 0)) / max(notes, 1) * 100
+        if staccato_pct > 60:
+            bass_style = f"predominantly staccato — short, punchy bass hits that give {display_name} a rhythmic, bouncy feel. The quick on/off gating creates percussive bass that almost functions as a second drum channel."
+        elif staccato_pct < 20:
+            bass_style = f"predominantly legato — long, sustained bass notes that provide a smooth harmonic foundation under the melody. The sustained gating creates a warm, continuous low end."
+        else:
+            bass_style = f"a mix of staccato and legato — alternating between punchy hits and sustained lines, giving the bass both rhythmic drive and harmonic support."
+
+        description = f"""
+        <p>{display_name}'s bass uses the triangle wave — the NES's only sub-bass channel. With no volume control (only on/off gating), all expression comes from note duration: {bass_style}</p>
+        <p>At {notes} notes and {avg_dur}ms average duration, the bass is {density}. The triangle wave produces only odd harmonics falling off as 1/n² (much faster than the square wave's 1/n), making it the darkest, smoothest tone the NES can generate — like a low flute or a sub-bass synth with the filter wide open.</p>
+        <p>Because the triangle is one octave lower than the pulse channels for the same period value (32-step sequencer vs 16-step), it naturally sits below the melody without competing for frequency space.</p>
+        """
+        harmonics = "Only odd harmonics (like square wave) but falling off as 1/n² — much darker and smoother. The 32-step staircase approximation adds slight high-frequency grit at high pitches, but in the bass register where it's typically used, the tone is clean and pure."
+
+    else:  # Noise
+        if notes > 500:
+            drum_character = f"an extremely dense drum pattern — {notes} hits in the capture ({notes/80:.0f} per second). This is a driving, relentless beat that propels the music forward, more like a drum machine than acoustic percussion."
+        elif notes > 200:
+            drum_character = f"a steady, active drum pattern with {notes} hits. Consistent rhythmic backbone with regular kick-snare-hat patterns."
+        elif notes > 50:
+            drum_character = f"moderate percussion with {notes} hits — enough to establish rhythm without dominating the mix."
+        elif notes > 10:
+            drum_character = f"sparse accents — only {notes} hits, used for emphasis on key beats rather than continuous rhythm."
+        else:
+            drum_character = f"minimal percussion — just {notes} hits, the music relies on melodic rhythm rather than drums."
+
+        description = f"""
+        <p>{display_name}'s percussion channel produces {drum_character}</p>
+        <p>Every NES drum is synthesized from the noise channel's linear-feedback shift register (LFSR) — there are no audio samples. The 'kick' is a low-period noise burst, the 'snare' is a mid-period hit (often using the short LFSR mode for a metallic crack), and 'hi-hats' are high-period filtered noise. The average hit duration of {avg_dur}ms tells us these are {'tight, punchy hits' if avg_dur < 50 else 'medium-length hits' if avg_dur < 150 else 'longer, sustained noise bursts'}.</p>
+        """
+        harmonics = "In long LFSR mode: flat (white) spectrum filtered by the period setting. In short LFSR mode (93-step cycle): quasi-periodic metallic tone with identifiable pitch — this is what gives NES snare drums their distinctive 'crack'."
+
+    return description, harmonics
+
+
 def build_game_page(game_data, output_dir):
     g = game_data
     driver_name, driver_info = identify_driver(g['game'])
 
+    all_instruments = g.get('instruments', [])
     instruments_html = []
-    for inst in g.get('instruments', []):
+    for inst in all_instruments:
         ch = inst['channel']
         ch_name = inst['channel_name']
         color = CH_COLORS.get(ch, '#888')
         adsr = inst['adsr']
         shape = inst.get('dominant_shape', 'unknown')
 
+        # Generate game-specific description
+        description_html, harmonics_text = describe_instrument(
+            inst, all_instruments, g['game'], driver_name
+        )
+
         # Envelope sparkline
         svg = sparkline_svg(inst.get('envelope_curve', []), color)
 
-        # Build the two-column comparison table
+        # Build the two-column comparison table with game-specific REAPER settings
         if ch < 2:  # Pulse
             duty = inst.get('dominant_duty', 2)
             d = DUTY_DEEP.get(duty, DUTY_DEEP[2])
+            # Game-specific REAPER settings
+            reaper_specific = f"""{d['modern']}
+            <p style="margin-top:10px"><strong>For {g['display_name']} specifically:</strong>
+            Set attack to {adsr['attack_ms']}ms, decay to {adsr['decay_ms']}ms,
+            sustain to {round(adsr['sustain_ratio']*100)}%.
+            {'The sustained envelope means CC11 stays near-constant — let the automation drive the volume, dont add ADSR shaping.' if shape == 'sustained' else
+             'The percussive envelope means CC11 drops quickly — the captured automation already contains the pluck/decay, no additional ADSR needed.' if shape == 'percussive' else
+             'The decaying envelope means CC11 gradually fades — this natural decay is captured in the automation data.' if shape == 'decaying' else
+             'The swell means CC11 increases over time — a slow attack is baked into the automation.'}</p>"""
             comparison = f"""
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>{d['nes']}</td>
-                    <td>{d['modern']}</td>
+                    <td>{reaper_specific}</td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — {d['name']} Duty Cycle</h4>
                 <div class="duty-viz">{d['viz']}</div>
-                <p>{d['harmonics']}</p>
+                <p>{harmonics_text}</p>
             </div>
             """
         elif ch == 2:  # Triangle
+            reaper_specific = f"""{TRIANGLE_DEEP['modern']}
+            <p style="margin-top:10px"><strong>For {g['display_name']} specifically:</strong>
+            Average note duration is {inst.get('avg_duration_ms', 0)}ms —
+            {'set short MIDI notes for the staccato bass hits.' if inst.get('avg_duration_ms', 0) < 100 else
+             'use longer MIDI notes for the sustained bass lines.' if inst.get('avg_duration_ms', 0) > 300 else
+             'mix short and long notes to match the varied bass articulation.'}</p>"""
             comparison = f"""
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>{TRIANGLE_DEEP['nes']}</td>
-                    <td>{TRIANGLE_DEEP['modern']}</td>
+                    <td>{reaper_specific}</td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — Triangle Wave</h4>
-                <p>{TRIANGLE_DEEP['harmonics']}</p>
+                <p>{harmonics_text}</p>
             </div>
             """
         else:  # Noise
+            reaper_specific = f"""{NOISE_DEEP['modern']}
+            <p style="margin-top:10px"><strong>For {g['display_name']} specifically:</strong>
+            {inst['note_count']} drum hits at {inst.get('avg_duration_ms', 0)}ms average —
+            {'this is a dense, driving pattern. Use tight velocity-driven hits with short decay.' if inst['note_count'] > 300 else
+             'moderate percussion. Standard kick-snare-hat mapping works well.' if inst['note_count'] > 50 else
+             'sparse accents. Place hits carefully on key beats for emphasis.'}</p>"""
             comparison = f"""
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>{NOISE_DEEP['nes']}</td>
-                    <td>{NOISE_DEEP['modern']}</td>
+                    <td>{reaper_specific}</td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — Noise Channel</h4>
-                <p>{NOISE_DEEP['harmonics']}</p>
+                <p>{harmonics_text}</p>
             </div>
             """
 
@@ -368,9 +554,14 @@ def build_game_page(game_data, output_dir):
         <div class="instrument" style="border-left: 4px solid {color}">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="{CH_CSS.get(ch, '')}">{ch_name}</h3>
-                <span class="tag">{inst['note_count']} notes</span>
+                <span class="tag">{inst['note_count']} notes · {inst.get('avg_duration_ms', 0)}ms avg</span>
             </div>
             <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    {description_html}
+                </div>
+
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
@@ -390,7 +581,10 @@ def build_game_page(game_data, output_dir):
                     </div>
                 </div>
 
-                {comparison}
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>{comparison}</div>
+                </details>
             </div>
         </div>
         """)

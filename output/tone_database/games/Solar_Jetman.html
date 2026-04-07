@@ -130,9 +130,18 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
         <div class="instrument" style="border-left: 4px solid #ff6b6b">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-sq1">Square 1</h3>
-                <span class="tag">2 notes</span>
+                <span class="tag">2 notes · 92ms avg</span>
             </div>
             <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>In Solar Jetman, Square 1 uses 25% duty cycle consistently — bright and hollow — like a clarinet or oboe, clear without being harsh. At moderate volume (peak 59/127), it plays sparse staccato phrases averaging 92ms per note.</p>
+        <p>The envelope is consistently sustained: sharp attack then quick fade — a plucked, percussive quality where each note pops out distinctly.</p>
+        <p>Shares melodic duties with Square 2 (2 vs 2 notes) — the two pulse channels trade phrases and harmonize.</p>
+        
+                </div>
+
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
@@ -152,29 +161,45 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     </div>
                 </div>
 
-                
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>Quarter-width pulse. HIGH for 2/8, LOW for 6/8. Written as duty value 1 ($40 in register). This is the default 'chiptune' sound — the one most people associate with NES music.</td>
-                    <td>CC12 = 32-63 in ReapNES. In modern synths, set pulse width to 25%. This is the sweet spot between brightness and body. Many VST 'chiptune' presets default to this duty cycle.</td>
+                    <td>CC12 = 32-63 in ReapNES. In modern synths, set pulse width to 25%. This is the sweet spot between brightness and body. Many VST 'chiptune' presets default to this duty cycle.
+            <p style="margin-top:10px"><strong>For Solar Jetman specifically:</strong>
+            Set attack to 0ms, decay to 0ms,
+            sustain to 100%.
+            The sustained envelope means CC11 stays near-constant — let the automation drive the volume, dont add ADSR shaping.</p></td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — 25% Duty Cycle</h4>
                 <div class="duty-viz">▁▁▁▁▁▁██</div>
-                <p>Contains all harmonics except every 4th (4th, 8th, 12th are absent). This creates a hollow, reedy quality — like a clarinet or oboe. The missing harmonics give it a 'nasal' character that cuts through a mix without being harsh. Capcom uses this extensively for harmony parts (Sq2) to contrast with the warmer 50% lead.</p>
+                <p>Missing every 4th harmonic (4th, 8th, 12th, 16th...), creating a hollow, reedy quality. The gaps in the spectrum give it a nasal 'chiptune' character that cuts through a mix.</p>
             </div>
-            
+            </div>
+                </details>
             </div>
         </div>
         
         <div class="instrument" style="border-left: 4px solid #ffa94d">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-sq2">Square 2</h3>
-                <span class="tag">2 notes</span>
+                <span class="tag">2 notes · 116ms avg</span>
             </div>
             <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>In Solar Jetman, Square 2 uses 25% duty cycle consistently — bright and hollow — like a clarinet or oboe, clear without being harsh. At moderate volume (peak 59/127), it plays sparse staccato phrases averaging 116ms per note.</p>
+        <p>The envelope is consistently sustained: gradual natural decay — like a plucked string fading.</p>
+        <p>Provides harmony / countermelody alongside Square 1 — the two channels create Solar Jetman's characteristic pulse texture.</p>
+        
+                </div>
+
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
@@ -194,29 +219,45 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     </div>
                 </div>
 
-                
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>Quarter-width pulse. HIGH for 2/8, LOW for 6/8. Written as duty value 1 ($40 in register). This is the default 'chiptune' sound — the one most people associate with NES music.</td>
-                    <td>CC12 = 32-63 in ReapNES. In modern synths, set pulse width to 25%. This is the sweet spot between brightness and body. Many VST 'chiptune' presets default to this duty cycle.</td>
+                    <td>CC12 = 32-63 in ReapNES. In modern synths, set pulse width to 25%. This is the sweet spot between brightness and body. Many VST 'chiptune' presets default to this duty cycle.
+            <p style="margin-top:10px"><strong>For Solar Jetman specifically:</strong>
+            Set attack to 0ms, decay to 0ms,
+            sustain to 100%.
+            The sustained envelope means CC11 stays near-constant — let the automation drive the volume, dont add ADSR shaping.</p></td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — 25% Duty Cycle</h4>
                 <div class="duty-viz">▁▁▁▁▁▁██</div>
-                <p>Contains all harmonics except every 4th (4th, 8th, 12th are absent). This creates a hollow, reedy quality — like a clarinet or oboe. The missing harmonics give it a 'nasal' character that cuts through a mix without being harsh. Capcom uses this extensively for harmony parts (Sq2) to contrast with the warmer 50% lead.</p>
+                <p>Missing every 4th harmonic (4th, 8th, 12th, 16th...), creating a hollow, reedy quality. The gaps in the spectrum give it a nasal 'chiptune' character that cuts through a mix.</p>
             </div>
-            
+            </div>
+                </details>
             </div>
         </div>
         
         <div class="instrument" style="border-left: 4px solid #51cf66">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-tri">Triangle</h3>
-                <span class="tag">3 notes</span>
+                <span class="tag">3 notes · 24121ms avg</span>
             </div>
             <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>Solar Jetman's bass uses the triangle wave — the NES's only sub-bass channel. With no volume control (only on/off gating), all expression comes from note duration: predominantly legato — long, sustained bass notes that provide a smooth harmonic foundation under the melody. The sustained gating creates a warm, continuous low end.</p>
+        <p>At 3 notes and 24121ms average duration, the bass is sparse. The triangle wave produces only odd harmonics falling off as 1/n² (much faster than the square wave's 1/n), making it the darkest, smoothest tone the NES can generate — like a low flute or a sub-bass synth with the filter wide open.</p>
+        <p>Because the triangle is one octave lower than the pulse channels for the same period value (32-step sequencer vs 16-step), it naturally sits below the melody without competing for frequency space.</p>
+        
+                </div>
+
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
@@ -236,28 +277,42 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     </div>
                 </div>
 
-                
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>The triangle channel generates a 32-step staircase approximation of a triangle wave. Unlike the pulse channels, it has NO volume control — only an on/off gate via the linear counter ($4008). The period register works the same as pulse, but the frequency is ONE OCTAVE LOWER for the same period value because the sequencer has 32 steps instead of 16.</td>
-                    <td>In ReapNES Console, set Channel Mode to 2 (Triangle). CC11 is always 127 (gate only — full volume or silence). No CC12 needed (no duty cycle). For MIDI keyboard playing, the triangle channel uses note duration for all articulation — staccato = short notes, legato = long notes. In modern synths, use a triangle oscillator with no filter and no amplitude envelope (just a gate).</td>
+                    <td>In ReapNES Console, set Channel Mode to 2 (Triangle). CC11 is always 127 (gate only — full volume or silence). No CC12 needed (no duty cycle). For MIDI keyboard playing, the triangle channel uses note duration for all articulation — staccato = short notes, legato = long notes. In modern synths, use a triangle oscillator with no filter and no amplitude envelope (just a gate).
+            <p style="margin-top:10px"><strong>For Solar Jetman specifically:</strong>
+            Average note duration is 24121ms —
+            use longer MIDI notes for the sustained bass lines.</p></td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — Triangle Wave</h4>
-                <p>A perfect triangle wave contains only odd harmonics like a square wave, but they fall off as 1/n² instead of 1/n — much faster. This means the triangle is much darker and smoother than a square wave. The NES triangle is not mathematically perfect (it's a 32-step staircase), which adds slight high-frequency 'grittiness' — especially audible at high pitches. At low pitches (where it's typically used as bass), it sounds clean, dark, and full — similar to a low flute, a sub-bass synth with a wide-open filter, or the fundamental tone of a bass guitar with no harmonics.</p>
+                <p>Only odd harmonics (like square wave) but falling off as 1/n² — much darker and smoother. The 32-step staircase approximation adds slight high-frequency grit at high pitches, but in the bass register where it's typically used, the tone is clean and pure.</p>
             </div>
-            
+            </div>
+                </details>
             </div>
         </div>
         
         <div class="instrument" style="border-left: 4px solid #748ffc">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-noi">Noise</h3>
-                <span class="tag">50 notes</span>
+                <span class="tag">50 notes · 36ms avg</span>
             </div>
             <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>Solar Jetman's percussion channel produces sparse accents — only 50 hits, used for emphasis on key beats rather than continuous rhythm.</p>
+        <p>Every NES drum is synthesized from the noise channel's linear-feedback shift register (LFSR) — there are no audio samples. The 'kick' is a low-period noise burst, the 'snare' is a mid-period hit (often using the short LFSR mode for a metallic crack), and 'hi-hats' are high-period filtered noise. The average hit duration of 36ms tells us these are tight, punchy hits.</p>
+        
+                </div>
+
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
@@ -277,19 +332,25 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     </div>
                 </div>
 
-                
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>The noise channel uses a 15-bit Linear Feedback Shift Register (LFSR) to generate pseudo-random noise. The period register ($400E bits 0-3) selects one of 16 timer values that control how fast the LFSR shifts — lower periods = faster shifts = higher-pitched noise. Bit 7 of $400E selects the feedback mode: 0 = long sequence (32767 steps, sounds like white noise), 1 = short sequence (93 steps, sounds metallic/tonal).</td>
-                    <td>In ReapNES Console, set Channel Mode to 3 (Noise). MIDI note numbers map to drum sounds: 36=kick, 38=snare, 42=closed hi-hat, 46=open hi-hat. Velocity controls initial volume. The ADSR envelope shapes the hit. In modern synths, use a noise oscillator with a short amplitude envelope for percussion. For the 'short mode' metallic sound, use a very short noise burst with high resonance — similar to the '808 cowbell' technique.</td>
+                    <td>In ReapNES Console, set Channel Mode to 3 (Noise). MIDI note numbers map to drum sounds: 36=kick, 38=snare, 42=closed hi-hat, 46=open hi-hat. Velocity controls initial volume. The ADSR envelope shapes the hit. In modern synths, use a noise oscillator with a short amplitude envelope for percussion. For the 'short mode' metallic sound, use a very short noise burst with high resonance — similar to the '808 cowbell' technique.
+            <p style="margin-top:10px"><strong>For Solar Jetman specifically:</strong>
+            50 drum hits at 36ms average —
+            sparse accents. Place hits carefully on key beats for emphasis.</p></td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — Noise Channel</h4>
-                <p>In long mode, the noise has a flat (white) spectrum — equal energy at all frequencies, filtered by the period setting which acts as a crude lowpass. In short mode, the 93-step cycle creates a pitched, metallic tone with a distinctive 'ring' — this is because the short cycle creates a quasi-periodic waveform with identifiable pitch. The short mode noise is what gives NES snare drums their distinctive 'metallic crack' — it's a sound unique to the NES that you can't easily recreate with simple white noise.</p>
+                <p>In long LFSR mode: flat (white) spectrum filtered by the period setting. In short LFSR mode (93-step cycle): quasi-periodic metallic tone with identifiable pitch — this is what gives NES snare drums their distinctive 'crack'.</p>
             </div>
-            
+            </div>
+                </details>
             </div>
         </div>
         

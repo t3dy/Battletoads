@@ -130,9 +130,18 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
         <div class="instrument" style="border-left: 4px solid #ff6b6b">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-sq1">Square 1</h3>
-                <span class="tag">739 notes</span>
+                <span class="tag">739 notes · 70ms avg</span>
             </div>
             <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>In Gradius, Square 1 switches between multiple duty cycles (50% (678×), 25% (55×), 12.5% (5×)), creating timbral animation — the tone color shifts throughout the melody like a singer changing vowels. At full volume (peak 127/127), it plays extremely dense rapid staccato phrases averaging 70ms per note.</p>
+        <p>The envelope is dynamic — notes use a mix of shapes (percussive (546×), sustained (192×)), meaning Gradius varies the attack character throughout the song. Some notes punch hard (percussive), others ring out (sustained), creating rhythmic interest beyond just the melody.</p>
+        <p>Carries the lead melody with 739 notes.</p>
+        
+                </div>
+
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
@@ -152,20 +161,27 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     </div>
                 </div>
 
-                
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>True square wave — symmetrical, HIGH and LOW for equal time. Duty value 2 ($80 in register). The richest harmonic content of any NES duty cycle.</td>
-                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.</td>
+                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.
+            <p style="margin-top:10px"><strong>For Gradius specifically:</strong>
+            Set attack to 0ms, decay to 0ms,
+            sustain to 100%.
+            The percussive envelope means CC11 drops quickly — the captured automation already contains the pluck/decay, no additional ADSR needed.</p></td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — 50% Duty Cycle</h4>
                 <div class="duty-viz">▁▁▁▁████</div>
-                <p>Contains ONLY odd harmonics (1st, 3rd, 5th, 7th, 9th...) with amplitudes falling off as 1/n. This is what gives the square wave its warm, hollow, 'woody' quality. It sounds like a clarinet in its low register or a recorder. The absence of even harmonics distinguishes it sharply from a sawtooth wave. This is the most commonly used duty cycle for lead melodies across all NES games because it has the fullest body without brightness.</p>
+                <p>Contains only odd harmonics (1st, 3rd, 5th, 7th...) falling off as 1/n. This gives the square wave its warm, hollow, woody quality — the richest pulse tone the NES can produce.</p>
             </div>
-            
+            </div>
+                </details>
             </div>
         </div>
         

@@ -130,9 +130,18 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
         <div class="instrument" style="border-left: 4px solid #ff6b6b">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-sq1">Square 1</h3>
-                <span class="tag">22 notes</span>
+                <span class="tag">22 notes · 1475ms avg</span>
             </div>
             <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>In Metal Storm, Square 1 uses 50% duty cycle consistently — warm, full, and round — a pure square wave with that classic NES lead character, like a low recorder. At moderate volume (peak 85/127), it plays sparse very long sustained phrases averaging 1475ms per note.</p>
+        <p>The envelope is dynamic — notes use a mix of shapes (percussive (12×), sustained (10×)), meaning Metal Storm varies the attack character throughout the song. Some notes punch hard (percussive), others ring out (sustained), creating rhythmic interest beyond just the melody.</p>
+        <p>Carries the lead melody, though Square 2 is actually busier (68 vs 22 notes) — this channel provides the main theme while Sq2 fills in the texture.</p>
+        
+                </div>
+
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
@@ -152,29 +161,45 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     </div>
                 </div>
 
-                
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>True square wave — symmetrical, HIGH and LOW for equal time. Duty value 2 ($80 in register). The richest harmonic content of any NES duty cycle.</td>
-                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.</td>
+                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.
+            <p style="margin-top:10px"><strong>For Metal Storm specifically:</strong>
+            Set attack to 0ms, decay to 0ms,
+            sustain to 100%.
+            The percussive envelope means CC11 drops quickly — the captured automation already contains the pluck/decay, no additional ADSR needed.</p></td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — 50% Duty Cycle</h4>
                 <div class="duty-viz">▁▁▁▁████</div>
-                <p>Contains ONLY odd harmonics (1st, 3rd, 5th, 7th, 9th...) with amplitudes falling off as 1/n. This is what gives the square wave its warm, hollow, 'woody' quality. It sounds like a clarinet in its low register or a recorder. The absence of even harmonics distinguishes it sharply from a sawtooth wave. This is the most commonly used duty cycle for lead melodies across all NES games because it has the fullest body without brightness.</p>
+                <p>Contains only odd harmonics (1st, 3rd, 5th, 7th...) falling off as 1/n. This gives the square wave its warm, hollow, woody quality — the richest pulse tone the NES can produce.</p>
             </div>
-            
+            </div>
+                </details>
             </div>
         </div>
         
         <div class="instrument" style="border-left: 4px solid #ffa94d">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-sq2">Square 2</h3>
-                <span class="tag">68 notes</span>
+                <span class="tag">68 notes · 477ms avg</span>
             </div>
             <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>In Metal Storm, Square 2 switches between multiple duty cycles (50% (37×), 25% (16×), 12.5% (15×)), creating timbral animation — the tone color shifts throughout the melody like a singer changing vowels. At moderate volume (peak 68/127), it plays moderate legato phrases averaging 477ms per note.</p>
+        <p>The envelope is dynamic — notes use a mix of shapes (sustained (53×), percussive (15×)), meaning Metal Storm varies the attack character throughout the song. Some notes punch hard (percussive), others ring out (sustained), creating rhythmic interest beyond just the melody.</p>
+        <p>Provides harmony / countermelody alongside Square 1 — the two channels create Metal Storm's characteristic pulse texture.</p>
+        
+                </div>
+
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
@@ -194,29 +219,44 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     </div>
                 </div>
 
-                
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>True square wave — symmetrical, HIGH and LOW for equal time. Duty value 2 ($80 in register). The richest harmonic content of any NES duty cycle.</td>
-                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.</td>
+                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.
+            <p style="margin-top:10px"><strong>For Metal Storm specifically:</strong>
+            Set attack to 0ms, decay to 0ms,
+            sustain to 100%.
+            The sustained envelope means CC11 stays near-constant — let the automation drive the volume, dont add ADSR shaping.</p></td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — 50% Duty Cycle</h4>
                 <div class="duty-viz">▁▁▁▁████</div>
-                <p>Contains ONLY odd harmonics (1st, 3rd, 5th, 7th, 9th...) with amplitudes falling off as 1/n. This is what gives the square wave its warm, hollow, 'woody' quality. It sounds like a clarinet in its low register or a recorder. The absence of even harmonics distinguishes it sharply from a sawtooth wave. This is the most commonly used duty cycle for lead melodies across all NES games because it has the fullest body without brightness.</p>
+                <p>Contains only odd harmonics (1st, 3rd, 5th, 7th...) falling off as 1/n. This gives the square wave its warm, hollow, woody quality — the richest pulse tone the NES can produce.</p>
             </div>
-            
+            </div>
+                </details>
             </div>
         </div>
         
         <div class="instrument" style="border-left: 4px solid #748ffc">
             <div class="instrument-header" style="border-left: none">
                 <h3 class="ch-noi">Noise</h3>
-                <span class="tag">57 notes</span>
+                <span class="tag">57 notes · 308ms avg</span>
             </div>
             <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>Metal Storm's percussion channel produces moderate percussion with 57 hits — enough to establish rhythm without dominating the mix.</p>
+        <p>Every NES drum is synthesized from the noise channel's linear-feedback shift register (LFSR) — there are no audio samples. The 'kick' is a low-period noise burst, the 'snare' is a mid-period hit (often using the short LFSR mode for a metallic crack), and 'hi-hats' are high-period filtered noise. The average hit duration of 308ms tells us these are longer, sustained noise bursts.</p>
+        
+                </div>
+
                 <div class="envelope-row">
                     <div>
                         <div class="waveform-label">Volume Envelope</div>
@@ -236,19 +276,25 @@ footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-t
                     </div>
                 </div>
 
-                
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
             <table class="comparison-table">
-                <tr><th>NES Hardware (RP2A03)</th><th>Modern Synth (ReapNES / REAPER)</th></tr>
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
                 <tr>
                     <td>The noise channel uses a 15-bit Linear Feedback Shift Register (LFSR) to generate pseudo-random noise. The period register ($400E bits 0-3) selects one of 16 timer values that control how fast the LFSR shifts — lower periods = faster shifts = higher-pitched noise. Bit 7 of $400E selects the feedback mode: 0 = long sequence (32767 steps, sounds like white noise), 1 = short sequence (93 steps, sounds metallic/tonal).</td>
-                    <td>In ReapNES Console, set Channel Mode to 3 (Noise). MIDI note numbers map to drum sounds: 36=kick, 38=snare, 42=closed hi-hat, 46=open hi-hat. Velocity controls initial volume. The ADSR envelope shapes the hit. In modern synths, use a noise oscillator with a short amplitude envelope for percussion. For the 'short mode' metallic sound, use a very short noise burst with high resonance — similar to the '808 cowbell' technique.</td>
+                    <td>In ReapNES Console, set Channel Mode to 3 (Noise). MIDI note numbers map to drum sounds: 36=kick, 38=snare, 42=closed hi-hat, 46=open hi-hat. Velocity controls initial volume. The ADSR envelope shapes the hit. In modern synths, use a noise oscillator with a short amplitude envelope for percussion. For the 'short mode' metallic sound, use a very short noise burst with high resonance — similar to the '808 cowbell' technique.
+            <p style="margin-top:10px"><strong>For Metal Storm specifically:</strong>
+            57 drum hits at 308ms average —
+            moderate percussion. Standard kick-snare-hat mapping works well.</p></td>
                 </tr>
             </table>
             <div class="harmonic-text">
                 <h4>Harmonic Character — Noise Channel</h4>
-                <p>In long mode, the noise has a flat (white) spectrum — equal energy at all frequencies, filtered by the period setting which acts as a crude lowpass. In short mode, the 93-step cycle creates a pitched, metallic tone with a distinctive 'ring' — this is because the short cycle creates a quasi-periodic waveform with identifiable pitch. The short mode noise is what gives NES snare drums their distinctive 'metallic crack' — it's a sound unique to the NES that you can't easily recreate with simple white noise.</p>
+                <p>In long LFSR mode: flat (white) spectrum filtered by the period setting. In short LFSR mode (93-step cycle): quasi-periodic metallic tone with identifiable pitch — this is what gives NES snare drums their distinctive 'crack'.</p>
             </div>
-            
+            </div>
+                </details>
             </div>
         </div>
         
