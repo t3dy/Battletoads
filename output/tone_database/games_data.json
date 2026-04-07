@@ -16233,14 +16233,14 @@
     "driver_description": "Driver not yet identified.",
     "encoding_format": "Standard NES APU data-driven player.",
     "sonic_signature": "Varies.",
-    "total_notes": 490,
+    "total_notes": 498,
     "num_channels": 4,
     "instruments": [
       {
         "game": "Zelda_II",
         "channel": 0,
         "channel_name": "Square 1",
-        "note_count": 207,
+        "note_count": 210,
         "adsr": {
           "attack_ms": 0,
           "decay_ms": 0,
@@ -16250,57 +16250,56 @@
         "peak_volume": 102,
         "dominant_shape": "sustained",
         "shape_distribution": {
-          "decaying": 21,
-          "sustained": 185,
-          "percussive": 1
+          "decaying": 24,
+          "sustained": 186
         },
         "dominant_duty": 2,
         "duty_name": "50%",
         "duty_distribution": {
-          "2": 207
+          "2": 210
         },
         "envelope_curve": [
-          99,
-          99,
-          99,
-          98,
-          91,
-          90,
-          90,
-          90,
-          79,
-          78,
-          78,
-          78,
-          78,
-          78,
-          78,
-          77,
-          76,
-          76,
-          76,
-          76,
-          76,
-          76,
-          76,
-          76,
-          68,
-          68,
-          68,
-          68,
-          68,
-          68
+          102,
+          101,
+          101,
+          101,
+          94,
+          93,
+          93,
+          93,
+          84,
+          83,
+          83,
+          82,
+          80,
+          80,
+          80,
+          80,
+          65,
+          65,
+          65,
+          65,
+          65,
+          66,
+          66,
+          66,
+          60,
+          61,
+          61,
+          61,
+          61,
+          62
         ],
         "note_range": [
           41,
           72
         ],
-        "avg_duration_ms": 357,
+        "avg_duration_ms": 335,
         "description": "50% duty cycle pulse wave. Smooth sustained tone. Attack: 0ms, Decay: 0ms, Sustain: 96%, Release: 0ms. Peak volume 102/127.",
         "instrument_description": {
           "hardware": "Pulse wave generator with 4 selectable duty cycles (12.5%, 25%, 50%, 75%). 11-bit period register sets frequency. Hardware envelope with 4-bit volume (0-15). Optional sweep unit for pitch bends.",
           "reaper_plugin": "In ReapNES Console: Slider 33 = Channel Mode (set to 0 for Pulse 1). CC11 controls per-frame volume. CC12 controls duty cycle (0-3 mapped to 12.5%-75%). The synth generates a bandlimited pulse wave at the specified duty ratio.",
-          "sonic_character": "Warm, full, and round \u2014 a pure square wave. The richest harmonic content of any duty cycle. Most commonly used for lead melodies. Think: classic NES main theme sound. Consistent volume throughout the note with minimal decay. Creates a smooth, legato feel. Common in RPG town themes and slower pieces. ADSR: zero attack, minimal decay, high sustain. Average note duration: 357ms (legato phrasing).",
+          "sonic_character": "Warm, full, and round \u2014 a pure square wave. The richest harmonic content of any duty cycle. Most commonly used for lead melodies. Think: classic NES main theme sound. Consistent volume throughout the note with minimal decay. Creates a smooth, legato feel. Common in RPG town themes and slower pieces. ADSR: zero attack, minimal decay, high sustain. Average note duration: 335ms (legato phrasing).",
           "channel_role": "Usually carries the melody (lead voice). In Capcom games, uses 50% duty for warm lead tone. In Konami games, often paired with Pulse 2 in call-and-response patterns."
         }
       },
@@ -16308,7 +16307,7 @@
         "game": "Zelda_II",
         "channel": 1,
         "channel_name": "Square 2",
-        "note_count": 117,
+        "note_count": 121,
         "adsr": {
           "attack_ms": 0,
           "decay_ms": 133,
@@ -16318,58 +16317,57 @@
         "peak_volume": 102,
         "dominant_shape": "sustained",
         "shape_distribution": {
-          "decaying": 25,
-          "sustained": 91,
-          "percussive": 1
+          "decaying": 31,
+          "sustained": 90
         },
         "dominant_duty": 2,
         "duty_name": "50%",
         "duty_distribution": {
-          "2": 117,
+          "2": 121,
           "0": 1
         },
         "envelope_curve": [
-          98,
-          97,
-          97,
-          96,
-          90,
-          89,
-          89,
-          88,
-          82,
-          80,
-          80,
-          80,
-          80,
-          79,
-          79,
-          79,
-          77,
-          77,
-          77,
-          77,
-          77,
-          77,
-          77,
-          77,
+          102,
+          101,
+          101,
+          101,
+          95,
+          94,
+          94,
+          93,
+          87,
+          86,
+          86,
+          85,
+          84,
+          83,
+          83,
+          83,
+          71,
+          70,
+          70,
+          70,
           69,
           69,
           69,
-          69,
-          69,
-          69
+          70,
+          63,
+          63,
+          63,
+          63,
+          63,
+          63
         ],
         "note_range": [
           47,
           78
         ],
-        "avg_duration_ms": 624,
+        "avg_duration_ms": 578,
         "description": "50% duty cycle pulse wave. Smooth sustained tone. Attack: 0ms, Decay: 133ms, Sustain: 79%, Release: 0ms. Peak volume 102/127.",
         "instrument_description": {
           "hardware": "Identical hardware to Square 1 \u2014 same duty cycles, period range, and envelope. The NES treats both pulse channels equally; the distinction is purely in how composers use them.",
           "reaper_plugin": "In ReapNES Console: Slider 33 = Channel Mode (set to 1 for Pulse 2). Same CC11/CC12 controls as Pulse 1. Typically assigned a different duty cycle than Pulse 1 for timbral contrast.",
-          "sonic_character": "Warm, full, and round \u2014 a pure square wave. The richest harmonic content of any duty cycle. Most commonly used for lead melodies. Think: classic NES main theme sound. Consistent volume throughout the note with minimal decay. Creates a smooth, legato feel. Common in RPG town themes and slower pieces. ADSR: zero attack, minimal decay, high sustain. Average note duration: 624ms (legato phrasing).",
+          "sonic_character": "Warm, full, and round \u2014 a pure square wave. The richest harmonic content of any duty cycle. Most commonly used for lead melodies. Think: classic NES main theme sound. Consistent volume throughout the note with minimal decay. Creates a smooth, legato feel. Common in RPG town themes and slower pieces. ADSR: zero attack, minimal decay, high sustain. Average note duration: 578ms (legato phrasing).",
           "channel_role": "Harmony, countermelody, or echo. Capcom typically uses 25% duty (brighter/thinner than the 50% lead). Some games use Pulse 2 for arpeggiated chord fill or bass doubling."
         }
       },
@@ -16377,7 +16375,7 @@
         "game": "Zelda_II",
         "channel": 2,
         "channel_name": "Triangle",
-        "note_count": 162,
+        "note_count": 163,
         "adsr": {
           "attack_ms": 0,
           "decay_ms": 0,
@@ -16387,13 +16385,12 @@
         "peak_volume": 127,
         "dominant_shape": "sustained",
         "shape_distribution": {
-          "sustained": 161,
-          "percussive": 1
+          "sustained": 163
         },
         "dominant_duty": 2,
         "duty_name": "50%",
         "duty_distribution": {
-          "2": 162
+          "2": 163
         },
         "envelope_curve": [
           127,
@@ -16431,12 +16428,12 @@
           38,
           48
         ],
-        "avg_duration_ms": 368,
-        "description": "Triangle wave bass. No volume control \u2014 only on/off gating. One octave below pulse for the same period value. Average note duration 368ms. Legato phrasing.",
+        "avg_duration_ms": 372,
+        "description": "Triangle wave bass. No volume control \u2014 only on/off gating. One octave below pulse for the same period value. Average note duration 372ms. Legato phrasing.",
         "instrument_description": {
           "hardware": "Fixed triangle waveform \u2014 no duty cycle control, no volume control (only on/off gating via the linear counter). Produces a frequency one octave LOWER than pulse channels for the same period value (32-step vs 16-step sequencer).",
           "reaper_plugin": "In ReapNES Console: Slider 33 = Channel Mode (set to 2 for Triangle). CC11 is always 127 (gate signal only). No CC12 (no duty cycle). Volume is either full or silent \u2014 articulation comes from note duration only.",
-          "sonic_character": "Pure triangle wave bass. No timbre variation possible \u2014 all expression comes from note timing. Consistent volume throughout the note with minimal decay. Creates a smooth, legato feel. Common in RPG town themes and slower pieces. ADSR: zero attack, minimal decay, high sustain. Sustained bass lines. 162 notes captured.",
+          "sonic_character": "Pure triangle wave bass. No timbre variation possible \u2014 all expression comes from note timing. Consistent volume throughout the note with minimal decay. Creates a smooth, legato feel. Common in RPG town themes and slower pieces. ADSR: zero attack, minimal decay, high sustain. Sustained bass lines. 163 notes captured.",
           "channel_role": "Bass. The only channel that can produce sub-bass frequencies. Staccato triangle = punchy bass hits. Legato triangle = sustained bass lines. The lack of volume control makes it the 'loudest' channel in the mix."
         }
       },
