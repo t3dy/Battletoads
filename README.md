@@ -139,3 +139,19 @@ The [NES Tone Database](https://t3dy.github.io/Battletoads/output/tone_database/
 ## Project History
 
 This project started as Battletoads NES music reconstruction (see [BattletoadsOLDreadme.md](BattletoadsOLDreadme.md)) and grew into a universal NES music extraction pipeline. The original work on Castlevania, Contra, and Battletoads established the trace validation methodology. The headless emulator approach was developed during the Kid Icarus session when the NSF file turned out to be from the wrong platform (FDS vs NES cartridge).
+
+## Sheet Music
+
+All extracted MIDIs are being converted to MusicXML format using music21.
+MusicXML files can be opened in:
+- **MuseScore** (free) — standard notation + guitar tablature view
+- **Finale** / **Sibelius** — professional notation
+- **Any MusicXML-compatible editor**
+
+Sheet music files are in `output/sheet_music/<Game>/`.
+
+The NES channels map naturally to standard instruments:
+- **Square 1/2** → Lead/harmony melody (treble clef)
+- **Triangle** → Bass line (bass clef / bass guitar tab)
+- **Noise** → Drum notation
+
