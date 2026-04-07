@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How It Works — NES Tone Database</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #d0d0d0; line-height: 1.7; }
+a { color: #00ccff; text-decoration: none; }
+a:hover { text-decoration: underline; color: #66ddff; }
+
+/* Navigation */
+.site-header { background: #0d0d14; border-bottom: 2px solid #1a1a2e; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
+.site-header nav { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 0; }
+.site-title { color: #00ff88; font-size: 16px; font-weight: bold; padding: 14px 20px 14px 0; margin-right: 10px; border-right: 1px solid #222; white-space: nowrap; }
+.nav-link { padding: 14px 18px; color: #888; font-size: 14px; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.nav-link:hover { color: #fff; text-decoration: none; border-bottom-color: #444; }
+.nav-link.active { color: #00ff88; border-bottom-color: #00ff88; }
+
+/* Layout */
+.container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+h1 { color: #00ff88; font-size: 28px; margin-bottom: 8px; }
+h2 { color: #00ccff; font-size: 22px; margin: 35px 0 15px; border-bottom: 1px solid #1a1a2e; padding-bottom: 8px; }
+h3 { color: #e0e0e0; font-size: 17px; margin: 20px 0 10px; }
+h4 { color: #00ff88; font-size: 14px; margin: 15px 0 8px; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
+p { margin-bottom: 12px; font-size: 15px; }
+
+/* Cards */
+.card { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+.card:hover { border-color: #333; }
+
+/* Stats */
+.stats { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; }
+.stat { background: #111; padding: 12px 18px; border-radius: 8px; border: 1px solid #1a1a2e; }
+.stat-num { color: #00ff88; font-size: 28px; font-weight: bold; line-height: 1; }
+.stat-label { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Search */
+.search-box { width: 100%; padding: 12px 16px; margin-bottom: 20px; background: #0d0d14; border: 1px solid #222; color: #fff; font-family: inherit; font-size: 14px; border-radius: 8px; }
+.search-box:focus { outline: none; border-color: #00ff88; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+th { text-align: left; padding: 10px 14px; background: #0d0d14; color: #00ff88; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #1a1a2e; }
+td { padding: 12px 14px; border-bottom: 1px solid #111; font-size: 14px; vertical-align: top; }
+tr:hover td { background: #0d0d14; }
+
+/* Two-column comparison */
+.comparison-table td:first-child { border-right: 1px solid #1a1a2e; width: 50%; }
+.comparison-table th:first-child { border-right: 1px solid #1a1a2e; }
+
+/* Code blocks */
+.code-block { background: #0d0d14; padding: 14px 18px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px; color: #ccc; border-left: 3px solid #00ff88; margin: 12px 0; overflow-x: auto; white-space: pre-wrap; }
+
+/* Expandable sections */
+details { margin: 10px 0; }
+details summary { cursor: pointer; font-size: 14px; color: #00ccff; padding: 8px 0; }
+details summary:hover { color: #66ddff; }
+details[open] summary { margin-bottom: 8px; }
+details > div, details > p { padding-left: 12px; border-left: 2px solid #1a1a2e; margin-left: 4px; }
+
+/* Tags */
+.tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; margin-right: 6px; background: #1a1a2e; color: #888; }
+.tag-green { background: #0d1f0d; color: #00ff88; }
+.tag-cyan { background: #0d1520; color: #00ccff; }
+
+/* Sparklines */
+.sparkline { background: #080812; border-radius: 4px; }
+
+/* Game cards grid */
+.game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.game-card { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; padding: 16px; display: block; color: inherit; transition: all 0.2s; }
+.game-card:hover { border-color: #00ff88; text-decoration: none; transform: translateY(-2px); }
+.game-card-title { color: #00ccff; font-size: 16px; font-weight: bold; margin-bottom: 6px; }
+.game-card-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.game-card-notes { color: #666; font-size: 12px; }
+
+/* Channel colors */
+.ch-sq1 { color: #ff6b6b; }
+.ch-sq2 { color: #ffa94d; }
+.ch-tri { color: #51cf66; }
+.ch-noi { color: #748ffc; }
+
+/* Instrument cards on game pages */
+.instrument { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; margin-bottom: 24px; overflow: hidden; }
+.instrument-header { padding: 16px 20px; border-bottom: 1px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; }
+.instrument-body { padding: 20px; }
+.envelope-row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 15px; }
+.adsr-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.adsr-pill { background: #0d0d14; padding: 4px 10px; border-radius: 4px; font-size: 12px; }
+.duty-viz { font-family: monospace; font-size: 28px; letter-spacing: 3px; color: #00ccff; margin: 8px 0; }
+.harmonic-text { font-size: 14px; color: #bbb; line-height: 1.7; margin-top: 12px; }
+
+/* Waveform diagrams */
+.waveform-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+
+footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-top: 1px solid #1a1a2e; color: #444; font-size: 11px; text-align: center; }
+</style>
+</head>
+<body>
+<header class="site-header"><nav>
+        <span class="site-title">NES Tone Database</span>
+        <a href="index.html" class="nav-link">Games</a><a href="tones.html" class="nav-link">Tones</a><a href="how-it-works.html" class="nav-link active">How It Works</a><a href="docs.html" class="nav-link">Documents</a>
+    </nav></header>
+<div class="container">
+
+<h1>How It Works</h1>
+<p class="subtitle">From ROM bytes to REAPER projects — the complete NES music extraction pipeline.</p>
+
+<h2>The NES Sound Chip (RP2A03)</h2>
+
+<p>The NES has no sound samples, no wavetables, no DSP. All audio is generated by 5 simple waveform generators running at 1.789773 MHz, updated 60 times per second by the CPU. Every sound you've ever heard in an NES game — every melody, every bass line, every drum hit — is built from these 5 channels:</p>
+
+<div class="card">
+<h3 class="ch-sq1">Pulse 1 & 2 (Square Waves)</h3>
+<table class="comparison-table">
+<tr><th>NES Hardware</th><th>Modern Equivalent</th></tr>
+<tr>
+<td>
+<p>Two identical pulse wave generators. Each has:</p>
+<ul style="margin:8px 0 0 20px;color:#999">
+<li><strong>11-bit period register</strong> → frequencies from ~55Hz to ~12.4kHz</li>
+<li><strong>4 duty cycles</strong>: 12.5%, 25%, 50%, 75% (waveform shape)</li>
+<li><strong>4-bit volume</strong> (0-15) with optional hardware decay</li>
+<li><strong>Sweep unit</strong> for automatic pitch bends</li>
+</ul>
+<p style="margin-top:10px">The CPU writes new values to these registers every frame (60Hz). That's how envelopes and vibrato work — not through hardware automation, but through the music driver manually updating registers 60 times per second.</p>
+</td>
+<td>
+<p>In ReapNES Console (JSFX plugin for REAPER):</p>
+<ul style="margin:8px 0 0 20px;color:#999">
+<li><strong>CC11</strong> = Volume (mapped to NES 0-15 range)</li>
+<li><strong>CC12</strong> = Duty cycle (0-3 selecting waveform shape)</li>
+<li><strong>MIDI note number</strong> = Pitch (quantized to semitones)</li>
+<li><strong>Slider 33</strong> = Channel mode (0=Sq1, 1=Sq2)</li>
+</ul>
+<p style="margin-top:10px">The per-frame CC11/CC12 automation IS the NES envelope. Don't override it with ADSR — the captured data already contains the exact volume and timbre curve the game uses.</p>
+</td>
+</tr>
+</table>
+</div>
+
+<div class="card">
+<h3 class="ch-tri">Triangle (Bass)</h3>
+<table class="comparison-table">
+<tr><th>NES Hardware</th><th>Modern Equivalent</th></tr>
+<tr>
+<td>
+<p>A 32-step staircase triangle wave. Unlike pulse channels:</p>
+<ul style="margin:8px 0 0 20px;color:#999">
+<li><strong>No volume control</strong> — only on/off gating</li>
+<li><strong>One octave lower</strong> than pulse for the same period (32-step vs 16-step sequencer)</li>
+<li>All expression comes from note duration (staccato vs legato)</li>
+</ul>
+<p style="margin-top:10px">The triangle wave contains only odd harmonics falling off as 1/n², making it the darkest, smoothest waveform the NES can produce. It's always used for bass.</p>
+</td>
+<td>
+<p>In ReapNES Console:</p>
+<ul style="margin:8px 0 0 20px;color:#999">
+<li><strong>Channel Mode = 2</strong> (Triangle)</li>
+<li><strong>CC11 always 127</strong> (full volume gate)</li>
+<li>No CC12 (no duty cycle for triangle)</li>
+<li>Articulation from MIDI note duration only</li>
+</ul>
+</td>
+</tr>
+</table>
+</div>
+
+<div class="card">
+<h3 class="ch-noi">Noise (Percussion)</h3>
+<table class="comparison-table">
+<tr><th>NES Hardware</th><th>Modern Equivalent</th></tr>
+<tr>
+<td>
+<p>A linear-feedback shift register (LFSR) generating pseudo-random noise:</p>
+<ul style="margin:8px 0 0 20px;color:#999">
+<li><strong>16 period settings</strong> control noise 'brightness'</li>
+<li><strong>2 modes</strong>: long (white noise) / short (metallic tonal)</li>
+<li><strong>4-bit volume</strong> with hardware envelope</li>
+<li>Every NES drum is SYNTHESIZED from noise — no samples</li>
+</ul>
+</td>
+<td>
+<p>In ReapNES Console:</p>
+<ul style="margin:8px 0 0 20px;color:#999">
+<li><strong>Channel Mode = 3</strong> (Noise)</li>
+<li>MIDI notes map to drums: 36=kick, 38=snare, 42=hi-hat</li>
+<li>Velocity = initial volume</li>
+<li>ADSR envelope shapes each hit</li>
+</ul>
+</td>
+</tr>
+</table>
+</div>
+
+<h2>How We Extract the Music</h2>
+
+<div class="code-block">NES ROM (.nes) → Headless Emulator (py65 6502 CPU) → APU Register Captures → Mesen CSV → MIDI → REAPER Project</div>
+
+<div class="card">
+<h4>Step 1: Boot the ROM</h4>
+<p><code>nes_rom_capture.py</code> loads the ROM, emulates the 6502 CPU, handles mapper bank switching (MMC1, MMC3, UxROM, etc.), and simulates NMI interrupts at 60Hz. No graphics — we only care about writes to the APU registers at $4000-$4017.</p>
+</div>
+
+<div class="card">
+<h4>Step 2: Capture APU Writes</h4>
+<p>Every time the CPU writes to an APU register, we record it: frame number, register address, value. This is exactly what Mesen (a real NES emulator) captures — our output is format-compatible.</p>
+</div>
+
+<div class="card">
+<h4>Step 3: Convert to MIDI</h4>
+<p><code>mesen_to_midi.py</code> translates the register captures into standard MIDI: period changes become note-on/note-off events, volume writes become CC11, duty cycle writes become CC12. The result is a MIDI file that encodes the exact per-frame state of every NES channel.</p>
+</div>
+
+<div class="card">
+<h4>Step 4: Generate REAPER Project</h4>
+<p><code>generate_project.py</code> creates a REAPER DAW project with 4 tracks (one per NES channel), each loaded with the ReapNES Console JSFX synthesizer configured for the correct channel mode. Open the .rpp file in REAPER, press play, hear the NES music.</p>
+</div>
+
+<h2>The Three-Priority Cascade</h2>
+<p>The ReapNES synthesizer has three input modes, auto-selected by what data arrives:</p>
+
+<div class="card">
+<h4>Priority 1: SysEx Register Replay (Maximum Fidelity)</h4>
+<p>Raw APU register state encoded in MIDI SysEx messages. The synth becomes a software NES APU — it reads the registers and generates the exact waveform at the sample rate. Every hardware behavior is reproduced: sweep, phase reset, noise LFSR mode. <strong>This is the NES hardware running in software.</strong></p>
+</div>
+
+<div class="card">
+<h4>Priority 2: CC11/CC12 (File Playback)</h4>
+<p>Volume from CC11 (0-127 → NES 0-15), duty from CC12 (0-3), pitch from MIDI notes. This is what our ROM-extracted files use. Loses sweep unit detail and sub-semitone pitch, but captures the essential envelope and timbre perfectly.</p>
+</div>
+
+<div class="card">
+<h4>Priority 3: ADSR Keyboard (Live Composing)</h4>
+<p>When no file data arrives, the synth uses its own ADSR envelope to shape notes from a MIDI keyboard. Per-game presets capture each game's characteristic attack/decay/sustain/release values. This is for composers who want to write new music in the style of a specific NES game.</p>
+</div>
+
+<h2>Multi-Song Extraction</h2>
+<p>Different games require different techniques to access all their songs:</p>
+
+<table>
+<tr><th>Method</th><th>How It Works</th><th>Games</th></tr>
+<tr><td>Boot &amp; Capture</td><td>Music plays automatically on boot</td><td>50+ games</td></tr>
+<tr><td>ZP Poke</td><td>Write song ID to a zero-page variable after boot</td><td>Final Fantasy ($4B), Zelda II ($E0)</td></tr>
+<tr><td>ROM Patch</td><td>Change the <code>LDA #song_id</code> byte in boot code, reboot</td><td>Mega Man 2 ($9F53)</td></tr>
+<tr><td>Hot-Swap</td><td>Switch PRG banks for one NMI frame to copy new song code to RAM</td><td>Kid Icarus</td></tr>
+<tr><td>Direct Engine Call</td><td>Call the sound engine's play/tick routines directly</td><td>SMB3, Dick Tracy (Warhol)</td></tr>
+</table>
+
+</div>
+<footer>NES Tone Database &mdash; <a href="index.html">Back to Games</a></footer>
+</body>
+</html>
