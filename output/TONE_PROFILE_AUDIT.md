@@ -144,3 +144,36 @@ Then `build_website.py` reads both `tones.json` (data) and `game_content.json` (
 - [ ] Every noise profile characterizes its drum kit
 - [ ] Every game page has a unique "what makes this game sound distinctive" paragraph
 - [ ] Every instrument has a two-column NES/Modern comparison with game-specific settings
+
+## Appendix: Per-Game Channel Differences (Evidence)
+
+The data proves that channels within each game use VERY different patches:
+
+### Mega Man 2
+- **Sq1** (lead): 50% duty, fully sustained envelope, 247ms notes, peak vol 102 — warm legato melody
+- **Sq2** (harmony): Same 50% duty but MIXED envelope shapes (230 sustained + 69 decaying + 28 percussive), softer (peak 85), shorter notes (188ms) — dynamic accompaniment that shifts between legato and staccato
+- **Triangle** (bass): Fast 149ms notes, mix of sustained lines and staccato hits — the rapid arpeggiated bass that defines the Capcom sound
+- **Noise** (drums): 782 hits at 33ms avg — constant driving beat, the densest percussion in any NES RPG
+
+### Final Fantasy (Prelude)
+- **Sq1**: Decaying envelope (127→0 over 10 frames) — each arpeggio note plucks and fades, like a harp
+- **Sq2**: Sustained but at HALF the volume (peak 68 vs 127) — a quieter echo following Sq1, creating the two-voice shimmer
+
+### Kirby's Adventure
+- **Sq1**: Uses 4 DIFFERENT duty cycles within one song (476×50%, 44×75%, 36×12.5%, 8×25%) — constant timbral variety, like a vocalist changing vowels
+- **Sq2**: Predominantly percussive with 75% duty switching — brighter, punchier countermelody
+
+### Batman (Sunsoft)
+- **Sq1**: SWELL attack (17ms attack time!) — notes FADE IN before sustaining, unique among NES games
+- **Sq2**: Decaying with 50ms decay, erratic modulated curve — the trademark Sunsoft "wobbly" bass-lead
+
+### Contra
+- **Sq1**: 983 rapid-fire notes at 60ms avg — machine-gun staccato lead
+- **Sq2**: Only 12 notes at 1115ms avg — sustained pad chords, the polar opposite of Sq1
+
+### Dick Tracy (Warhol Driver)
+- **Sq1**: Flat sustained (zero decay), 319ms notes — MIDI-derived smooth lead
+- **Sq2**: Also flat sustained but at 701ms avg — long held harmonies
+- (Both channels nearly identical timbre — characteristic of the MIDI-conversion workflow)
+
+**CONCLUSION**: Every game page MUST describe these per-channel differences. The current template applies the same generic description to all Sq1 channels regardless of game, which misses the entire point of the analysis.
