@@ -3776,6 +3776,312 @@
     "description": "Noise channel percussion. 51 hits in the capture. Moderate drum activity."
   },
   {
+    "game": "Adventures_of_Dino_Riki",
+    "channel": 0,
+    "channel_name": "Square 1",
+    "note_count": 50,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 1.0,
+      "release_ms": 0
+    },
+    "peak_volume": 76,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 49,
+      "percussive": 1
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "2": 50
+    },
+    "envelope_curve": [
+      76,
+      76,
+      76,
+      76,
+      76,
+      76,
+      76,
+      76,
+      76,
+      68,
+      68,
+      68,
+      68,
+      68,
+      68,
+      68,
+      68,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      51,
+      51,
+      51,
+      51,
+      51
+    ],
+    "note_range": [
+      48,
+      67
+    ],
+    "avg_duration_ms": 182,
+    "description": "50% duty cycle pulse wave. Smooth sustained tone. Attack: 0ms, Decay: 0ms, Sustain: 100%, Release: 0ms. Peak volume 76/127."
+  },
+  {
+    "game": "Adventures_of_Dino_Riki",
+    "channel": 1,
+    "channel_name": "Square 2",
+    "note_count": 50,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 1.0,
+      "release_ms": 0
+    },
+    "peak_volume": 76,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 49,
+      "percussive": 1
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "2": 50
+    },
+    "envelope_curve": [
+      76,
+      76,
+      76,
+      76,
+      76,
+      76,
+      76,
+      76,
+      76,
+      68,
+      68,
+      68,
+      68,
+      68,
+      68,
+      68,
+      68,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      51,
+      51,
+      51,
+      51,
+      51
+    ],
+    "note_range": [
+      45,
+      64
+    ],
+    "avg_duration_ms": 182,
+    "description": "50% duty cycle pulse wave. Smooth sustained tone. Attack: 0ms, Decay: 0ms, Sustain: 100%, Release: 0ms. Peak volume 76/127."
+  },
+  {
+    "game": "Adventures_of_Dino_Riki",
+    "channel": 2,
+    "channel_name": "Triangle",
+    "note_count": 40,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 1.0,
+      "release_ms": 0
+    },
+    "peak_volume": 127,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 39,
+      "percussive": 1
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "2": 40
+    },
+    "envelope_curve": [
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127
+    ],
+    "note_range": [
+      36,
+      55
+    ],
+    "avg_duration_ms": 248,
+    "description": "Triangle wave bass. No volume control \u2014 only on/off gating. One octave below pulse for the same period value. Average note duration 248ms. Mixed articulation."
+  },
+  {
+    "game": "Adventures_of_Dr_Franken_The",
+    "channel": 0,
+    "channel_name": "Square 1",
+    "note_count": 20,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 33,
+      "sustain_ratio": 0.8,
+      "release_ms": 0
+    },
+    "peak_volume": 85,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 18,
+      "decaying": 1,
+      "percussive": 1
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "2": 20
+    },
+    "envelope_curve": [
+      85,
+      85,
+      68,
+      68,
+      68,
+      68,
+      68,
+      68,
+      68,
+      68,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      59,
+      51,
+      51,
+      51,
+      51,
+      42,
+      42,
+      34,
+      34,
+      34,
+      25,
+      25
+    ],
+    "note_range": [
+      58,
+      69
+    ],
+    "avg_duration_ms": 259,
+    "description": "50% duty cycle pulse wave. Smooth sustained tone. Attack: 0ms, Decay: 33ms, Sustain: 80%, Release: 0ms. Peak volume 85/127."
+  },
+  {
+    "game": "Adventures_of_Dr_Franken_The",
+    "channel": 2,
+    "channel_name": "Triangle",
+    "note_count": 19,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 1.0,
+      "release_ms": 0
+    },
+    "peak_volume": 127,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "percussive": 1,
+      "sustained": 18
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "2": 19
+    },
+    "envelope_curve": [
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "note_range": [
+      48,
+      63
+    ],
+    "avg_duration_ms": 272,
+    "description": "Triangle wave bass. No volume control \u2014 only on/off gating. One octave below pulse for the same period value. Average note duration 272ms. Mixed articulation."
+  },
+  {
     "game": "Batman",
     "channel": 0,
     "channel_name": "Square 1",
@@ -17288,6 +17594,190 @@
     ],
     "avg_duration_ms": 91,
     "description": "Triangle wave bass. No volume control \u2014 only on/off gating. One octave below pulse for the same period value. Average note duration 91ms. Staccato articulation."
+  },
+  {
+    "game": "Faxanadu",
+    "channel": 0,
+    "channel_name": "Square 1",
+    "note_count": 212,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 0.99,
+      "release_ms": 0
+    },
+    "peak_volume": 127,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 199,
+      "decaying": 13
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "3": 1,
+      "2": 211
+    },
+    "envelope_curve": [
+      127,
+      127,
+      127,
+      127,
+      127,
+      119,
+      120,
+      120,
+      120,
+      120,
+      113,
+      111,
+      114,
+      114,
+      114,
+      109,
+      110,
+      107,
+      109,
+      109,
+      109,
+      103,
+      102,
+      100,
+      104,
+      104,
+      98,
+      98,
+      98,
+      96
+    ],
+    "note_range": [
+      30,
+      119
+    ],
+    "avg_duration_ms": 321,
+    "description": "50% duty cycle pulse wave. Smooth sustained tone. Attack: 0ms, Decay: 0ms, Sustain: 99%, Release: 0ms. Peak volume 127/127."
+  },
+  {
+    "game": "Faxanadu",
+    "channel": 1,
+    "channel_name": "Square 2",
+    "note_count": 635,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 1.0,
+      "release_ms": 0
+    },
+    "peak_volume": 102,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 634,
+      "decaying": 1
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "2": 633,
+      "1": 2
+    },
+    "envelope_curve": [
+      102,
+      102,
+      102,
+      102,
+      102,
+      93,
+      100,
+      100,
+      100,
+      100,
+      98,
+      91,
+      98,
+      98,
+      98,
+      96,
+      96,
+      89,
+      91,
+      91,
+      91,
+      89,
+      86,
+      83,
+      95,
+      95,
+      93,
+      93,
+      93,
+      86
+    ],
+    "note_range": [
+      43,
+      76
+    ],
+    "avg_duration_ms": 122,
+    "description": "50% duty cycle pulse wave. Smooth sustained tone. Attack: 0ms, Decay: 0ms, Sustain: 100%, Release: 0ms. Peak volume 102/127."
+  },
+  {
+    "game": "Faxanadu",
+    "channel": 2,
+    "channel_name": "Triangle",
+    "note_count": 644,
+    "adsr": {
+      "attack_ms": 0,
+      "decay_ms": 0,
+      "sustain_ratio": 1.0,
+      "release_ms": 0
+    },
+    "peak_volume": 127,
+    "dominant_shape": "sustained",
+    "shape_distribution": {
+      "sustained": 644
+    },
+    "dominant_duty": 2,
+    "duty_name": "50%",
+    "duty_distribution": {
+      "2": 644
+    },
+    "envelope_curve": [
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127,
+      127
+    ],
+    "note_range": [
+      42,
+      70
+    ],
+    "avg_duration_ms": 88,
+    "description": "Triangle wave bass. No volume control \u2014 only on/off gating. One octave below pulse for the same period value. Average note duration 88ms. Staccato articulation."
   },
   {
     "game": "Faxanadu",
