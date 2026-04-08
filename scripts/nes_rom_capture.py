@@ -93,6 +93,138 @@ class MMC1:
             return (bank, last)
 
 
+class MMC5:
+    """MMC5 mapper (mapper 5). Complex mapper with expansion audio.
+
+    PRG banking: two switchable 8KB banks + one switchable 16KB or two 8KB at $C000.
+    For music extraction, we use a simplified model: 8KB banks at $8000/$A000,
+    with $C000/$E000 switchable or fixed based on PRG mode.
+
+    Used by: Castlevania III (US), Just Breed, Laser Invasion.
+    """
+
+    def __init__(self, prg_data, num_prg_banks):
+        self.prg = prg_data
+        self.num_prg_banks = num_prg_banks
+        self.num_8k_banks = num_prg_banks * 2
+        self.prg_mode = 3  # default: four 8KB banks
+        self.prg_banks = [0, 0, 0, self.num_8k_banks - 1]  # 4 x 8KB slots
+        self.prg_ram_protect = 0
+
+    def write(self, addr, value):
+        if addr == 0x5100:
+            self.prg_mode = value & 3
+        elif addr == 0x5113:
+            pass  # PRG-RAM bank (ignore)
+        elif addr == 0x5114:
+            self.prg_banks[0] = value & 0x7F
+        elif addr == 0x5115:
+            if self.prg_mode >= 2:
+                self.prg_banks[1] = value & 0x7F
+            else:
+                # 16KB mode: set two 8KB banks
+                base = (value & 0x7E)
+                self.prg_banks[0] = base
+                self.prg_banks[1] = base + 1
+        elif addr == 0x5116:
+            self.prg_banks[2] = value & 0x7F
+        elif addr == 0x5117:
+            self.prg_banks[3] = value & 0x7F
+        elif 0x8000 <= addr <= 0xFFFF:
+            pass  # ROM writes are no-ops
+
+    def get_prg_banks(self):
+        return (self.prg_banks[0] // 2, self.prg_banks[2] // 2)
+
+    def get_prg_banks_8k(self):
+        last = self.num_8k_banks - 1
+        if self.prg_mode == 0:
+            # One 32KB bank
+            base = self.prg_banks[3] & 0x7C
+            return (base, base + 1, base + 2, base + 3)
+        elif self.prg_mode == 1:
+            # Two 16KB banks
+            b0 = self.prg_banks[1] & 0x7E
+            b1 = self.prg_banks[3] & 0x7E
+            return (b0, b0 + 1, b1, b1 + 1)
+        elif self.prg_mode == 2:
+            # One 16KB + two 8KB
+            b0 = self.prg_banks[1] & 0x7E
+            return (b0, b0 + 1, self.prg_banks[2] % self.num_8k_banks, self.prg_banks[3] % self.num_8k_banks)
+        else:
+            # Four 8KB banks
+            return tuple(b % self.num_8k_banks for b in self.prg_banks)
+
+
+class MMC2:
+    """MMC2/MMC4 mapper (mapper 9/10). Used by Punch-Out!! and Fire Emblem.
+
+    Simple PRG switching: one 8KB bank at $8000, rest fixed.
+    The latch mechanism for CHR is irrelevant for audio.
+    """
+
+    def __init__(self, prg_data, num_prg_banks):
+        self.prg = prg_data
+        self.num_prg_banks = num_prg_banks
+        self.num_8k_banks = num_prg_banks * 2
+        self.prg_bank = 0
+
+    def write(self, addr, value):
+        if 0xA000 <= addr <= 0xAFFF:
+            self.prg_bank = value & 0x0F
+
+    def get_prg_banks(self):
+        last = self.num_prg_banks - 1
+        return (self.prg_bank, last)
+
+    def get_prg_banks_8k(self):
+        b = self.prg_bank % self.num_8k_banks
+        last3 = [self.num_8k_banks - 3, self.num_8k_banks - 2, self.num_8k_banks - 1]
+        return (b, last3[0], last3[1], last3[2])
+
+
+class SunsoftFME7:
+    """Sunsoft FME-7/5A/5B mapper (mapper 69). Used by Batman: Return of the Joker, Gimmick!
+
+    Register select ($8000) + data ($A000). 8KB PRG banking.
+    Commands 8-B select 4 PRG banks. The mapper also has expansion audio
+    (3 extra square wave channels on 5B variant) but we don't emulate those.
+    """
+
+    def __init__(self, prg_data, num_prg_banks):
+        self.prg = prg_data
+        self.num_prg_banks = num_prg_banks
+        self.num_8k_banks = num_prg_banks * 2
+        self.command = 0
+        self.prg_banks = [0, 0, 0, self.num_8k_banks - 1]
+
+    def write(self, addr, value):
+        if 0x8000 <= addr <= 0x9FFF:
+            self.command = value & 0x0F
+        elif 0xA000 <= addr <= 0xBFFF:
+            if 8 <= self.command <= 11:
+                slot = self.command - 8
+                # Bit 6: 0=ROM, 1=RAM (we ignore RAM)
+                if not (value & 0x40):
+                    self.prg_banks[slot] = value & 0x3F
+            # Commands 0-7: CHR banks (ignore)
+            # Command 12: mirroring (ignore)
+            # Command 13: IRQ control (ignore)
+            # Command 14-15: IRQ counter (ignore)
+
+    def get_prg_banks(self):
+        return (self.prg_banks[0] // 2, self.prg_banks[2] // 2)
+
+    def get_prg_banks_8k(self):
+        last = self.num_8k_banks - 1
+        return (
+            self.prg_banks[0] % self.num_8k_banks,
+            self.prg_banks[1] % self.num_8k_banks,
+            self.prg_banks[2] % self.num_8k_banks,
+            last
+        )
+
+
 class NROM:
     """NROM mapper (mapper 0). No bank switching at all.
 
@@ -258,8 +390,8 @@ class NESMemory:
 
     def _resolve_prg(self, addr):
         """Resolve a $8000-$FFFF address to a PRG ROM byte."""
-        if isinstance(self.mapper, MMC3):
-            # MMC3: 4 x 8KB banks
+        if isinstance(self.mapper, (MMC3, MMC5, SunsoftFME7)):
+            # 8KB banking mappers: 4 x 8KB banks
             banks = self.mapper.get_prg_banks_8k()
             slot = (addr - 0x8000) // 0x2000  # 0-3
             bank = banks[slot]
@@ -307,6 +439,10 @@ class NESMemory:
         if isinstance(key, int):
             if 0x8000 <= key <= 0xFFFF:
                 self.mapper.write(key, value)
+                return
+            if isinstance(self.mapper, MMC5) and 0x5100 <= key <= 0x5117:
+                self.mapper.write(key, value)
+                self.ram[key] = value
                 return
             if key == 0x2000:
                 # PPU control: bit 7 = NMI enable
@@ -407,14 +543,16 @@ def boot_rom(rom_path, num_frames, pokes=None, press_start_at=None, button_scrip
         List of per-frame APU write lists: [[(reg, val), ...], ...]
     """
     prg_data, num_prg_banks, mapper_num = load_rom(rom_path)
-    supported = {0: 'NROM', 1: 'MMC1', 2: 'UxROM', 3: 'CNROM', 4: 'MMC3', 7: 'AxROM'}
+    supported = {0: 'NROM', 1: 'MMC1', 2: 'UxROM', 3: 'CNROM', 4: 'MMC3', 5: 'MMC5',
+                  7: 'AxROM', 9: 'MMC2', 10: 'MMC4', 69: 'FME-7'}
     assert mapper_num in supported, f"Mapper {mapper_num} not supported. Supported: {supported}"
 
     print(f"ROM: {Path(rom_path).name}")
     print(f"PRG: {num_prg_banks} x 16KB = {num_prg_banks * 16}KB")
     print(f"Mapper: {mapper_num} (MMC1)")
 
-    mapper_classes = {0: NROM, 1: MMC1, 2: UxROM, 3: CNROM, 4: MMC3, 7: AxROM}
+    mapper_classes = {0: NROM, 1: MMC1, 2: UxROM, 3: CNROM, 4: MMC3, 5: MMC5,
+                       7: AxROM, 9: MMC2, 10: MMC2, 69: SunsoftFME7}
     mapper = mapper_classes[mapper_num](prg_data, num_prg_banks)
     mem = NESMemory(mapper)
     cpu = MPU()
