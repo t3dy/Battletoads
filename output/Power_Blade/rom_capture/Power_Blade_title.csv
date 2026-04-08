@@ -1,0 +1,17 @@
+frame,parameter,value
+60,$4000_duty,0
+60,$4000_const,1
+60,$4000_vol,0
+60,$4004_duty,0
+60,$4004_const,1
+60,$4004_vol,0
+60,$400C_const,1
+60,$400C_vol,0
+60,$4008_linear,0
+60,$4001_sweep,127
+60,$4005_sweep,127
+60,$4002_period,3585
+60,$400B_length,255
+60,$4006_period,3585
+60,$400A_period,4095
+60,$400B_length,255

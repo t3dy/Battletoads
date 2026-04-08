@@ -1,0 +1,10 @@
+frame,parameter,value
+0,$4000_duty,0
+0,$4000_const,1
+0,$4000_vol,0
+0,$4004_duty,0
+0,$4004_const,1
+0,$4004_vol,0
+0,$400C_const,1
+0,$400C_vol,0
+0,$4008_linear,0

@@ -60,7 +60,7 @@ Site: https://t3dy.github.io/ReapNES/
 ## Hard Invariants
 
 - **NSF emulation is ground truth** for games without custom ROM parsers.
-- **Trace is ground truth** for games with ROM parsers (CV1, Contra).
+- **Trace is ground truth** for games with ROM parsers (CV1, Contra, W&W).
 - **CC11/CC12 in MIDI files is ground truth for volume/duty envelopes.**
   NSF extraction captures per-frame APU register state as CC automation.
   The synth MUST play these back faithfully, not override with ADSR.
@@ -76,6 +76,12 @@ Site: https://t3dy.github.io/ReapNES/
   Auto-detects from incoming data. See docs/SYNTHMERGE.md.
 - **Projects must work with zero manual REAPER configuration.** Keyboard,
   MIDI routing, synth settings — everything baked into the RPP file.
+- **Parser output is hypothesis, not music.** Structural parsing gives
+  event structure. Trusted musical output requires execution semantics
+  validation against ground truth. See `.claude/rules/architecture.md` Rules 13-17.
+- **Noise is a separate semantic domain.** Do not force noise channels
+  through melodic assumptions. Noise has different encoding, validation
+  criteria, and runtime behavior. Document noise status separately.
 
 ## Fidelity Hierarchy
 
@@ -111,6 +117,20 @@ use trace pipeline. Battletoads and Mario are confirmed trace-required games.
 - Mistake narratives: @docs/MISTAKEBAKED.md
 - Handover (legacy): @docs/HANDOVER.md
 
+## Game Extraction Status
+
+| Game | Ladder Rung | Melodic | Noise | Notes |
+|------|-------------|---------|-------|-------|
+| Castlevania 1 | 4 (trusted) | Validated | Validated | Proven pipeline. 0 pitch mismatches. |
+| Contra | 4 (trusted) | Validated | Validated | Proven pipeline. |
+| Wizards & Warriors | 2-3 (partial) | Rung 2 all 16 songs (512f), Rung 3 title (2169f) | Rung 1 (structural) + partial Rung 2 (3 active songs) | Strong milestone, not final. See W&W validation record. |
+| Battletoads | 1 (parser-aligned) | Structural only | Structural only | Execution semantics validation in progress. |
+| Super Mario Bros | NSF only | N/A | N/A | NSF pipeline, no ROM parser. |
+
+Existing MIDI/RPP output for games below Rung 3 is **hypothesis output** —
+usable for practical work (listening, arrangement) but not claimable as
+verified or trusted.
+
 ## NON-NEGOTIABLE RULES
 
 ```
@@ -122,19 +142,73 @@ Direct period-change-to-note conversion is a known failure mode.
 Validation should fail if a trace route bypasses Frame IR.
 ```
 
+```
+NON-NEGOTIABLE: Zero parse errors is NOT musical correctness.
+Parse alignment must be followed by EXECUTION SEMANTICS VALIDATION.
+Zero parse errors means byte-stream alignment — bytes correctly partitioned.
+It does NOT mean pitches, durations, envelopes, or timing are correct.
+Parser output is a hypothesis until execution semantics validation passes.
+No pitch/rhythm/timbre claims may be promoted to "trusted" without it.
+```
+
+```
+NON-NEGOTIABLE: Execution Semantics Validation (required phase).
+After parser alignment, simulate the driver frame by frame:
+  - tempo accumulator, duration counters, control flow
+  - pitch modulation (arpeggio, vibrato, sweep)
+  - volume envelopes, duty cycle
+Compare simulated per-frame state against Mesen trace.
+Block promotion to MIDI/REAPER/trusted output until this passes.
+Required artifacts: parsed event stream, simulated frame-state trace,
+  comparison report, mismatch taxonomy.
+See EXECUTIONSEMANTICSVALIDATION.md for full spec.
+```
+
 **Different ROMs use different music engines.** Do not hard-code one universal
 decoding model. The system must support per-game/per-engine adaptation.
 
-**Three distinct layers that must never be conflated:**
-1. Canonical observed data (FrameState from trace/NSF)
-2. Inferred musical interpretation (Frame IR)
-3. Downstream DAW/playback projection (MIDI/RPP/synth)
+**Three-Layer Architecture (Observed / Intent / Projection):**
 
-**Three distinct use-cases that must never be collapsed:**
+All ROM-derived extraction operates across three layers that must
+remain distinct in code, artifacts, documentation, and reasoning:
+
+1. **Observed layer** (ground truth): Mesen trace, NSF emulation,
+   direct emulator APU state. Authoritative. When other layers
+   disagree, this layer wins.
+2. **Intent layer** (parser-derived interpretation): parsed event
+   stream, simulated driver state, reconciled musical events.
+   This is a HYPOTHESIS until validated against Layer 1.
+3. **Projection layer** (generated output): MIDI, REAPER, SysEx,
+   WAV, MP4, musical claims. PROVISIONAL until Layer 2 passes
+   the execution semantics gate against Layer 1.
+
+Execution semantics validation is the gate between Intent and Projection.
+If that gate is not passed, Projection outputs are hypothesis output.
+
+**Five pipeline sub-layers (never conflate):**
+1. Parsed/interpreted event stream from ROM (structural hypothesis)
+2. Simulated frame-level driver state (execution semantics)
+3. Canonical observed data (FrameState from trace/NSF — ground truth)
+4. Inferred musical interpretation (Frame IR)
+5. Downstream DAW/playback projection (MIDI/RPP/synth)
+
+**Three distinct use-cases (never collapse):**
 1. Archival/analytical fidelity to ROM behavior
 2. Editable REAPER project generation
 3. Live MIDI keyboard play through synth plugin
 
+**Pipeline milestone labels (use precisely):**
+- **Parser-aligned**: byte-stream alignment confirmed, zero desync. STRUCTURAL milestone only.
+- **Semantics-validated**: simulated frame state matches trace within thresholds. SEMANTIC milestone.
+- **Trusted / production-ready**: semantics-validated AND ear-checked. May be projected to MIDI/REAPER.
+- **Hypothesis output**: parser-derived music before validation. Usable practically, not claimable as verified.
+
+**Validation Ladder** (see `session_protocol.md` for full table):
+- Rung 0: Unexamined → Rung 1: Parser-aligned → Rung 2: Internal semantics
+- Rung 3: External trace → Rung 4: Trusted projection → Rung 5: Full-game trusted
+
+Read `.claude/rules/session_protocol.md` for gates, ladder, and delivery checklist.
+Read `.claude/rules/architecture.md` for the 17 architectural rules.
 Read `docs/ARCHITECTURE_SPEC.md` for the full pipeline rebuild specification.
 
 ## Key Commands

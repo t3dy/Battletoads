@@ -1,0 +1,47 @@
+<REAPER_PROJECT 0.1 "7.0"
+  TEMPO 128.6 4 4
+  <TRACK
+    NAME "NES - Pulse 1"
+    PEAKCOL 16576606
+    <ITEM
+      POSITION 0
+      LENGTH 90.000000
+      <SOURCE MIDI
+        FILE "C:\Dev\NSFRIPPER\output\Super_Mario_Bros_v2\midi\Super_Mario_Bros._17_Invincible_Hurry_v1.mid"
+      >
+    >
+  >
+  <TRACK
+    NAME "NES - Pulse 2"
+    PEAKCOL 10092441
+    <ITEM
+      POSITION 0
+      LENGTH 90.000000
+      <SOURCE MIDI
+        FILE "C:\Dev\NSFRIPPER\output\Super_Mario_Bros_v2\midi\Super_Mario_Bros._17_Invincible_Hurry_v1.mid"
+      >
+    >
+  >
+  <TRACK
+    NAME "NES - Triangle"
+    PEAKCOL 16744192
+    <ITEM
+      POSITION 0
+      LENGTH 90.000000
+      <SOURCE MIDI
+        FILE "C:\Dev\NSFRIPPER\output\Super_Mario_Bros_v2\midi\Super_Mario_Bros._17_Invincible_Hurry_v1.mid"
+      >
+    >
+  >
+  <TRACK
+    NAME "NES - Noise / Drums"
+    PEAKCOL 11184810
+    <ITEM
+      POSITION 0
+      LENGTH 90.000000
+      <SOURCE MIDI
+        FILE "C:\Dev\NSFRIPPER\output\Super_Mario_Bros_v2\midi\Super_Mario_Bros._17_Invincible_Hurry_v1.mid"
+      >
+    >
+  >
+>

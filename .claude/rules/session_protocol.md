@@ -46,9 +46,15 @@ Debug by inspecting frame state and Frame IR, not MIDI events.
 
 ## Three Layers (never conflate)
 
-1. **Observed data**: raw register writes, per-frame channel state
-2. **Musical interpretation**: Frame IR with note boundaries, continuity, modulation
-3. **Playback projection**: MIDI notes, CC, SysEx, RPP, synth
+1. **Observed** (ground truth): raw register writes, per-frame channel state.
+   Authoritative. From Mesen trace or NSF emulation.
+2. **Intent** (parser interpretation): parsed events, simulated driver state,
+   Frame IR. HYPOTHESIS until validated against Observed.
+3. **Projection** (generated output): MIDI, CC, SysEx, RPP, synth, musical
+   claims. PROVISIONAL until Intent passes execution semantics gate.
+
+Execution semantics validation is the gate between Intent and Projection.
+If the gate is not passed, all Projection outputs are **hypothesis output**.
 
 ## Three Use-Cases (never collapse)
 
@@ -77,6 +83,67 @@ When Mesen and NSF disagree, Mesen wins.
 When MIDI and frame state disagree, frame state wins.
 When trace period doesn't match ROM table, snap to nearest table entry.
 
+## ROM Parsing Pipeline Gates (mandatory for ROM-parsing routes)
+
+### Gate 1: Parser Alignment (STRUCTURAL — not musical)
+
+Parser alignment is confirmed when:
+- All command boundaries, control flow, and variable-width events
+  align with zero desync across all channels
+- Subroutine calls nest and return correctly
+- Loop points are detected and consistent
+
+**"Zero parse errors" is a structural milestone only.**
+It proves byte-stream alignment. It does NOT prove pitches, durations,
+envelopes, or timing are correct. Parser output is a hypothesis.
+
+### Gate 2: Execution Semantics Validation (SEMANTIC — required)
+
+After parser alignment, simulate the driver frame by frame:
+1. Tempo accumulator (exact 8-bit overflow logic)
+2. Duration counters per channel (decrement per tick, advance on zero)
+3. Pitch modulation (arpeggio, vibrato, sweep offsets per frame)
+4. Volume envelopes (per-frame volume from envelope model)
+5. Duty cycle state
+
+Compare simulated per-frame output against Mesen trace.
+
+Passes when:
+- Period matches trace on 90%+ of sounding frames
+- Volume matches trace on 80%+ of frames
+- Note boundaries align within ±1 frame of trace attacks
+
+Required artifacts:
+- Parsed event stream
+- Simulated frame-state trace
+- Comparison report against Mesen trace
+- Mismatch taxonomy (tempo drift / duration error / arpeggio error /
+  envelope error / transposition error / alignment shift)
+
+**No pitch/rhythm/timbre claims are valid until this gate passes.**
+
+### Gate 3: Frame IR + Projection
+
+Only after Gate 2 passes:
+- Generate Frame IR from validated events
+- Project to MIDI/REAPER
+- Ear-check against game audio
+
+## Validation Ladder (trust levels)
+
+| Rung | Name | What it proves | May claim |
+|------|------|---------------|-----------|
+| 0 | Unexamined | Nothing | Nothing |
+| 1 | Parser-aligned | Byte-stream structure | "command boundaries identified" — NOT pitches/durations/musicality |
+| 2 | Internal semantics | Sim matches NSF within thresholds | "simulator agrees with emulator on [channels] for [N] frames" |
+| 3 | External trace | Sim matches Mesen trace within thresholds | "execution semantics validated against hardware" |
+| 4 | Trusted projection | Rung 3 + Frame IR + ear-check | "trusted output for [scope]" |
+| 5 | Full-game trusted | All songs, all channels at Rung 4 | "complete validated extraction" |
+
+Partial trust is normal. Different channels and songs may be at different rungs.
+Noise channels are a separate semantic domain — document their rung separately.
+Always state the scope: which channels, songs, frame range.
+
 ## Delivery Gate
 
 Nothing is "ready to test" unless:
@@ -86,5 +153,38 @@ Nothing is "ready to test" unless:
 - Route assumptions are explicit
 - SysEx/APU2 route was evaluated for fidelity
 - Frame IR artifact exists and was inspected
+- For ROM-parsing routes: execution semantics validation passed (Gate 2)
+- Parser alignment alone (Gate 1) is NOT sufficient for delivery
+- Every delivered artifact is labeled with its Validation Ladder rung
+- Artifacts below Rung 3 are labeled "hypothesis output" in delivery notes
+- Noise channel status documented separately from melodic channels
+- Per-game validation record updated (see `templates/reports/GAME_VALIDATION_TEMPLATE.md`)
 
 Run session_startup_check.py + sync_jsfx.py before every delivery.
+
+### Trust labeling in delivery
+
+When describing output to the user, always state:
+1. Which Validation Ladder rung the output has reached
+2. Which channels and songs are validated at that rung
+3. Whether the output is "trusted" or "hypothesis output"
+4. What scope the trust covers (frame range, channels, songs)
+
+Never describe hypothesis output as "done," "correct," "ready,"
+or "the music." Use: "working draft," "practical artifact,"
+"hypothesis output pending validation."
+
+## Execution Semantics Checklist (for ROM-parsing sessions)
+
+```
+[ ] 1. Parser alignment — zero desync across all channels
+[ ] 2. Command semantics verified — param counts, effects confirmed
+[ ] 3. Frame simulator built — tempo, duration, modulation modeled
+[ ] 4. Tempo/tick scheduling validated — accumulator overflow matches trace
+[ ] 5. Duration boundaries validated — note attacks align with trace
+[ ] 6. Modulation/arpeggio modeled — per-frame period offsets correct
+[ ] 7. Envelope/volume behavior modeled — per-frame volume matches trace
+[ ] 8. Simulated vs trace comparison run — mismatch report produced
+[ ] 9. Mismatch categories explained — no unexplained divergences
+[ ] 10. Only THEN: export MIDI / generate REAPER project
+```

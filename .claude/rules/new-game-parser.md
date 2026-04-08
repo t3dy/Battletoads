@@ -17,3 +17,20 @@ Before writing ANY code for a new game, complete these steps IN ORDER:
 8. **Parse ONE track, listen** — compare to game before batch-extracting.
 
 See extraction/drivers/konami/spec.md for the per-game differences table.
+
+## After Structural Parsing: Mandatory Next Steps
+
+Completing steps 1-8 gives you **Rung 1 (parser-aligned)** — structural
+byte-stream alignment. This is NOT musical correctness.
+
+9. **Build simulator** — frame-level execution model from parsed events.
+   Use SIMULATORBUILDER skill.
+10. **Compare vs ground truth** — sim output vs NSF emulation (Rung 2)
+    then vs Mesen trace (Rung 3).
+11. **Document per-channel** — create validation record using
+    `templates/reports/GAME_VALIDATION_TEMPLATE.md`.
+12. **Noise separately** — noise channel is a separate semantic domain.
+    Do not force through melodic pipeline.
+13. **Label all output** — hypothesis output until Rung 3+ passes.
+
+See `session_protocol.md` for the Validation Ladder and gate criteria.

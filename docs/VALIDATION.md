@@ -2,6 +2,13 @@
 
 A build is not deliverable until it passes every gate.
 
+**Validation gates and ladder:** `.claude/rules/session_protocol.md`
+**Architecture rules:** `.claude/rules/architecture.md` (Rules 13-17)
+**Per-game template:** `templates/reports/GAME_VALIDATION_TEMPLATE.md`
+
+All output below Rung 3 on the Validation Ladder is **hypothesis output** —
+usable for practical work, not claimable as verified or trusted.
+
 ## Gate A — Environment Startup
 
 Before touching any game:
@@ -38,6 +45,26 @@ Route rules:
 - If trace exists and NSF period match < 80%, reject NSF
 - If timing diverges in recognizable material, reject NSF
 - Record rationale in session_decisions
+
+## Gate C+ — Execution Semantics Validation (ROM-parsing routes)
+
+**This gate is MANDATORY for any ROM-parsing route.**
+Parser alignment (Gate A/B/C structural) is NOT sufficient.
+
+- [ ] Frame-level simulator built from parsed events + driver model
+- [ ] Simulator compared against ground truth (NSF or Mesen trace)
+- [ ] Per-channel period match ≥ 90% on sounding frames
+- [ ] Per-channel volume match ≥ 80%
+- [ ] Note boundaries align within ±1 frame of trace attacks
+- [ ] Mismatch taxonomy produced (tempo/duration/arpeggio/envelope/transposition)
+- [ ] No unexplained divergences remain
+- [ ] Noise channel documented separately (if applicable)
+- [ ] Validation Ladder rung assigned per channel per song
+
+Without Gate C+, all output is **hypothesis output** (Rung 1-2).
+With Gate C+ passing, output may be promoted to **trusted** (Rung 3+).
+
+See `.claude/rules/session_protocol.md` for rung definitions.
 
 ## Gate D — Parameter Coverage
 

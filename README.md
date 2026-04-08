@@ -1,262 +1,157 @@
-# Battletoads NES Music Reconstruction
+# ReapNES — NES Music Extraction & Synthesis
 
-**Hardware-accurate reproduction of Battletoads (Rare, 1991) game audio using Mesen APU trace captures, MIDI+SysEx encoding, and custom JSFX synthesizers in REAPER.**
+## [Browse the NES Tone Database](https://t3dy.github.io/Battletoads/output/tone_database/index.html)
 
-This repository documents five days of reverse engineering, pipeline building, debugging, and hard-won architectural lessons in the pursuit of note-accurate NES music reproduction.
-
----
-
-## The Story
-
-### Days 1-2: The Pipeline Existed, But Didn't Work
-
-This project began as part of **ReapNES** / **NESMusicStudio** — a broader effort to extract music from NES game ROMs and play it back through custom synthesizers in REAPER. The pipeline had already been proven on Konami titles (Castlevania, Contra) using ROM disassembly and 6502 emulation:
-
-```
-NSF file → py65 6502 CPU → APU register captures → MIDI with CC11/CC12 → REAPER + JSFX synth
-```
-
-For Castlevania's "Vampire Killer," this achieved **0 pitch mismatches and 0 volume mismatches** across 1,792 frames on both pulse channels. Contra's "Jungle" reached **0 pitch mismatches** across 2,976 frames.
-
-Battletoads was supposed to be the next game through the batch pipeline. Instead, it became a five-day education in why assumptions kill.
-
-### The JSFX Disaster
-
-The automated pipeline (`nsf_to_reaper.py --all`) produced 21 MIDIs, 21 REAPER projects, and 21 WAV previews. The WAVs played sound. The REAPER projects played **nothing**. Multiple rounds of debugging RPP structure, MIDI embedding format, and slider configuration found nothing wrong — because the bug wasn't in the data.
-
-**The ReapNES_Console.jsfx synthesizer had a compile-time syntax error.** Two empty `else` branches contained only comments with no expressions. JSFX requires at least one expression in every branch. The entire `@sample` block failed to compile. The synth received MIDI (visible as activity indicators) but produced zero audio samples.
-
-This was visible the entire time as a red error banner in the FX window. Nobody checked.
-
-### The Wrong Song
-
-While debugging the silence, we compared our NSF extraction against a Mesen hardware trace of actual gameplay. The comparison showed the data streams were "fundamentally different." We spent rounds investigating why.
-
-**We were comparing the wrong song.** NSF Song 2 is "Interlude" (a cutscene track). Level 1 (Ragnarok's Canyon) is **Song 3**. A 30-second web search for the track listing would have caught this immediately.
-
-### NSF Is Not Ground Truth for Battletoads
-
-Even after fixing the song mapping, the NSF extraction doesn't match in-game audio. Unlike the well-behaved Konami NSF drivers, Battletoads (Rare) has a complex sound system where NSF playback diverges from actual in-game audio:
-
-| Aspect | NSF Extraction | Mesen Trace (Real Game) |
-|--------|---------------|------------------------|
-| Level 1 intro | No intro, bass starts at frame 4 | 17-second atmospheric noise crescendo |
-| Pulse periods | Static per note | ±4 oscillation every frame (sweep unit vibrato) |
-| Triangle pitch | Single period per note | 1-unit wobble every frame (micro-tuning) |
-| Noise channel | Zero activity in opening | Slow build from vol 1→3+ (atmospheric wash) |
-
-**The Mesen trace captures exactly what the NES APU produces during real gameplay.** Every sweep oscillation, every volume micro-adjustment, every frame.
-
-### Day 3: Building the Trace Pipeline
-
-With NSF ruled out as ground truth, we built `scripts/trace_to_midi.py` — a new pipeline that reads Mesen CSV captures and produces:
-
-- **MIDI files** with CC11 (volume), CC12 (duty cycle), and note events
-- **SysEx APU register track** — raw per-frame register state for the APU2 synth
-- **Console REAPER projects** (CC-driven, good for keyboard play)
-- **APU2 REAPER projects** (SysEx register replay, maximum fidelity)
-
-The SysEx path is critical. MIDI can encode pitch, volume, and duty cycle, but **cannot encode the sweep unit** — the hardware pitch bend that gives Battletoads its signature bass slides. The APU2 synth reads raw register state from SysEx messages and replays it hardware-accurately, including sweep, noise mode, and phase reset.
-
-### Day 4: Fixing Everything That Was Silently Broken
-
-- **CC11 volume decoding** was wrong: `/127*15` instead of `/8` — lost 1 level at volumes 10-15
-- **CC12 duty decoding** was wrong: `min(3,x)` instead of `floor(x/32)` — always gave duty 3 (75%)
-- **Noise duration** was wrong: waited for vol=0 instead of capping at 12 frames — caused 500ms+ drum smear
-- **RPP generator** was using `SOURCE MIDI FILE` references instead of inline `HASDATA` embedding
-- **nsf_to_reaper.py** had an inline `build_rpp()` skeleton that bypassed the real project generator
-
-Each independently fixable. Together they meant even a compiling synth would produce wrong audio.
-
-### Day 5: The Architecture Crystallizes
-
-The core realization: two fundamentally different playback modes need different synths:
-
-| Mode | Synth | Data Source | Fidelity |
-|------|-------|-------------|----------|
-| File playback (archival) | APU2 | SysEx register replay from Mesen trace | ~95% |
-| File playback (portable) | Console | CC11/CC12 from MIDI | ~70% |
-| Keyboard play (live) | Console | ADSR envelopes, no file data | Approximate |
-
-The **dual-mode contract**: when CC11/CC12 arrives, bypass ADSR and let file data drive volume/duty directly. When no CC data (keyboard play), use ADSR envelopes. Controlled by a per-channel `cc_active[]` flag.
+> 625+ instrument profiles · 66 games · 160 REAPER projects · 465 technical documents
 
 ---
 
-## What's Here
+## What This Is
 
-### Pipeline Scripts
-| Script | Purpose |
-|--------|---------|
-| `scripts/trace_to_midi.py` | Mesen CSV → MIDI+SysEx → REAPER projects (trace path) |
-| `scripts/nsf_to_reaper.py` | NSF → 6502 emulation → MIDI → REAPER (NSF path) |
-| `scripts/generate_project.py` | MIDI → REAPER RPP with synth, routing, inline data |
-| `scripts/sync_jsfx.py` | Deploy JSFX to REAPER effects directory with validation |
-| `scripts/session_startup_check.py` | Pre-session environment verification |
-| `scripts/mesen_to_midi.py` | Mesen trace to MIDI converter |
+A complete pipeline for extracting music from NES game ROMs, converting it to MIDI, generating REAPER DAW projects, and analyzing the timbral characteristics of every instrument. Built around a headless NES emulator that boots ROMs without graphics and captures the raw audio register writes.
 
-### Synthesizers (JSFX for REAPER)
-| Synth | Sliders | Purpose |
-|-------|---------|---------|
-| `ReapNES_Console.jsfx` | 38 | ADSR + CC dual mode, keyboard play, mixing |
-| `ReapNES_APU2.jsfx` | 19 | Hardware-accurate SysEx register replay |
-| `ReapNES_APU.jsfx` | 15 | Original CC-only synth (legacy) |
+**No manual gameplay required.** The emulator navigates menus, presses buttons, and switches songs automatically.
 
-### Output
-```
-output/Battletoads/
-  nsf/    — NSF file (21 songs)
-  midi/   — NSF-extracted MIDIs (all 21)
-  reaper/ — NSF-based RPPs (all 21, low fidelity)
-  wav/    — NSF WAV previews (all 21)
-  mp3/    — Reference MP3s from Zophar (all 21)
+## The NES Sound Chip (RP2A03)
 
-output/Battletoads_trace/
-  midi/   — Trace-extracted MIDIs (Title Screen + Level 1 segments)
-  reaper/ — Trace-based RPPs (Console + APU2 variants)
+The NES has 5 sound channels, all synthesized — no samples, no wavetables, just simple waveforms shaped by per-frame register writes at 60Hz:
 
-Projects/Battletoads/
-  *.rpp   — Ready-to-open REAPER projects
-```
+### Pulse 1 & 2 (Square Wave)
+- **4 duty cycles**: 12.5% (thin/buzzy), 25% (bright/hollow), 50% (warm/full), 75% (=25% inverted)
+- **11-bit period register** → frequencies from ~55Hz to ~12.4kHz
+- **4-bit volume** (0-15) with optional hardware envelope decay
+- **Sweep unit** for automatic pitch bends
+- Two identical channels allow harmony, echo, or call-and-response
 
-### Documentation
-| Doc | What It Covers |
-|-----|----------------|
-| `docs/HANDOVER_BATTLETOADS.md` | Complete session handover — state, fixes, next steps |
-| `docs/FRAMEBYFRAME.md` | NSF vs Mesen comparison proving NSF is inadequate |
-| `docs/FINDINGTRACKBOUNDARIES.md` | NSF song# → game level mapping with sources |
-| `docs/LEAVENOTURNUNSTONED.md` | Exhaustive parameter checklist for every APU register |
-| `docs/DATAONTOLOGY.md` | Complete data schema: ROM to REAPER playback |
-| `docs/WHYSUCHABADSTARTWITHBATTLETOADS.md` | Honest failure audit |
-| `docs/WHATWORKEDWITHCONTRAANDCASTLEVANIA.md` | Methodology that achieved 0 mismatches |
-| `docs/MISTAKEBAKED.md` | 8 rules from blunders, with prompt costs |
-| `docs/BUILDINGTHEENVIRONMENT.md` | Infrastructure fixes to prevent recurrence |
-| `docs/TIPSFORWORKINGWITHTED.md` | Collaboration patterns, vocabulary bridging |
-| `docs/PROMPTENGINEERINGCRITIQUE.md` | Session failure assessment |
-| `docs/HIROPLANTAGENET_MARIO_FIDELITY.md` | Mario fidelity decomposition |
-| `docs/HACKINGMARIOWEB.md` | SMB1 sound engine research |
-| `docs/MARIODISCOVERIES.md` | Mario-specific NSF/Mesen divergence findings |
-| `docs/ROM_MUSIC_MYSTERIES.md` | Open questions in NES music reverse engineering |
-| `docs/VALIDATION.md` | Gate protocol for pre-delivery quality assurance |
+### Triangle (Bass)
+- **Fixed triangle waveform** — no duty cycle, no volume control
+- Produces frequency **one octave lower** than pulse for the same period value
+- Only on/off gating via linear counter — all expression comes from note timing
+- The NES's only sub-bass channel
 
----
+### Noise (Percussion)
+- **Linear-feedback shift register** generating pseudo-random noise
+- **2 modes**: long (white noise) and short (metallic/tonal)
+- **16 selectable periods** control the noise "pitch" (brightness)
+- Combined with 4-bit volume for synthesized drums — every kick, snare, and hi-hat is built from filtered noise
 
-## Fidelity Hierarchy
+### DMC (Delta Modulation)
+- 1-bit delta-encoded PCM playback at 16 sample rates
+- Used sparingly (bass drums, voice clips) — many drivers skip it entirely
 
-Truth flows downhill. Never let a lower layer override a higher one.
+## How Games Encode Music
 
-1. **ROM/Trace** — Mesen APU register dumps. Frame-level ground truth.
-2. **NSF emulation** — 6502 CPU runs the sound driver. May diverge from game.
-3. **MIDI file** — CC automation IS the envelope. Synth plays it back verbatim.
-4. **ADSR approximation** — Only for live keyboard when no CC data exists.
+Every NES game has its own music driver — 6502 assembly code that reads song data from ROM and writes to the APU registers 60 times per second. We've cataloged 8 distinct driver families:
 
----
+### Konami (Castlevania, Contra, Gradius)
+**Nibble-packed notes**: `[PPPP DDDD]` — high 4 bits = pitch (C-B), low 4 bits = duration index. The Maezawa driver family. Dark, atmospheric sound with parametric two-phase envelopes.
 
-## Architecture
+### Capcom (Mega Man 2-6, Darkwing Duck, Chip 'n Dale)
+**Octave + semitone bytes**: Full note identity in one byte. The most rhythmically dense music on NES — 700+ drum hits per 80 seconds is typical. Bright, driving, band-like sound with dual-duty pulse arrangement (50% lead, 25% harmony).
 
-```
-Mesen Trace (.csv)                     NSF File (.nsf)
-     │                                      │
-     ▼                                      ▼
-trace_to_midi.py                    nsf_to_reaper.py (py65 6502)
-     │                                      │
-     ├── MIDI (CC11/CC12/notes)            MIDI (CC11/CC12/notes)
-     │        │                                │
-     │        ▼                                ▼
-     │   generate_project.py ─────── REAPER RPP (Console synth)
-     │
-     └── SysEx (raw APU registers per frame)
-              │
-              ▼
-         generate_project.py ─────── REAPER RPP (APU2 synth)
-                                          │
-                                   Hardware-accurate replay
-                                   (sweep, noise mode, phase reset)
-```
+### Square (Final Fantasy)
+**Digit-encoded notes**: First digit = pitch (0-B = C through B), second = duration. Master Music Table at ROM $34010 with 23 songs × 3 channel pointers. Classical, arpeggiated. The Prelude's ascending arpeggio is the most recognizable NES musical motif.
 
----
+### Nintendo (Kid Icarus, Kirby, Metroid)
+**Varies wildly per game**. Kid Icarus uses code-as-music (songs ARE 6502 subroutines), RAM-resident music code, AND a data-driven config table — three engines in one game. Kirby uses standard data-driven. Metroid uses sparse atmospheric drones.
 
-## Track Listing: Battletoads (Rare, 1991)
+### Rare (Battletoads, Wizards & Warriors)
+**Byte-index notes** with 20-command dispatch. Dual-mode duration (inline or persistent). Software volume register with ramp and oscillate modes. Rich harmonies, the most complex command set we've analyzed.
 
-| NSF # | Track Name | Game Context |
-|-------|-----------|--------------|
-| 1 | Title | Title screen |
-| 2 | Interlude | Between-level cutscene |
-| **3** | **Ragnarok's Canyon** | **Level 1** |
-| 4 | Level Complete | Victory jingle |
-| 5 | Wookie Hole | Level 2 |
-| 6 | Turbo Tunnel | Level 3 (walk section) |
-| 7 | Turbo Tunnel Bike Race | Level 3 (bike section) |
-| 8 | Arctic Caverns | Level 4 |
-| 9 | Surf City & Terra Tubes | Levels 5 & 9 |
-| 10 | Karnath's Lair | Level 6 |
-| 11 | Volkmire's Inferno | Level 7 |
-| 12 | Jet Turbo | Level 7 (jet section) |
-| 13 | Intruder Excluder | Level 8 |
-| 14 | Rat Race | Level 10 |
-| 15 | Clinger-Winger | Level 11 |
-| 16 | The Revolution | Level 12 (Dark Queen) |
-| 17 | Boss Battle / Ending | Boss fights + ending |
-| 18 | Unused | Cut content |
-| 19 | Continue & Game Over | Short jingle |
-| 20 | Pause Beat | Pause screen |
-| 21 | Unused 2 | Cut content |
+### David Warhol / Realtime Associates (Dick Tracy, Maniac Mansion, Rocketeer)
+**MIDI-derived format**. Composers wrote in Cakewalk/Performer, Warhol converted to NES format. Signature "echo" instrument uses hardware sweep every 13 frames. Never uses DMC (Warhol couldn't figure it out).
 
----
+### Sunsoft (Batman, Journey to Silius, Blaster Master)
+**Aggressive duty cycling** for bass tones and rapid arpeggios for pseudo-polyphony. Blaster Master's 1063 triangle notes in 80 seconds is the most bass-dense capture in our collection. Punchy, funk-influenced.
 
-## Key Commands
+### Enix (Dragon Warrior)
+**Orchestral-influenced** three-channel compositions by Koichi Sugiyama. Minimal percussion. Stately overworld themes.
+
+## The Headless NES Emulator
+
+`scripts/nes_rom_capture.py` — boots any NES ROM, simulates the 6502 CPU at 60Hz, captures APU register writes, and outputs MIDI + REAPER projects.
+
+### Supported Mappers (6 types, ~95% of NES library)
+
+| Mapper | Name | Banking | Key Games |
+|--------|------|---------|-----------|
+| 0 | NROM | None (32KB fixed) | Donkey Kong, Ice Climber, Excitebike |
+| 1 | MMC1 | 16KB switching, 5-bit serial | Zelda, Metroid, Final Fantasy, Mega Man 2 |
+| 2 | UxROM | Single register write | Castlevania, Contra, Duck Tales |
+| 3 | CNROM | CHR only (PRG fixed) | Gradius |
+| 4 | MMC3 | 8KB switching, register select | SMB3, Kirby, Mega Man 3-6, TMNT |
+| 7 | AxROM | 32KB switching | Battletoads, Wizards & Warriors |
+
+### Multi-Song Extraction Methods
+
+| Method | How It Works | Games |
+|--------|-------------|-------|
+| **Boot & Capture** | Music plays on boot | 50+ games |
+| **ZP Poke** | Write song ID to a zero-page variable | Final Fantasy ($4B), Zelda II ($E0) |
+| **ROM Patch** | Patch the `LDA #song_id` byte in the boot code | Mega Man 2 ($9F53) |
+| **Hot-Swap** | Switch banks for 1 frame to copy new song code to RAM | Kid Icarus |
+| **Direct Engine Call** | Call the sound engine's play/tick routines directly | SMB3, Dick Tracy (Warhol) |
+
+### Usage
 
 ```bash
-# Trace pipeline (Battletoads fidelity path)
-python scripts/trace_to_midi.py "C:/Users/PC/Documents/Mesen2/capture.csv" \
-  -o output/Battletoads_trace/ --game Battletoads \
-  --name "Ragnoraks_Canyon" --seg-num 3
+# Title screen
+python scripts/nes_rom_capture.py rom.nes -o output/ --frames 4800 --game Name --song title
 
-# NSF pipeline (batch, lower fidelity)
-python scripts/nsf_to_reaper.py output/Battletoads/nsf/Battletoads.nsf --all -o output/Battletoads/
+# With Start button press
+python scripts/nes_rom_capture.py rom.nes --press-start 60 --game Name --song title
 
-# Generate REAPER project from any MIDI
-python scripts/generate_project.py --midi <file.mid> --nes-native -o <output.rpp>
-
-# Sync JSFX synth to REAPER
-python scripts/sync_jsfx.py
+# Multi-song: poke song variable at frame 5
+python scripts/nes_rom_capture.py rom.nes --poke-at "5:0x4B=0x50" --game FF1 --song Battle
 ```
 
----
+## Complete Soundtracks Extracted
 
-## Lessons Learned
+| Game | Songs | Method | Highlight |
+|------|-------|--------|-----------|
+| **Final Fantasy** | 25 | ZP $4B poke | Prelude, Overworld, Battle, all 6 Dungeons, Town, Shop, Victory |
+| **Mega Man 2** | 14 | ROM patch | All 8 Robot Masters, Wily stages, Boss, Password |
+| **Kid Icarus** | 12 | Hot-swap + config | 3 banks × multiple songs, dual-engine architecture |
+| **Dick Tracy** | 5 | Warhol driver direct call | Warhol "echo" instrument showcase |
+| **Zelda II** | Multi | ZP $E0 poke | Extracting now |
 
-See `docs/MISTAKEBAKED.md` for the full list. The expensive ones:
+## The Tone Database
 
-1. **Check the synth compiles before debugging data.** Cost: ~15 prompts.
-2. **Look up the track listing before comparing songs.** Cost: ~5 prompts.
-3. **Dump trace data before modeling envelopes.** Cost: 5 prompts per guess.
-4. **Same driver family does not mean same byte format.** Cost: 3+ prompts per game.
-5. **Test one variable at a time.** Changing RPP format + MIDI encoding + synth simultaneously made it impossible to isolate failures.
+The [NES Tone Database](https://t3dy.github.io/Battletoads/output/tone_database/index.html) catalogs every instrument extracted from every game:
 
----
+- **Tones tab**: 625 instrument profiles with SVG envelope sparklines, ADSR values, duty cycle analysis
+- **Games tab**: 66 games with track counts and note totals
+- **Documents tab**: 465 searchable technical documents from 4 NES project repositories
+- **Per-game pages**: Detailed breakdowns of each game's sound driver, encoding format, and instrument characteristics
 
-## Current Status
+## Tools
 
-- **NSF pipeline**: 21 songs extracted. Fidelity is low — Rare's NSF driver diverges from in-game audio.
-- **Trace pipeline**: Script built, Mesen capture exists (9,495 frames / 158s of Level 1). Golden-path end-to-end run needed.
-- **APU2 SysEx path**: Code exists. Synth exists. Not yet verified end-to-end.
-- **Console synth**: Syntax error fixed, CC decoders fixed.
+| Script | Purpose |
+|--------|---------|
+| `scripts/nes_rom_capture.py` | Headless NES emulator with 6 mapper types |
+| `scripts/mesen_to_midi.py` | Mesen APU capture CSV → MIDI |
+| `scripts/nsf_to_reaper.py` | NSF file → MIDI + REAPER project |
+| `scripts/generate_project.py` | MIDI → REAPER project with ReapNES synth |
+| `scripts/extract_tones.py` | MIDI → ADSR envelope analysis JSON |
+| `scripts/build_tone_db.py` | JSON → SQLite database + HTML website |
+| `scripts/generate_game_pages.py` | Per-game HTML pages with instrument descriptions |
 
----
+## Project History
 
-## Related Projects
+This project started as Battletoads NES music reconstruction (see [BattletoadsOLDreadme.md](BattletoadsOLDreadme.md)) and grew into a universal NES music extraction pipeline. The original work on Castlevania, Contra, and Battletoads established the trace validation methodology. The headless emulator approach was developed during the Kid Icarus session when the NSF file turned out to be from the wrong platform (FDS vs NES cartridge).
 
-Part of the **ReapNES** ecosystem:
-- Pipeline engine: NSFRIPPER — NSF/ROM → MIDI → REAPER for all NES games
-- Website: [ReapNES](https://t3dy.github.io/ReapNES/) — per-game pages
-- Synth R&D: ReapNES-Studio — JSFX synthesizer development
+## Sheet Music
 
-## Requirements
+All extracted MIDIs are being converted to MusicXML format using music21.
+MusicXML files can be opened in:
+- **MuseScore** (free) — standard notation + guitar tablature view
+- **Finale** / **Sibelius** — professional notation
+- **Any MusicXML-compatible editor**
 
-- **Python 3.10+** with `mido`, `numpy`, `py65`
-- **Mesen 2** — NES emulator with Lua scripting for APU trace capture
-- **REAPER v7+** (optional) — for production renders using JSFX synths
+Sheet music files are in `output/sheet_music/<Game>/`.
 
-## License
+The NES channels map naturally to standard instruments:
+- **Square 1/2** → Lead/harmony melody (treble clef)
+- **Triangle** → Bass line (bass clef / bass guitar tab)
+- **Noise** → Drum notation
 
-Educational / archival use. Battletoads is a trademark of Rare Ltd. This project reconstructs audio data for preservation and study purposes.

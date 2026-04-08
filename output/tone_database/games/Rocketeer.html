@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rocketeer — NES Tone Database</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #d0d0d0; line-height: 1.7; }
+a { color: #00ccff; text-decoration: none; }
+a:hover { text-decoration: underline; color: #66ddff; }
+
+/* Navigation */
+.site-header { background: #0d0d14; border-bottom: 2px solid #1a1a2e; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
+.site-header nav { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 0; }
+.site-title { color: #00ff88; font-size: 16px; font-weight: bold; padding: 14px 20px 14px 0; margin-right: 10px; border-right: 1px solid #222; white-space: nowrap; }
+.nav-link { padding: 14px 18px; color: #888; font-size: 14px; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.nav-link:hover { color: #fff; text-decoration: none; border-bottom-color: #444; }
+.nav-link.active { color: #00ff88; border-bottom-color: #00ff88; }
+
+/* Layout */
+.container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+h1 { color: #00ff88; font-size: 28px; margin-bottom: 8px; }
+h2 { color: #00ccff; font-size: 22px; margin: 35px 0 15px; border-bottom: 1px solid #1a1a2e; padding-bottom: 8px; }
+h3 { color: #e0e0e0; font-size: 17px; margin: 20px 0 10px; }
+h4 { color: #00ff88; font-size: 14px; margin: 15px 0 8px; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
+p { margin-bottom: 12px; font-size: 15px; }
+
+/* Cards */
+.card { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+.card:hover { border-color: #333; }
+
+/* Stats */
+.stats { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; }
+.stat { background: #111; padding: 12px 18px; border-radius: 8px; border: 1px solid #1a1a2e; }
+.stat-num { color: #00ff88; font-size: 28px; font-weight: bold; line-height: 1; }
+.stat-label { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Search */
+.search-box { width: 100%; padding: 12px 16px; margin-bottom: 20px; background: #0d0d14; border: 1px solid #222; color: #fff; font-family: inherit; font-size: 14px; border-radius: 8px; }
+.search-box:focus { outline: none; border-color: #00ff88; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+th { text-align: left; padding: 10px 14px; background: #0d0d14; color: #00ff88; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #1a1a2e; }
+td { padding: 12px 14px; border-bottom: 1px solid #111; font-size: 14px; vertical-align: top; }
+tr:hover td { background: #0d0d14; }
+
+/* Two-column comparison */
+.comparison-table td:first-child { border-right: 1px solid #1a1a2e; width: 50%; }
+.comparison-table th:first-child { border-right: 1px solid #1a1a2e; }
+
+/* Code blocks */
+.code-block { background: #0d0d14; padding: 14px 18px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px; color: #ccc; border-left: 3px solid #00ff88; margin: 12px 0; overflow-x: auto; white-space: pre-wrap; }
+
+/* Expandable sections */
+details { margin: 10px 0; }
+details summary { cursor: pointer; font-size: 14px; color: #00ccff; padding: 8px 0; }
+details summary:hover { color: #66ddff; }
+details[open] summary { margin-bottom: 8px; }
+details > div, details > p { padding-left: 12px; border-left: 2px solid #1a1a2e; margin-left: 4px; }
+
+/* Tags */
+.tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; margin-right: 6px; background: #1a1a2e; color: #888; }
+.tag-green { background: #0d1f0d; color: #00ff88; }
+.tag-cyan { background: #0d1520; color: #00ccff; }
+
+/* Sparklines */
+.sparkline { background: #080812; border-radius: 4px; }
+
+/* Game cards grid */
+.game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.game-card { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; padding: 16px; display: block; color: inherit; transition: all 0.2s; }
+.game-card:hover { border-color: #00ff88; text-decoration: none; transform: translateY(-2px); }
+.game-card-title { color: #00ccff; font-size: 16px; font-weight: bold; margin-bottom: 6px; }
+.game-card-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.game-card-notes { color: #666; font-size: 12px; }
+
+/* Channel colors */
+.ch-sq1 { color: #ff6b6b; }
+.ch-sq2 { color: #ffa94d; }
+.ch-tri { color: #51cf66; }
+.ch-noi { color: #748ffc; }
+
+/* Instrument cards on game pages */
+.instrument { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; margin-bottom: 24px; overflow: hidden; }
+.instrument-header { padding: 16px 20px; border-bottom: 1px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; }
+.instrument-body { padding: 20px; }
+.envelope-row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 15px; }
+.adsr-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.adsr-pill { background: #0d0d14; padding: 4px 10px; border-radius: 4px; font-size: 12px; }
+.duty-viz { font-family: monospace; font-size: 28px; letter-spacing: 3px; color: #00ccff; margin: 8px 0; }
+.harmonic-text { font-size: 14px; color: #bbb; line-height: 1.7; margin-top: 12px; }
+
+/* Waveform diagrams */
+.waveform-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+
+footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-top: 1px solid #1a1a2e; color: #444; font-size: 11px; text-align: center; }
+</style>
+</head>
+<body>
+<header class="site-header"><nav>
+        <span class="site-title">NES Tone Database</span>
+        <a href="index.html" class="nav-link active">Games</a><a href="tones.html" class="nav-link">Tones</a><a href="how-it-works.html" class="nav-link">How It Works</a><a href="docs.html" class="nav-link">Documents</a>
+    </nav></header>
+<div class="container">
+
+<p style="color:#666;font-size:13px;margin-bottom:5px"><a href="index.html">NES Tone Database</a> &rsaquo; Games</p>
+<h1>Rocketeer</h1>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+    <span class="tag tag-green">Warhol</span>
+    <span class="tag tag-cyan">4 channels active</span>
+    <span class="tag">285 notes captured</span>
+</div>
+
+<h2>Sound Architecture</h2>
+<div class="card">
+    <h4>Warhol Driver</h4>
+    <p>David Warhol's driver for Realtime Associates (1990-1992). Unique MIDI-based workflow.</p>
+    <details>
+        <summary>Technical encoding format</summary>
+        <div class="code-block">Composers (George Sanger, David Hayes) created MIDI files in Cakewalk/Performer, which Warhol arranged and converted to a text format for NES. Entry points: $8029 = play_song(X register), $80A0 = per-frame tick. Standard NTSC period table spanning 7 octaves. Never uses DPCM (Warhol couldn't figure out how).</div>
+    </details>
+    <p style="font-style:italic;color:#888;margin-top:10px"><strong>Sonic signature:</strong> Distinctive 'echo' instrument created by hardware sweep every 13 frames, giving a reverb-like decay unique among NES games. Duty cycle basses. Square channel drums (pulse waves used as percussion in Defenders of Dynatron City). The MIDI workflow gives the music a slightly different feel from hand-coded NES drivers — more 'composed' and less 'programmed'.</p>
+</div>
+
+<h2>Instruments</h2>
+
+        <div class="instrument" style="border-left: 4px solid #ff6b6b">
+            <div class="instrument-header" style="border-left: none">
+                <h3 class="ch-sq1">Square 1</h3>
+                <span class="tag">55 notes · 402ms avg</span>
+            </div>
+            <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>In Rocketeer, Square 1 uses 50% duty cycle consistently — warm, full, and round — a pure square wave with that classic NES lead character, like a low recorder. At moderate volume (peak 76/127), it plays moderate legato phrases averaging 402ms per note.</p>
+        <p>The envelope is consistently sustained: sustained at near-constant volume — a smooth, organ-like tone where notes flow into each other.</p>
+        <p>Shares melodic duties with Square 2 (55 vs 59 notes) — the two pulse channels trade phrases and harmonize.</p>
+        
+                </div>
+
+                <div class="envelope-row">
+                    <div>
+                        <div class="waveform-label">Volume Envelope</div>
+                        <svg width="200" height="60" class="sparkline"><polyline points="0,4 7,4 14,4 21,4 28,4 34,4 41,4 48,4 55,4 62,5 69,5 76,5 83,5 90,5 97,6 103,5 110,5 117,5 124,5 131,5 138,5 145,6 152,6 159,6 166,6 172,7 179,7 186,7 193,7 200,7" fill="none" stroke="#ff6b6b" stroke-width="2"/></svg>
+                        <div class="adsr-pills">
+                            <span class="adsr-pill">A: 0ms</span>
+                            <span class="adsr-pill">D: 0ms</span>
+                            <span class="adsr-pill">S: 100%</span>
+                            <span class="adsr-pill">R: 0ms</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="waveform-label">Envelope Shape: sustained</div>
+                        <p style="font-size:13px;color:#999">Consistent volume throughout the note with minimal decay.</p>
+                        <p style="font-size:13px;color:#777;margin-top:6px">Creates smooth, flowing melodies. Common in RPG town themes, love themes, and any passage that needs a lyrical quality. The constant volume makes the melody feel like a voice singing rather than an instrument plucking. Final Fantasy and Dragon Quest use this extensively.</p>
+                        <p style="font-size:12px;color:#00ff88;margin-top:6px"><strong>Synth tip:</strong> Set sustain to maximum. The NES achieves this by writing the same volume value every frame — in MIDI terms, CC11 stays constant throughout the note.</p>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
+            <table class="comparison-table">
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
+                <tr>
+                    <td>True square wave — symmetrical, HIGH and LOW for equal time. Duty value 2 ($80 in register). The richest harmonic content of any NES duty cycle.</td>
+                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.
+            <p style="margin-top:10px"><strong>For Rocketeer specifically:</strong>
+            Set attack to 0ms, decay to 0ms,
+            sustain to 100%.
+            The sustained envelope means CC11 stays near-constant — let the automation drive the volume, dont add ADSR shaping.</p></td>
+                </tr>
+            </table>
+            <div class="harmonic-text">
+                <h4>Harmonic Character — 50% Duty Cycle</h4>
+                <div class="duty-viz">▁▁▁▁████</div>
+                <p>Contains only odd harmonics (1st, 3rd, 5th, 7th...) falling off as 1/n. This gives the square wave its warm, hollow, woody quality — the richest pulse tone the NES can produce.</p>
+            </div>
+            </div>
+                </details>
+            </div>
+        </div>
+        
+        <div class="instrument" style="border-left: 4px solid #ffa94d">
+            <div class="instrument-header" style="border-left: none">
+                <h3 class="ch-sq2">Square 2</h3>
+                <span class="tag">59 notes · 361ms avg</span>
+            </div>
+            <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>In Rocketeer, Square 2 switches between multiple duty cycles (12.5% (59×), 25% (59×), 50% (57×)), creating timbral animation — the tone color shifts throughout the melody like a singer changing vowels. At moderate volume (peak 76/127), it plays moderate legato phrases averaging 361ms per note.</p>
+        <p>The envelope is consistently sustained: sustained at near-constant volume — a smooth, organ-like tone where notes flow into each other.</p>
+        <p>Provides harmony / countermelody alongside Square 1 — the two channels create Rocketeer's characteristic pulse texture.</p>
+        
+                </div>
+
+                <div class="envelope-row">
+                    <div>
+                        <div class="waveform-label">Volume Envelope</div>
+                        <svg width="200" height="60" class="sparkline"><polyline points="0,4 7,4 14,4 21,4 28,4 34,4 41,4 48,4 55,5 62,5 69,6 76,7 83,7 90,7 97,6 103,7 110,12 117,15 124,22 131,28 138,33 145,37 152,36 159,4 166,4 172,4 179,4 186,4 193,4 200,4" fill="none" stroke="#ffa94d" stroke-width="2"/></svg>
+                        <div class="adsr-pills">
+                            <span class="adsr-pill">A: 0ms</span>
+                            <span class="adsr-pill">D: 0ms</span>
+                            <span class="adsr-pill">S: 99%</span>
+                            <span class="adsr-pill">R: 17ms</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="waveform-label">Envelope Shape: sustained</div>
+                        <p style="font-size:13px;color:#999">Consistent volume throughout the note with minimal decay.</p>
+                        <p style="font-size:13px;color:#777;margin-top:6px">Creates smooth, flowing melodies. Common in RPG town themes, love themes, and any passage that needs a lyrical quality. The constant volume makes the melody feel like a voice singing rather than an instrument plucking. Final Fantasy and Dragon Quest use this extensively.</p>
+                        <p style="font-size:12px;color:#00ff88;margin-top:6px"><strong>Synth tip:</strong> Set sustain to maximum. The NES achieves this by writing the same volume value every frame — in MIDI terms, CC11 stays constant throughout the note.</p>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
+            <table class="comparison-table">
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
+                <tr>
+                    <td>The narrowest pulse width. The APU generates a waveform that is HIGH for 1/8 of the cycle and LOW for 7/8. Written to $4000/$4004 bits 6-7 as value 0.</td>
+                    <td>In ReapNES Console, set CC12 to 0-31 (maps to duty 0). In a modern synth like Serum or Vital, use a pulse/square oscillator and set pulse width to 12.5%. In subtractive synthesis, this is the extreme narrow end of the PWM range.
+            <p style="margin-top:10px"><strong>For Rocketeer specifically:</strong>
+            Set attack to 0ms, decay to 0ms,
+            sustain to 99%.
+            The sustained envelope means CC11 stays near-constant — let the automation drive the volume, dont add ADSR shaping.</p></td>
+                </tr>
+            </table>
+            <div class="harmonic-text">
+                <h4>Harmonic Character — 12.5% Duty Cycle</h4>
+                <div class="duty-viz">▁▁▁▁▁▁▁█</div>
+                <p>Contains all harmonics but with a steep spectral tilt — the narrow pulse emphasizes high frequencies, producing a thin, nasal buzz. Missing every 8th harmonic (8th, 16th, 24th).</p>
+            </div>
+            </div>
+                </details>
+            </div>
+        </div>
+        
+        <div class="instrument" style="border-left: 4px solid #51cf66">
+            <div class="instrument-header" style="border-left: none">
+                <h3 class="ch-tri">Triangle</h3>
+                <span class="tag">36 notes · 238ms avg</span>
+            </div>
+            <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>Rocketeer's bass uses the triangle wave — the NES's only sub-bass channel. With no volume control (only on/off gating), all expression comes from note duration: predominantly legato — long, sustained bass notes that provide a smooth harmonic foundation under the melody. The sustained gating creates a warm, continuous low end.</p>
+        <p>At 36 notes and 238ms average duration, the bass is sparse. The triangle wave produces only odd harmonics falling off as 1/n² (much faster than the square wave's 1/n), making it the darkest, smoothest tone the NES can generate — like a low flute or a sub-bass synth with the filter wide open.</p>
+        <p>Because the triangle is one octave lower than the pulse channels for the same period value (32-step sequencer vs 16-step), it naturally sits below the melody without competing for frequency space.</p>
+        
+                </div>
+
+                <div class="envelope-row">
+                    <div>
+                        <div class="waveform-label">Volume Envelope</div>
+                        <svg width="200" height="60" class="sparkline"><polyline points="0,4 7,4 14,4 21,4 28,4 34,4 41,4 48,4 55,4 62,4 69,4 76,4 83,4 90,4 97,4 103,4 110,4 117,4 124,4 131,4 138,4 145,4 152,4 159,4 166,4 172,4 179,4 186,4 193,4 200,4" fill="none" stroke="#51cf66" stroke-width="2"/></svg>
+                        <div class="adsr-pills">
+                            <span class="adsr-pill">A: 0ms</span>
+                            <span class="adsr-pill">D: 0ms</span>
+                            <span class="adsr-pill">S: 100%</span>
+                            <span class="adsr-pill">R: 0ms</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="waveform-label">Envelope Shape: sustained</div>
+                        <p style="font-size:13px;color:#999">Consistent volume throughout the note with minimal decay.</p>
+                        <p style="font-size:13px;color:#777;margin-top:6px">Creates smooth, flowing melodies. Common in RPG town themes, love themes, and any passage that needs a lyrical quality. The constant volume makes the melody feel like a voice singing rather than an instrument plucking. Final Fantasy and Dragon Quest use this extensively.</p>
+                        <p style="font-size:12px;color:#00ff88;margin-top:6px"><strong>Synth tip:</strong> Set sustain to maximum. The NES achieves this by writing the same volume value every frame — in MIDI terms, CC11 stays constant throughout the note.</p>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
+            <table class="comparison-table">
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
+                <tr>
+                    <td>The triangle channel generates a 32-step staircase approximation of a triangle wave. Unlike the pulse channels, it has NO volume control — only an on/off gate via the linear counter ($4008). The period register works the same as pulse, but the frequency is ONE OCTAVE LOWER for the same period value because the sequencer has 32 steps instead of 16.</td>
+                    <td>In ReapNES Console, set Channel Mode to 2 (Triangle). CC11 is always 127 (gate only — full volume or silence). No CC12 needed (no duty cycle). For MIDI keyboard playing, the triangle channel uses note duration for all articulation — staccato = short notes, legato = long notes. In modern synths, use a triangle oscillator with no filter and no amplitude envelope (just a gate).
+            <p style="margin-top:10px"><strong>For Rocketeer specifically:</strong>
+            Average note duration is 238ms —
+            mix short and long notes to match the varied bass articulation.</p></td>
+                </tr>
+            </table>
+            <div class="harmonic-text">
+                <h4>Harmonic Character — Triangle Wave</h4>
+                <p>Only odd harmonics (like square wave) but falling off as 1/n² — much darker and smoother. The 32-step staircase approximation adds slight high-frequency grit at high pitches, but in the bass register where it's typically used, the tone is clean and pure.</p>
+            </div>
+            </div>
+                </details>
+            </div>
+        </div>
+        
+        <div class="instrument" style="border-left: 4px solid #748ffc">
+            <div class="instrument-header" style="border-left: none">
+                <h3 class="ch-noi">Noise</h3>
+                <span class="tag">135 notes · 53ms avg</span>
+            </div>
+            <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>Rocketeer's percussion channel produces moderate percussion with 135 hits — enough to establish rhythm without dominating the mix.</p>
+        <p>Every NES drum is synthesized from the noise channel's linear-feedback shift register (LFSR) — there are no audio samples. The 'kick' is a low-period noise burst, the 'snare' is a mid-period hit (often using the short LFSR mode for a metallic crack), and 'hi-hats' are high-period filtered noise. The average hit duration of 53ms tells us these are medium-length hits.</p>
+        
+                </div>
+
+                <div class="envelope-row">
+                    <div>
+                        <div class="waveform-label">Volume Envelope</div>
+                        <svg width="200" height="60" class="sparkline"><text x="30" y="35" fill="#333" font-size="11">no envelope data</text></svg>
+                        <div class="adsr-pills">
+                            <span class="adsr-pill">A: 0ms</span>
+                            <span class="adsr-pill">D: 0ms</span>
+                            <span class="adsr-pill">S: 0%</span>
+                            <span class="adsr-pill">R: 0ms</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="waveform-label">Envelope Shape: silent</div>
+                        <p style="font-size:13px;color:#999"></p>
+                        <p style="font-size:13px;color:#777;margin-top:6px"></p>
+                        <p style="font-size:12px;color:#00ff88;margin-top:6px"><strong>Synth tip:</strong> </p>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
+            <table class="comparison-table">
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
+                <tr>
+                    <td>The noise channel uses a 15-bit Linear Feedback Shift Register (LFSR) to generate pseudo-random noise. The period register ($400E bits 0-3) selects one of 16 timer values that control how fast the LFSR shifts — lower periods = faster shifts = higher-pitched noise. Bit 7 of $400E selects the feedback mode: 0 = long sequence (32767 steps, sounds like white noise), 1 = short sequence (93 steps, sounds metallic/tonal).</td>
+                    <td>In ReapNES Console, set Channel Mode to 3 (Noise). MIDI note numbers map to drum sounds: 36=kick, 38=snare, 42=closed hi-hat, 46=open hi-hat. Velocity controls initial volume. The ADSR envelope shapes the hit. In modern synths, use a noise oscillator with a short amplitude envelope for percussion. For the 'short mode' metallic sound, use a very short noise burst with high resonance — similar to the '808 cowbell' technique.
+            <p style="margin-top:10px"><strong>For Rocketeer specifically:</strong>
+            135 drum hits at 53ms average —
+            moderate percussion. Standard kick-snare-hat mapping works well.</p></td>
+                </tr>
+            </table>
+            <div class="harmonic-text">
+                <h4>Harmonic Character — Noise Channel</h4>
+                <p>In long LFSR mode: flat (white) spectrum filtered by the period setting. In short LFSR mode (93-step cycle): quasi-periodic metallic tone with identifiable pitch — this is what gives NES snare drums their distinctive 'crack'.</p>
+            </div>
+            </div>
+                </details>
+            </div>
+        </div>
+        
+
+</div>
+<footer>NES Tone Database &mdash; <a href="index.html">Back to Games</a></footer>
+</body>
+</html>

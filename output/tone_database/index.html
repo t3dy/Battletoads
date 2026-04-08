@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NES Tone Database</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #d0d0d0; line-height: 1.7; }
+a { color: #00ccff; text-decoration: none; }
+a:hover { text-decoration: underline; color: #66ddff; }
+
+/* Navigation */
+.site-header { background: #0d0d14; border-bottom: 2px solid #1a1a2e; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
+.site-header nav { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 0; }
+.site-title { color: #00ff88; font-size: 16px; font-weight: bold; padding: 14px 20px 14px 0; margin-right: 10px; border-right: 1px solid #222; white-space: nowrap; }
+.nav-link { padding: 14px 18px; color: #888; font-size: 14px; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.nav-link:hover { color: #fff; text-decoration: none; border-bottom-color: #444; }
+.nav-link.active { color: #00ff88; border-bottom-color: #00ff88; }
+
+/* Layout */
+.container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+h1 { color: #00ff88; font-size: 28px; margin-bottom: 8px; }
+h2 { color: #00ccff; font-size: 22px; margin: 35px 0 15px; border-bottom: 1px solid #1a1a2e; padding-bottom: 8px; }
+h3 { color: #e0e0e0; font-size: 17px; margin: 20px 0 10px; }
+h4 { color: #00ff88; font-size: 14px; margin: 15px 0 8px; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
+p { margin-bottom: 12px; font-size: 15px; }
+
+/* Cards */
+.card { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+.card:hover { border-color: #333; }
+
+/* Stats */
+.stats { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; }
+.stat { background: #111; padding: 12px 18px; border-radius: 8px; border: 1px solid #1a1a2e; }
+.stat-num { color: #00ff88; font-size: 28px; font-weight: bold; line-height: 1; }
+.stat-label { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Search */
+.search-box { width: 100%; padding: 12px 16px; margin-bottom: 20px; background: #0d0d14; border: 1px solid #222; color: #fff; font-family: inherit; font-size: 14px; border-radius: 8px; }
+.search-box:focus { outline: none; border-color: #00ff88; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+th { text-align: left; padding: 10px 14px; background: #0d0d14; color: #00ff88; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #1a1a2e; }
+td { padding: 12px 14px; border-bottom: 1px solid #111; font-size: 14px; vertical-align: top; }
+tr:hover td { background: #0d0d14; }
+
+/* Two-column comparison */
+.comparison-table td:first-child { border-right: 1px solid #1a1a2e; width: 50%; }
+.comparison-table th:first-child { border-right: 1px solid #1a1a2e; }
+
+/* Code blocks */
+.code-block { background: #0d0d14; padding: 14px 18px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px; color: #ccc; border-left: 3px solid #00ff88; margin: 12px 0; overflow-x: auto; white-space: pre-wrap; }
+
+/* Expandable sections */
+details { margin: 10px 0; }
+details summary { cursor: pointer; font-size: 14px; color: #00ccff; padding: 8px 0; }
+details summary:hover { color: #66ddff; }
+details[open] summary { margin-bottom: 8px; }
+details > div, details > p { padding-left: 12px; border-left: 2px solid #1a1a2e; margin-left: 4px; }
+
+/* Tags */
+.tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; margin-right: 6px; background: #1a1a2e; color: #888; }
+.tag-green { background: #0d1f0d; color: #00ff88; }
+.tag-cyan { background: #0d1520; color: #00ccff; }
+
+/* Sparklines */
+.sparkline { background: #080812; border-radius: 4px; }
+
+/* Game cards grid */
+.game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.game-card { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; padding: 16px; display: block; color: inherit; transition: all 0.2s; }
+.game-card:hover { border-color: #00ff88; text-decoration: none; transform: translateY(-2px); }
+.game-card-title { color: #00ccff; font-size: 16px; font-weight: bold; margin-bottom: 6px; }
+.game-card-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.game-card-notes { color: #666; font-size: 12px; }
+
+/* Channel colors */
+.ch-sq1 { color: #ff6b6b; }
+.ch-sq2 { color: #ffa94d; }
+.ch-tri { color: #51cf66; }
+.ch-noi { color: #748ffc; }
+
+/* Instrument cards on game pages */
+.instrument { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; margin-bottom: 24px; overflow: hidden; }
+.instrument-header { padding: 16px 20px; border-bottom: 1px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; }
+.instrument-body { padding: 20px; }
+.envelope-row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 15px; }
+.adsr-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.adsr-pill { background: #0d0d14; padding: 4px 10px; border-radius: 4px; font-size: 12px; }
+.duty-viz { font-family: monospace; font-size: 28px; letter-spacing: 3px; color: #00ccff; margin: 8px 0; }
+.harmonic-text { font-size: 14px; color: #bbb; line-height: 1.7; margin-top: 12px; }
+
+/* Waveform diagrams */
+.waveform-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+
+footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-top: 1px solid #1a1a2e; color: #444; font-size: 11px; text-align: center; }
+</style>
+</head>
+<body>
+<header class="site-header"><nav>
+        <span class="site-title">NES Tone Database</span>
+        <a href="index.html" class="nav-link active">Games</a><a href="tones.html" class="nav-link">Tones</a><a href="how-it-works.html" class="nav-link">How It Works</a><a href="docs.html" class="nav-link">Documents</a>
+    </nav></header>
+<div class="container">
+
+<h1>NES Tone Database</h1>
+<p class="subtitle">An educational resource for chiptune musicians and ROM hackers. Automated extraction from 214 NES games via headless ROM emulation.</p>
+
+<div class="stats">
+    <div class="stat"><div class="stat-num">214</div><div class="stat-label">Games</div></div>
+    <div class="stat"><div class="stat-num">1496</div><div class="stat-label">Tone Profiles</div></div>
+    <div class="stat"><div class="stat-num">265,841</div><div class="stat-label">Notes Analyzed</div></div>
+    <div class="stat"><div class="stat-num">212</div><div class="stat-label">REAPER Projects</div></div>
+</div>
+
+<input type="text" class="search-box" placeholder="Search games..." oninput="document.querySelectorAll('.game-card').forEach(c=>c.style.display=c.textContent.toLowerCase().includes(this.value.toLowerCase())?'':'none')">
+
+<div class="game-grid">
+
+        <a href="games/1942.html" class="game-card">
+            <div class="game-card-title">1942</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">109 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 35</span> · <span class="ch-sq2">Square 2: 11</span> · <span class="ch-tri">Triangle: 47</span> · <span class="ch-noi">Noise: 16</span></div>
+        </a>
+        
+        <a href="games/1943__The_Battle_of_Midway.html" class="game-card">
+            <div class="game-card-title">1943  The Battle of Midway</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">1,306 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 309</span> · <span class="ch-sq2">Square 2: 296</span> · <span class="ch-tri">Triangle: 375</span> · <span class="ch-noi">Noise: 326</span></div>
+        </a>
+        
+        <a href="games/3_D_WorldRunner.html" class="game-card">
+            <div class="game-card-title">3 D WorldRunner</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">58 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 19</span> · <span class="ch-sq2">Square 2: 16</span> · <span class="ch-tri">Triangle: 16</span> · <span class="ch-noi">Noise: 7</span></div>
+        </a>
+        
+        <a href="games/720_Degrees.html" class="game-card">
+            <div class="game-card-title">720 Degrees</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">349 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 229</span> · <span class="ch-sq2">Square 2: 1</span> · <span class="ch-tri">Triangle: 107</span> · <span class="ch-noi">Noise: 12</span></div>
+        </a>
+        
+        <a href="games/8_BIT_ADV_STEINS;GATE.html" class="game-card">
+            <div class="game-card-title">8 BIT ADV STEINS;GATE</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">8 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 2</span> · <span class="ch-sq2">Square 2: 3</span> · <span class="ch-tri">Triangle: 1</span> · <span class="ch-noi">Noise: 2</span></div>
+        </a>
+        
+        <a href="games/8_Eyes.html" class="game-card">
+            <div class="game-card-title">8 Eyes</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">47 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 13</span> · <span class="ch-sq2">Square 2: 25</span> · <span class="ch-tri">Triangle: 9</span></div>
+        </a>
+        
+        <a href="games/Abadox__The_Deadly_Inner_War.html" class="game-card">
+            <div class="game-card-title">Abadox  The Deadly Inner War</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">58 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 17</span> · <span class="ch-sq2">Square 2: 15</span> · <span class="ch-tri">Triangle: 12</span> · <span class="ch-noi">Noise: 14</span></div>
+        </a>
+        
+        <a href="games/Addams_Family_The.html" class="game-card">
+            <div class="game-card-title">Addams Family The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">5 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 2</span> · <span class="ch-sq2">Square 2: 2</span> · <span class="ch-tri">Triangle: 1</span></div>
+        </a>
+        
+        <a href="games/Addams_Family_The__Pugsleys_Scavenger_Hunt.html" class="game-card">
+            <div class="game-card-title">Addams Family The  Pugsleys Scavenger Hunt</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">16 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 12</span> · <span class="ch-noi">Noise: 4</span></div>
+        </a>
+        
+        <a href="games/Advanced_Dungeons_and_Dragons__DragonStrike.html" class="game-card">
+            <div class="game-card-title">Advanced Dungeons and Dragons  DragonStrike</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">60 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 6</span> · <span class="ch-sq2">Square 2: 6</span> · <span class="ch-tri">Triangle: 48</span></div>
+        </a>
+        
+        <a href="games/Advanced_Dungeons_and_Dragons__Heroes_of_the_Lance.html" class="game-card">
+            <div class="game-card-title">Advanced Dungeons and Dragons  Heroes of the Lance</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">552 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 5</span> · <span class="ch-sq2">Square 2: 9</span> · <span class="ch-tri">Triangle: 52</span> · <span class="ch-noi">Noise: 486</span></div>
+        </a>
+        
+        <a href="games/Advanced_Dungeons_and_Dragons__Pool_of_Radiance.html" class="game-card">
+            <div class="game-card-title">Advanced Dungeons and Dragons  Pool of Radiance</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">120 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 67</span> · <span class="ch-sq2">Square 2: 27</span> · <span class="ch-tri">Triangle: 17</span> · <span class="ch-noi">Noise: 9</span></div>
+        </a>
+        
+        <a href="games/Adventure_Island.html" class="game-card">
+            <div class="game-card-title">Adventure Island</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">774 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 205</span> · <span class="ch-sq2">Square 2: 246</span> · <span class="ch-tri">Triangle: 279</span> · <span class="ch-noi">Noise: 44</span></div>
+        </a>
+        
+        <a href="games/Adventure_Island_3.html" class="game-card">
+            <div class="game-card-title">Adventure Island 3</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">15 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 1</span> · <span class="ch-sq2">Square 2: 1</span> · <span class="ch-noi">Noise: 13</span></div>
+        </a>
+        
+        <a href="games/Adventure_Island_II.html" class="game-card">
+            <div class="game-card-title">Adventure Island II</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">93 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 7</span> · <span class="ch-sq2">Square 2: 5</span> · <span class="ch-tri">Triangle: 50</span> · <span class="ch-noi">Noise: 31</span></div>
+        </a>
+        
+        <a href="games/Adventures_Lolo.html" class="game-card">
+            <div class="game-card-title">Adventures Lolo</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">2,921 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 1298</span> · <span class="ch-sq2">Square 2: 990</span> · <span class="ch-tri">Triangle: 483</span> · <span class="ch-noi">Noise: 150</span></div>
+        </a>
+        
+        <a href="games/Adventures_in_the_Magic_Kingdom.html" class="game-card">
+            <div class="game-card-title">Adventures in the Magic Kingdom</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">146 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 15</span> · <span class="ch-sq2">Square 2: 34</span> · <span class="ch-tri">Triangle: 46</span> · <span class="ch-noi">Noise: 51</span></div>
+        </a>
+        
+        <a href="games/Adventures_of_Dino_Riki.html" class="game-card">
+            <div class="game-card-title">Adventures of Dino Riki</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">140 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 50</span> · <span class="ch-sq2">Square 2: 50</span> · <span class="ch-tri">Triangle: 40</span></div>
+        </a>
+        
+        <a href="games/Adventures_of_Dr_Franken_The.html" class="game-card">
+            <div class="game-card-title">Adventures of Dr Franken The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">39 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 20</span> · <span class="ch-tri">Triangle: 19</span></div>
+        </a>
+        
+        <a href="games/Adventures_of_Gilligans_Island_The.html" class="game-card">
+            <div class="game-card-title">Adventures of Gilligans Island The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">76 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 12</span> · <span class="ch-sq2">Square 2: 12</span> · <span class="ch-tri">Triangle: 21</span> · <span class="ch-noi">Noise: 31</span></div>
+        </a>
+        
+        <a href="games/Adventures_of_Lolo.html" class="game-card">
+            <div class="game-card-title">Adventures of Lolo</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">437 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 184</span> · <span class="ch-sq2">Square 2: 178</span> · <span class="ch-tri">Triangle: 25</span> · <span class="ch-noi">Noise: 50</span></div>
+        </a>
+        
+        <a href="games/Adventures_of_Lolo_2.html" class="game-card">
+            <div class="game-card-title">Adventures of Lolo 2</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">703 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 187</span> · <span class="ch-sq2">Square 2: 192</span> · <span class="ch-tri">Triangle: 180</span> · <span class="ch-noi">Noise: 144</span></div>
+        </a>
+        
+        <a href="games/Adventures_of_Lolo_3.html" class="game-card">
+            <div class="game-card-title">Adventures of Lolo 3</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">84 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 25</span> · <span class="ch-tri">Triangle: 31</span> · <span class="ch-noi">Noise: 28</span></div>
+        </a>
+        
+        <a href="games/Adventures_of_Rad_Gravity_The.html" class="game-card">
+            <div class="game-card-title">Adventures of Rad Gravity The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Warhol</span>
+                <span class="tag">147 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 62</span> · <span class="ch-sq2">Square 2: 29</span> · <span class="ch-tri">Triangle: 26</span> · <span class="ch-noi">Noise: 30</span></div>
+        </a>
+        
+        <a href="games/Adventures_of_Rocky_and_Bullwinkle_and_Friends_The.html" class="game-card">
+            <div class="game-card-title">Adventures of Rocky and Bullwinkle and Friends The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">28 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 12</span> · <span class="ch-sq2">Square 2: 11</span> · <span class="ch-tri">Triangle: 5</span></div>
+        </a>
+        
+        <a href="games/Adventures_of_Tom_Sawyer.html" class="game-card">
+            <div class="game-card-title">Adventures of Tom Sawyer</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">121 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 69</span> · <span class="ch-sq2">Square 2: 26</span> · <span class="ch-noi">Noise: 26</span></div>
+        </a>
+        
+        <a href="games/Air_Fortress.html" class="game-card">
+            <div class="game-card-title">Air Fortress</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">74 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 20</span> · <span class="ch-sq2">Square 2: 30</span> · <span class="ch-tri">Triangle: 24</span></div>
+        </a>
+        
+        <a href="games/Airball.html" class="game-card">
+            <div class="game-card-title">Airball</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">28 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 1</span> · <span class="ch-sq2">Square 2: 4</span> · <span class="ch-tri">Triangle: 22</span> · <span class="ch-noi">Noise: 1</span></div>
+        </a>
+        
+        <a href="games/Airwolf.html" class="game-card">
+            <div class="game-card-title">Airwolf</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">74 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 2</span> · <span class="ch-sq2">Square 2: 5</span> · <span class="ch-tri">Triangle: 50</span> · <span class="ch-noi">Noise: 17</span></div>
+        </a>
+        
+        <a href="games/Alex_DeMeos_Race_America.html" class="game-card">
+            <div class="game-card-title">Alex DeMeos Race America</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">39 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 1</span> · <span class="ch-sq2">Square 2: 19</span> · <span class="ch-tri">Triangle: 19</span></div>
+        </a>
+        
+        <a href="games/Alfred_Chicken.html" class="game-card">
+            <div class="game-card-title">Alfred Chicken</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">89 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 23</span> · <span class="ch-sq2">Square 2: 22</span> · <span class="ch-tri">Triangle: 18</span> · <span class="ch-noi">Noise: 26</span></div>
+        </a>
+        
+        <a href="games/Alien_3.html" class="game-card">
+            <div class="game-card-title">Alien 3</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">50 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 4</span> · <span class="ch-sq2">Square 2: 4</span> · <span class="ch-tri">Triangle: 17</span> · <span class="ch-noi">Noise: 25</span></div>
+        </a>
+        
+        <a href="games/Amagon.html" class="game-card">
+            <div class="game-card-title">Amagon</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">111 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 29</span> · <span class="ch-tri">Triangle: 49</span> · <span class="ch-noi">Noise: 33</span></div>
+        </a>
+        
+        <a href="games/American_Gladiators.html" class="game-card">
+            <div class="game-card-title">American Gladiators</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">256 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 19</span> · <span class="ch-sq2">Square 2: 23</span> · <span class="ch-tri">Triangle: 200</span> · <span class="ch-noi">Noise: 14</span></div>
+        </a>
+        
+        <a href="games/Anticipation.html" class="game-card">
+            <div class="game-card-title">Anticipation</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">69 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 25</span> · <span class="ch-sq2">Square 2: 22</span> · <span class="ch-tri">Triangle: 22</span></div>
+        </a>
+        
+        <a href="games/Archon.html" class="game-card">
+            <div class="game-card-title">Archon</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">65 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 23</span> · <span class="ch-sq2">Square 2: 19</span> · <span class="ch-tri">Triangle: 23</span></div>
+        </a>
+        
+        <a href="games/Arkanoid.html" class="game-card">
+            <div class="game-card-title">Arkanoid</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">84 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 29</span> · <span class="ch-sq2">Square 2: 29</span> · <span class="ch-tri">Triangle: 26</span></div>
+        </a>
+        
+        <a href="games/Arkistas_Ring.html" class="game-card">
+            <div class="game-card-title">Arkistas Ring</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">42 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 17</span> · <span class="ch-sq2">Square 2: 3</span> · <span class="ch-tri">Triangle: 9</span> · <span class="ch-noi">Noise: 13</span></div>
+        </a>
+        
+        <a href="games/Astyanax.html" class="game-card">
+            <div class="game-card-title">Astyanax</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">57 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 15</span> · <span class="ch-sq2">Square 2: 15</span> · <span class="ch-tri">Triangle: 27</span></div>
+        </a>
+        
+        <a href="games/Athletic_World.html" class="game-card">
+            <div class="game-card-title">Athletic World</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">78 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 3</span> · <span class="ch-sq2">Square 2: 39</span> · <span class="ch-tri">Triangle: 36</span></div>
+        </a>
+        
+        <a href="games/Back_to_the_Future_Part_II_and_III.html" class="game-card">
+            <div class="game-card-title">Back to the Future Part II and III</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">39 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 16</span> · <span class="ch-sq2">Square 2: 21</span> · <span class="ch-tri">Triangle: 1</span> · <span class="ch-noi">Noise: 1</span></div>
+        </a>
+        
+        <a href="games/Bad_News_Baseball.html" class="game-card">
+            <div class="game-card-title">Bad News Baseball</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">104 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 29</span> · <span class="ch-sq2">Square 2: 28</span> · <span class="ch-tri">Triangle: 25</span> · <span class="ch-noi">Noise: 22</span></div>
+        </a>
+        
+        <a href="games/Bad_Street_Brawler.html" class="game-card">
+            <div class="game-card-title">Bad Street Brawler</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">34 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 30</span> · <span class="ch-sq2">Square 2: 1</span> · <span class="ch-tri">Triangle: 3</span></div>
+        </a>
+        
+        <a href="games/Balloon_Fight.html" class="game-card">
+            <div class="game-card-title">Balloon Fight</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">46 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq2">Square 2: 31</span> · <span class="ch-tri">Triangle: 15</span></div>
+        </a>
+        
+        <a href="games/Bandai_Golf__Challenge_Pebble_Beach.html" class="game-card">
+            <div class="game-card-title">Bandai Golf  Challenge Pebble Beach</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">102 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 18</span> · <span class="ch-sq2">Square 2: 41</span> · <span class="ch-tri">Triangle: 27</span> · <span class="ch-noi">Noise: 16</span></div>
+        </a>
+        
+        <a href="games/Bards_Tale_The.html" class="game-card">
+            <div class="game-card-title">Bards Tale The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">24 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 7</span> · <span class="ch-sq2">Square 2: 5</span> · <span class="ch-tri">Triangle: 12</span></div>
+        </a>
+        
+        <a href="games/Barker_Bills_Trick_Shooting.html" class="game-card">
+            <div class="game-card-title">Barker Bills Trick Shooting</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">64 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 10</span> · <span class="ch-sq2">Square 2: 20</span> · <span class="ch-tri">Triangle: 6</span> · <span class="ch-noi">Noise: 28</span></div>
+        </a>
+        
+        <a href="games/Baseball.html" class="game-card">
+            <div class="game-card-title">Baseball</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">80 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 29</span> · <span class="ch-sq2">Square 2: 31</span> · <span class="ch-tri">Triangle: 20</span></div>
+        </a>
+        
+        <a href="games/Baseball_Simulator_1000.html" class="game-card">
+            <div class="game-card-title">Baseball Simulator 1000</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">139 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 21</span> · <span class="ch-sq2">Square 2: 10</span> · <span class="ch-tri">Triangle: 25</span> · <span class="ch-noi">Noise: 83</span></div>
+        </a>
+        
+        <a href="games/Bases_Loaded.html" class="game-card">
+            <div class="game-card-title">Bases Loaded</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">55 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 18</span> · <span class="ch-sq2">Square 2: 16</span> · <span class="ch-tri">Triangle: 21</span></div>
+        </a>
+        
+        <a href="games/Bases_Loaded_3.html" class="game-card">
+            <div class="game-card-title">Bases Loaded 3</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">112 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 30</span> · <span class="ch-sq2">Square 2: 17</span> · <span class="ch-tri">Triangle: 31</span> · <span class="ch-noi">Noise: 34</span></div>
+        </a>
+        
+        <a href="games/Bases_Loaded_4.html" class="game-card">
+            <div class="game-card-title">Bases Loaded 4</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">125 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 29</span> · <span class="ch-sq2">Square 2: 16</span> · <span class="ch-tri">Triangle: 32</span> · <span class="ch-noi">Noise: 48</span></div>
+        </a>
+        
+        <a href="games/Bases_Loaded_II__Second_Season.html" class="game-card">
+            <div class="game-card-title">Bases Loaded II  Second Season</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">75 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 24</span> · <span class="ch-sq2">Square 2: 24</span> · <span class="ch-tri">Triangle: 27</span></div>
+        </a>
+        
+        <a href="games/Bashi_Bazook__Morphoid_Masher.html" class="game-card">
+            <div class="game-card-title">Bashi Bazook  Morphoid Masher</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">15 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 3</span> · <span class="ch-sq2">Square 2: 3</span> · <span class="ch-tri">Triangle: 9</span></div>
+        </a>
+        
+        <a href="games/Batman.html" class="game-card">
+            <div class="game-card-title">Batman</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Sunsoft</span>
+                <span class="tag">848 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 180</span> · <span class="ch-sq2">Square 2: 139</span> · <span class="ch-tri">Triangle: 307</span> · <span class="ch-noi">Noise: 222</span></div>
+        </a>
+        
+        <a href="games/Batman__The_Video_Game.html" class="game-card">
+            <div class="game-card-title">Batman  The Video Game</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Sunsoft</span>
+                <span class="tag">8 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 7</span> · <span class="ch-sq2">Square 2: 1</span></div>
+        </a>
+        
+        <a href="games/Batman_Returns.html" class="game-card">
+            <div class="game-card-title">Batman Returns</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Sunsoft</span>
+                <span class="tag">25 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 3</span> · <span class="ch-sq2">Square 2: 3</span> · <span class="ch-tri">Triangle: 15</span> · <span class="ch-noi">Noise: 4</span></div>
+        </a>
+        
+        <a href="games/Battle_Chess.html" class="game-card">
+            <div class="game-card-title">Battle Chess</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">21 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 1</span> · <span class="ch-sq2">Square 2: 16</span> · <span class="ch-tri">Triangle: 4</span></div>
+        </a>
+        
+        <a href="games/Battle_of_Olympus_The.html" class="game-card">
+            <div class="game-card-title">Battle of Olympus The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">56 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 14</span> · <span class="ch-sq2">Square 2: 14</span> · <span class="ch-tri">Triangle: 14</span> · <span class="ch-noi">Noise: 14</span></div>
+        </a>
+        
+        <a href="games/Battleship.html" class="game-card">
+            <div class="game-card-title">Battleship</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">68 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 25</span> · <span class="ch-sq2">Square 2: 15</span> · <span class="ch-tri">Triangle: 9</span> · <span class="ch-noi">Noise: 19</span></div>
+        </a>
+        
+        <a href="games/Battletoads.html" class="game-card">
+            <div class="game-card-title">Battletoads</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Rare</span>
+                <span class="tag">157 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 66</span> · <span class="ch-sq2">Square 2: 69</span> · <span class="ch-tri">Triangle: 6</span> · <span class="ch-noi">Noise: 16</span></div>
+        </a>
+        
+        <a href="games/Battletoads_and_Double_Dragon.html" class="game-card">
+            <div class="game-card-title">Battletoads and Double Dragon</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Rare</span>
+                <span class="tag">160 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 67</span> · <span class="ch-sq2">Square 2: 69</span> · <span class="ch-tri">Triangle: 7</span> · <span class="ch-noi">Noise: 17</span></div>
+        </a>
+        
+        <a href="games/Beetlejuice.html" class="game-card">
+            <div class="game-card-title">Beetlejuice</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">68 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 33</span> · <span class="ch-sq2">Square 2: 32</span> · <span class="ch-tri">Triangle: 2</span> · <span class="ch-noi">Noise: 1</span></div>
+        </a>
+        
+        <a href="games/Best_of_the_Best__Championship_Karate.html" class="game-card">
+            <div class="game-card-title">Best of the Best  Championship Karate</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">78 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 38</span> · <span class="ch-sq2">Square 2: 11</span> · <span class="ch-noi">Noise: 29</span></div>
+        </a>
+        
+        <a href="games/Bigfoot.html" class="game-card">
+            <div class="game-card-title">Bigfoot</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">39 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 15</span> · <span class="ch-sq2">Square 2: 17</span> · <span class="ch-tri">Triangle: 6</span> · <span class="ch-noi">Noise: 1</span></div>
+        </a>
+        
+        <a href="games/Bill_Elliotts_NASCAR_Challenge.html" class="game-card">
+            <div class="game-card-title">Bill Elliotts NASCAR Challenge</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">103 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 72</span> · <span class="ch-tri">Triangle: 31</span></div>
+        </a>
+        
+        <a href="games/Bio_Force_Ape.html" class="game-card">
+            <div class="game-card-title">Bio Force Ape</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">176 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 3</span> · <span class="ch-sq2">Square 2: 18</span> · <span class="ch-tri">Triangle: 59</span> · <span class="ch-noi">Noise: 96</span></div>
+        </a>
+        
+        <a href="games/Bionic_Commando.html" class="game-card">
+            <div class="game-card-title">Bionic Commando</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">606 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 167</span> · <span class="ch-sq2">Square 2: 84</span> · <span class="ch-tri">Triangle: 199</span> · <span class="ch-noi">Noise: 156</span></div>
+        </a>
+        
+        <a href="games/Black_Bass_The.html" class="game-card">
+            <div class="game-card-title">Black Bass The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">71 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 18</span> · <span class="ch-sq2">Square 2: 38</span> · <span class="ch-tri">Triangle: 15</span></div>
+        </a>
+        
+        <a href="games/Blaster_Master.html" class="game-card">
+            <div class="game-card-title">Blaster Master</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Sunsoft</span>
+                <span class="tag">1,358 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 136</span> · <span class="ch-sq2">Square 2: 150</span> · <span class="ch-tri">Triangle: 1063</span> · <span class="ch-noi">Noise: 9</span></div>
+        </a>
+        
+        <a href="games/Blue_Marlin_The.html" class="game-card">
+            <div class="game-card-title">Blue Marlin The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">27 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 11</span> · <span class="ch-sq2">Square 2: 11</span> · <span class="ch-tri">Triangle: 5</span></div>
+        </a>
+        
+        <a href="games/Blues_Brothers_The.html" class="game-card">
+            <div class="game-card-title">Blues Brothers The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">103 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 37</span> · <span class="ch-sq2">Square 2: 33</span> · <span class="ch-tri">Triangle: 33</span></div>
+        </a>
+        
+        <a href="games/Bo_Jackson_Baseball.html" class="game-card">
+            <div class="game-card-title">Bo Jackson Baseball</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">97 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 1</span> · <span class="ch-sq2">Square 2: 10</span> · <span class="ch-tri">Triangle: 65</span> · <span class="ch-noi">Noise: 21</span></div>
+        </a>
+        
+        <a href="games/Bomberman.html" class="game-card">
+            <div class="game-card-title">Bomberman</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">205 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 73</span> · <span class="ch-sq2">Square 2: 68</span> · <span class="ch-tri">Triangle: 64</span></div>
+        </a>
+        
+        <a href="games/Bonks_Adventure.html" class="game-card">
+            <div class="game-card-title">Bonks Adventure</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">114 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 7</span> · <span class="ch-sq2">Square 2: 7</span> · <span class="ch-tri">Triangle: 17</span> · <span class="ch-noi">Noise: 83</span></div>
+        </a>
+        
+        <a href="games/Boulder_Dash.html" class="game-card">
+            <div class="game-card-title">Boulder Dash</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">131 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 20</span> · <span class="ch-sq2">Square 2: 21</span> · <span class="ch-tri">Triangle: 34</span> · <span class="ch-noi">Noise: 56</span></div>
+        </a>
+        
+        <a href="games/Bowling.html" class="game-card">
+            <div class="game-card-title">Bowling</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">44 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 10</span> · <span class="ch-sq2">Square 2: 1</span> · <span class="ch-tri">Triangle: 8</span> · <span class="ch-noi">Noise: 25</span></div>
+        </a>
+        
+        <a href="games/BreakThru.html" class="game-card">
+            <div class="game-card-title">BreakThru</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">126 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 46</span> · <span class="ch-sq2">Square 2: 16</span> · <span class="ch-tri">Triangle: 49</span> · <span class="ch-noi">Noise: 15</span></div>
+        </a>
+        
+        <a href="games/Bubble_Bobble.html" class="game-card">
+            <div class="game-card-title">Bubble Bobble</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">37 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 18</span> · <span class="ch-sq2">Square 2: 19</span></div>
+        </a>
+        
+        <a href="games/Bubble_Bobble_Part_2.html" class="game-card">
+            <div class="game-card-title">Bubble Bobble Part 2</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">54 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 26</span> · <span class="ch-sq2">Square 2: 16</span> · <span class="ch-tri">Triangle: 12</span></div>
+        </a>
+        
+        <a href="games/Bugs_Bunny_Crazy_Castle_The.html" class="game-card">
+            <div class="game-card-title">Bugs Bunny Crazy Castle The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">58 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 25</span> · <span class="ch-sq2">Square 2: 23</span> · <span class="ch-tri">Triangle: 6</span> · <span class="ch-noi">Noise: 4</span></div>
+        </a>
+        
+        <a href="games/Caesars_Palace.html" class="game-card">
+            <div class="game-card-title">Caesars Palace</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Warhol</span>
+                <span class="tag">1,550 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 343</span> · <span class="ch-sq2">Square 2: 266</span> · <span class="ch-tri">Triangle: 674</span> · <span class="ch-noi">Noise: 267</span></div>
+        </a>
+        
+        <a href="games/California_Games.html" class="game-card">
+            <div class="game-card-title">California Games</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">34 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 11</span> · <span class="ch-sq2">Square 2: 10</span> · <span class="ch-tri">Triangle: 13</span></div>
+        </a>
+        
+        <a href="games/California_Raisins__The_Grape_Escape.html" class="game-card">
+            <div class="game-card-title">California Raisins  The Grape Escape</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">86 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq2">Square 2: 14</span> · <span class="ch-tri">Triangle: 32</span> · <span class="ch-noi">Noise: 40</span></div>
+        </a>
+        
+        <a href="games/Capcoms_Gold_Medal_Challenge_92.html" class="game-card">
+            <div class="game-card-title">Capcoms Gold Medal Challenge 92</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">65 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 32</span> · <span class="ch-sq2">Square 2: 32</span> · <span class="ch-tri">Triangle: 1</span></div>
+        </a>
+        
+        <a href="games/Captain_America_and_the_Avengers.html" class="game-card">
+            <div class="game-card-title">Captain America and the Avengers</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">116 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 56</span> · <span class="ch-sq2">Square 2: 56</span> · <span class="ch-tri">Triangle: 1</span> · <span class="ch-noi">Noise: 3</span></div>
+        </a>
+        
+        <a href="games/Captain_Planet_and_the_Planeteers.html" class="game-card">
+            <div class="game-card-title">Captain Planet and the Planeteers</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">114 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-tri">Triangle: 76</span> · <span class="ch-noi">Noise: 38</span></div>
+        </a>
+        
+        <a href="games/Captain_Skyhawk.html" class="game-card">
+            <div class="game-card-title">Captain Skyhawk</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">28 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 14</span> · <span class="ch-sq2">Square 2: 13</span> · <span class="ch-tri">Triangle: 1</span></div>
+        </a>
+        
+        <a href="games/Casino_Kid.html" class="game-card">
+            <div class="game-card-title">Casino Kid</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">67 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 24</span> · <span class="ch-sq2">Square 2: 14</span> · <span class="ch-tri">Triangle: 29</span></div>
+        </a>
+        
+        <a href="games/Casino_Kid_II.html" class="game-card">
+            <div class="game-card-title">Casino Kid II</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">34 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 9</span> · <span class="ch-sq2">Square 2: 10</span> · <span class="ch-tri">Triangle: 9</span> · <span class="ch-noi">Noise: 6</span></div>
+        </a>
+        
+        <a href="games/Castle_of_Dragon.html" class="game-card">
+            <div class="game-card-title">Castle of Dragon</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">254 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 56</span> · <span class="ch-sq2">Square 2: 56</span> · <span class="ch-tri">Triangle: 69</span> · <span class="ch-noi">Noise: 73</span></div>
+        </a>
+        
+        <a href="games/Castlequest.html" class="game-card">
+            <div class="game-card-title">Castlequest</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">59 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 19</span> · <span class="ch-sq2">Square 2: 17</span> · <span class="ch-tri">Triangle: 23</span></div>
+        </a>
+        
+        <a href="games/Castlevania.html" class="game-card">
+            <div class="game-card-title">Castlevania</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Konami Maezawa</span>
+                <span class="tag">155 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 23</span> · <span class="ch-sq2">Square 2: 20</span> · <span class="ch-tri">Triangle: 29</span> · <span class="ch-noi">Noise: 83</span></div>
+        </a>
+        
+        <a href="games/Castlevania_II__Simons_Quest.html" class="game-card">
+            <div class="game-card-title">Castlevania II  Simons Quest</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Konami Maezawa</span>
+                <span class="tag">151 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 15</span> · <span class="ch-sq2">Square 2: 6</span> · <span class="ch-tri">Triangle: 37</span> · <span class="ch-noi">Noise: 93</span></div>
+        </a>
+        
+        <a href="games/Championship_Bowling.html" class="game-card">
+            <div class="game-card-title">Championship Bowling</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">183 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 8</span> · <span class="ch-sq2">Square 2: 32</span> · <span class="ch-tri">Triangle: 69</span> · <span class="ch-noi">Noise: 74</span></div>
+        </a>
+        
+        <a href="games/Championship_Pool.html" class="game-card">
+            <div class="game-card-title">Championship Pool</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">42 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq2">Square 2: 17</span> · <span class="ch-noi">Noise: 25</span></div>
+        </a>
+        
+        <a href="games/Chessmaster_The.html" class="game-card">
+            <div class="game-card-title">Chessmaster The</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">23 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq2">Square 2: 23</span></div>
+        </a>
+        
+        <a href="games/Chip_n_Dale.html" class="game-card">
+            <div class="game-card-title">Chip n Dale</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">1,357 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 212</span> · <span class="ch-sq2">Square 2: 414</span> · <span class="ch-tri">Triangle: 350</span> · <span class="ch-noi">Noise: 381</span></div>
+        </a>
+        
+        <a href="games/Chip_n_Dale__Rescue_Rangers.html" class="game-card">
+            <div class="game-card-title">Chip n Dale  Rescue Rangers</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">88 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 15</span> · <span class="ch-sq2">Square 2: 5</span> · <span class="ch-tri">Triangle: 32</span> · <span class="ch-noi">Noise: 36</span></div>
+        </a>
+        
+        <a href="games/Chip_n_Dale__Rescue_Rangers_2.html" class="game-card">
+            <div class="game-card-title">Chip n Dale  Rescue Rangers 2</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">26 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq2">Square 2: 13</span> · <span class="ch-noi">Noise: 13</span></div>
+        </a>
+        
+        <a href="games/Chris_Evert_and_Ivan_Lendl_in_Top_Players_Tennis.html" class="game-card">
+            <div class="game-card-title">Chris Evert and Ivan Lendl in Top Players Tennis</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">123 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 49</span> · <span class="ch-sq2">Square 2: 50</span> · <span class="ch-noi">Noise: 24</span></div>
+        </a>
+        
+        <a href="games/Chubby_Cherub.html" class="game-card">
+            <div class="game-card-title">Chubby Cherub</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">60 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 20</span> · <span class="ch-sq2">Square 2: 21</span> · <span class="ch-tri">Triangle: 19</span></div>
+        </a>
+        
+        <a href="games/Chuck_Yeagers_Fighter_Combat.html" class="game-card">
+            <div class="game-card-title">Chuck Yeagers Fighter Combat</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">328 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 37</span> · <span class="ch-sq2">Square 2: 91</span> · <span class="ch-tri">Triangle: 100</span> · <span class="ch-noi">Noise: 100</span></div>
+        </a>
+        
+        <a href="games/Circus_Caper.html" class="game-card">
+            <div class="game-card-title">Circus Caper</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">67 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 30</span> · <span class="ch-sq2">Square 2: 26</span> · <span class="ch-tri">Triangle: 11</span></div>
+        </a>
+        
+        <a href="games/City_Connection.html" class="game-card">
+            <div class="game-card-title">City Connection</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">30 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 19</span> · <span class="ch-sq2">Square 2: 10</span> · <span class="ch-tri">Triangle: 1</span></div>
+        </a>
+        
+        <a href="games/Classic_Concentration.html" class="game-card">
+            <div class="game-card-title">Classic Concentration</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">115 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 29</span> · <span class="ch-sq2">Square 2: 32</span> · <span class="ch-tri">Triangle: 16</span> · <span class="ch-noi">Noise: 38</span></div>
+        </a>
+        
+        <a href="games/Cliffhanger.html" class="game-card">
+            <div class="game-card-title">Cliffhanger</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">354 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 177</span> · <span class="ch-sq2">Square 2: 153</span> · <span class="ch-tri">Triangle: 7</span> · <span class="ch-noi">Noise: 17</span></div>
+        </a>
+        
+        <a href="games/Clu_Clu_Land.html" class="game-card">
+            <div class="game-card-title">Clu Clu Land</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">54 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 23</span> · <span class="ch-sq2">Square 2: 13</span> · <span class="ch-tri">Triangle: 17</span> · <span class="ch-noi">Noise: 1</span></div>
+        </a>
+        
+        <a href="games/Cobra_Triangle.html" class="game-card">
+            <div class="game-card-title">Cobra Triangle</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">12 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq2">Square 2: 12</span></div>
+        </a>
+        
+        <a href="games/Color_a_Dinosaur.html" class="game-card">
+            <div class="game-card-title">Color a Dinosaur</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">32 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 8</span> · <span class="ch-sq2">Square 2: 16</span> · <span class="ch-tri">Triangle: 8</span></div>
+        </a>
+        
+        <a href="games/Commando.html" class="game-card">
+            <div class="game-card-title">Commando</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">97 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 35</span> · <span class="ch-sq2">Square 2: 25</span> · <span class="ch-tri">Triangle: 36</span> · <span class="ch-noi">Noise: 1</span></div>
+        </a>
+        
+        <a href="games/Conan.html" class="game-card">
+            <div class="game-card-title">Conan</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">107 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 39</span> · <span class="ch-sq2">Square 2: 36</span> · <span class="ch-tri">Triangle: 32</span></div>
+        </a>
+        
+        <a href="games/Conquest_of_the_Crystal_Palace.html" class="game-card">
+            <div class="game-card-title">Conquest of the Crystal Palace</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">7 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 1</span> · <span class="ch-sq2">Square 2: 1</span> · <span class="ch-tri">Triangle: 3</span> · <span class="ch-noi">Noise: 2</span></div>
+        </a>
+        
+        <a href="games/Contra.html" class="game-card">
+            <div class="game-card-title">Contra</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Konami Maezawa</span>
+                <span class="tag">2,792 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 983</span> · <span class="ch-sq2">Square 2: 12</span> · <span class="ch-tri">Triangle: 19</span> · <span class="ch-noi">Noise: 1778</span></div>
+        </a>
+        
+        <a href="games/Contra_Force.html" class="game-card">
+            <div class="game-card-title">Contra Force</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Konami Maezawa</span>
+                <span class="tag">24 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 1</span> · <span class="ch-tri">Triangle: 1</span> · <span class="ch-noi">Noise: 22</span></div>
+        </a>
+        
+        <a href="games/Contra_rom.html" class="game-card">
+            <div class="game-card-title">Contra rom</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Konami Maezawa</span>
+                <span class="tag">120 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 26</span> · <span class="ch-sq2">Square 2: 4</span> · <span class="ch-tri">Triangle: 7</span> · <span class="ch-noi">Noise: 83</span></div>
+        </a>
+        
+        <a href="games/Cool_World.html" class="game-card">
+            <div class="game-card-title">Cool World</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">287 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq2">Square 2: 260</span> · <span class="ch-noi">Noise: 27</span></div>
+        </a>
+        
+        <a href="games/Cowboy_Kid.html" class="game-card">
+            <div class="game-card-title">Cowboy Kid</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">340 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 65</span> · <span class="ch-sq2">Square 2: 64</span> · <span class="ch-tri">Triangle: 50</span> · <span class="ch-noi">Noise: 161</span></div>
+        </a>
+        
+        <a href="games/Crackout.html" class="game-card">
+            <div class="game-card-title">Crackout</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">37 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 28</span> · <span class="ch-sq2">Square 2: 9</span></div>
+        </a>
+        
+        <a href="games/CrossFire.html" class="game-card">
+            <div class="game-card-title">CrossFire</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">149 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 14</span> · <span class="ch-sq2">Square 2: 54</span> · <span class="ch-tri">Triangle: 29</span> · <span class="ch-noi">Noise: 52</span></div>
+        </a>
+        
+        <a href="games/Crystalis.html" class="game-card">
+            <div class="game-card-title">Crystalis</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">821 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 210</span> · <span class="ch-sq2">Square 2: 278</span> · <span class="ch-tri">Triangle: 159</span> · <span class="ch-noi">Noise: 174</span></div>
+        </a>
+        
+        <a href="games/Dance_Aerobics.html" class="game-card">
+            <div class="game-card-title">Dance Aerobics</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">89 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 17</span> · <span class="ch-sq2">Square 2: 26</span> · <span class="ch-tri">Triangle: 23</span> · <span class="ch-noi">Noise: 23</span></div>
+        </a>
+        
+        <a href="games/Danny_Sullivans_Indy_Heat.html" class="game-card">
+            <div class="game-card-title">Danny Sullivans Indy Heat</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">101 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 50</span> · <span class="ch-sq2">Square 2: 35</span> · <span class="ch-tri">Triangle: 4</span> · <span class="ch-noi">Noise: 12</span></div>
+        </a>
+        
+        <a href="games/Darkman.html" class="game-card">
+            <div class="game-card-title">Darkman</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">91 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 9</span> · <span class="ch-sq2">Square 2: 9</span> · <span class="ch-tri">Triangle: 15</span> · <span class="ch-noi">Noise: 58</span></div>
+        </a>
+        
+        <a href="games/Darkwing_Duck.html" class="game-card">
+            <div class="game-card-title">Darkwing Duck</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">949 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 165</span> · <span class="ch-sq2">Square 2: 264</span> · <span class="ch-tri">Triangle: 167</span> · <span class="ch-noi">Noise: 353</span></div>
+        </a>
+        
+        <a href="games/Dash_Galaxy_in_the_Alien_Asylum.html" class="game-card">
+            <div class="game-card-title">Dash Galaxy in the Alien Asylum</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">39 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 13</span> · <span class="ch-sq2">Square 2: 13</span> · <span class="ch-tri">Triangle: 13</span></div>
+        </a>
+        
+        <a href="games/David_Cranes_A_Boy_and_His_Blob__Trouble_on_Blobolonia.html" class="game-card">
+            <div class="game-card-title">David Cranes A Boy and His Blob  Trouble on Blobolonia</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">77 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 8</span> · <span class="ch-sq2">Square 2: 64</span> · <span class="ch-tri">Triangle: 5</span></div>
+        </a>
+        
+        <a href="games/Day_Dreamin_Davey.html" class="game-card">
+            <div class="game-card-title">Day Dreamin Davey</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">185 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 39</span> · <span class="ch-sq2">Square 2: 26</span> · <span class="ch-tri">Triangle: 72</span> · <span class="ch-noi">Noise: 48</span></div>
+        </a>
+        
+        <a href="games/Defender_II.html" class="game-card">
+            <div class="game-card-title">Defender II</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">78 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 37</span> · <span class="ch-sq2">Square 2: 17</span> · <span class="ch-tri">Triangle: 24</span></div>
+        </a>
+        
+        <a href="games/Defender_of_the_Crown.html" class="game-card">
+            <div class="game-card-title">Defender of the Crown</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">5 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 1</span> · <span class="ch-sq2">Square 2: 1</span> · <span class="ch-tri">Triangle: 3</span></div>
+        </a>
+        
+        <a href="games/Defenders_of_Dynatron_City.html" class="game-card">
+            <div class="game-card-title">Defenders of Dynatron City</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">67 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 20</span> · <span class="ch-sq2">Square 2: 13</span> · <span class="ch-tri">Triangle: 13</span> · <span class="ch-noi">Noise: 21</span></div>
+        </a>
+        
+        <a href="games/Deja_Vu.html" class="game-card">
+            <div class="game-card-title">Deja Vu</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">65 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 16</span> · <span class="ch-sq2">Square 2: 16</span> · <span class="ch-tri">Triangle: 21</span> · <span class="ch-noi">Noise: 12</span></div>
+        </a>
+        
+        <a href="games/Demon_Sword.html" class="game-card">
+            <div class="game-card-title">Demon Sword</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">120 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 1</span> · <span class="ch-sq2">Square 2: 60</span> · <span class="ch-tri">Triangle: 9</span> · <span class="ch-noi">Noise: 50</span></div>
+        </a>
+        
+        <a href="games/Desert_Commander.html" class="game-card">
+            <div class="game-card-title">Desert Commander</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">11 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 5</span> · <span class="ch-sq2">Square 2: 1</span> · <span class="ch-tri">Triangle: 1</span> · <span class="ch-noi">Noise: 4</span></div>
+        </a>
+        
+        <a href="games/Destination_Earthstar.html" class="game-card">
+            <div class="game-card-title">Destination Earthstar</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">138 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 68</span> · <span class="ch-sq2">Square 2: 13</span> · <span class="ch-tri">Triangle: 17</span> · <span class="ch-noi">Noise: 40</span></div>
+        </a>
+        
+        <a href="games/Destiny_of_an_Emperor.html" class="game-card">
+            <div class="game-card-title">Destiny of an Emperor</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">106 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 20</span> · <span class="ch-sq2">Square 2: 27</span> · <span class="ch-tri">Triangle: 22</span> · <span class="ch-noi">Noise: 37</span></div>
+        </a>
+        
+        <a href="games/Dick_Tracy.html" class="game-card">
+            <div class="game-card-title">Dick Tracy</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Warhol</span>
+                <span class="tag">4,278 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 152</span> · <span class="ch-sq2">Square 2: 57</span> · <span class="ch-tri">Triangle: 182</span> · <span class="ch-noi">Noise: 472</span></div>
+        </a>
+        
+        <a href="games/Die_Hard.html" class="game-card">
+            <div class="game-card-title">Die Hard</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">46 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 5</span> · <span class="ch-sq2">Square 2: 15</span> · <span class="ch-tri">Triangle: 8</span> · <span class="ch-noi">Noise: 18</span></div>
+        </a>
+        
+        <a href="games/Digger_T_Rock__The_Legend_of_the_Lost_City.html" class="game-card">
+            <div class="game-card-title">Digger T Rock  The Legend of the Lost City</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">150 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 32</span> · <span class="ch-sq2">Square 2: 39</span> · <span class="ch-tri">Triangle: 26</span> · <span class="ch-noi">Noise: 53</span></div>
+        </a>
+        
+        <a href="games/Dino_Hockey.html" class="game-card">
+            <div class="game-card-title">Dino Hockey</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">8 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-tri">Triangle: 7</span> · <span class="ch-noi">Noise: 1</span></div>
+        </a>
+        
+        <a href="games/Dirty_Harry.html" class="game-card">
+            <div class="game-card-title">Dirty Harry</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">75 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 16</span> · <span class="ch-sq2">Square 2: 15</span> · <span class="ch-tri">Triangle: 44</span></div>
+        </a>
+        
+        <a href="games/Donkey_Kong.html" class="game-card">
+            <div class="game-card-title">Donkey Kong</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Nintendo</span>
+                <span class="tag">585 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 376</span> · <span class="ch-sq2">Square 2: 56</span> · <span class="ch-tri">Triangle: 153</span></div>
+        </a>
+        
+        <a href="games/Donkey_Kong__Original_Edition.html" class="game-card">
+            <div class="game-card-title">Donkey Kong  Original Edition</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Nintendo</span>
+                <span class="tag">66 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 36</span> · <span class="ch-sq2">Square 2: 17</span> · <span class="ch-tri">Triangle: 13</span></div>
+        </a>
+        
+        <a href="games/Donkey_Kong_3.html" class="game-card">
+            <div class="game-card-title">Donkey Kong 3</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Nintendo</span>
+                <span class="tag">13 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-tri">Triangle: 13</span></div>
+        </a>
+        
+        <a href="games/Donkey_Kong_Jr.html" class="game-card">
+            <div class="game-card-title">Donkey Kong Jr</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Nintendo</span>
+                <span class="tag">76 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 29</span> · <span class="ch-sq2">Square 2: 24</span> · <span class="ch-tri">Triangle: 23</span></div>
+        </a>
+        
+        <a href="games/Double_Dare.html" class="game-card">
+            <div class="game-card-title">Double Dare</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">7 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 3</span> · <span class="ch-sq2">Square 2: 3</span> · <span class="ch-tri">Triangle: 1</span></div>
+        </a>
+        
+        <a href="games/Double_Dragon.html" class="game-card">
+            <div class="game-card-title">Double Dragon</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Technos</span>
+                <span class="tag">2,606 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 212</span> · <span class="ch-sq2">Square 2: 359</span> · <span class="ch-tri">Triangle: 430</span> · <span class="ch-noi">Noise: 302</span></div>
+        </a>
+        
+        <a href="games/Double_Dragon_II__The_Revenge.html" class="game-card">
+            <div class="game-card-title">Double Dragon II  The Revenge</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Technos</span>
+                <span class="tag">125 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 13</span> · <span class="ch-sq2">Square 2: 22</span> · <span class="ch-tri">Triangle: 49</span> · <span class="ch-noi">Noise: 41</span></div>
+        </a>
+        
+        <a href="games/Double_Dragon_III__The_Sacred_Stones.html" class="game-card">
+            <div class="game-card-title">Double Dragon III  The Sacred Stones</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Technos</span>
+                <span class="tag">42 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 3</span> · <span class="ch-sq2">Square 2: 3</span> · <span class="ch-tri">Triangle: 1</span> · <span class="ch-noi">Noise: 35</span></div>
+        </a>
+        
+        <a href="games/Double_Dribble.html" class="game-card">
+            <div class="game-card-title">Double Dribble</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">7 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 2</span> · <span class="ch-sq2">Square 2: 2</span> · <span class="ch-noi">Noise: 3</span></div>
+        </a>
+        
+        <a href="games/Dr_Chaos.html" class="game-card">
+            <div class="game-card-title">Dr Chaos</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">98 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 32</span> · <span class="ch-sq2">Square 2: 40</span> · <span class="ch-tri">Triangle: 6</span> · <span class="ch-noi">Noise: 20</span></div>
+        </a>
+        
+        <a href="games/Dr_Jekyll_and_Mr_Hyde.html" class="game-card">
+            <div class="game-card-title">Dr Jekyll and Mr Hyde</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">23 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 1</span> · <span class="ch-sq2">Square 2: 22</span></div>
+        </a>
+        
+        <a href="games/Dr_Mario.html" class="game-card">
+            <div class="game-card-title">Dr Mario</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Nintendo</span>
+                <span class="tag">702 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 167</span> · <span class="ch-sq2">Square 2: 167</span> · <span class="ch-tri">Triangle: 368</span></div>
+        </a>
+        
+        <a href="games/Dracs_Night_Out.html" class="game-card">
+            <div class="game-card-title">Dracs Night Out</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">21 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 9</span> · <span class="ch-sq2">Square 2: 9</span> · <span class="ch-tri">Triangle: 1</span> · <span class="ch-noi">Noise: 2</span></div>
+        </a>
+        
+        <a href="games/Dragon_Fighter.html" class="game-card">
+            <div class="game-card-title">Dragon Fighter</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">238 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 106</span> · <span class="ch-sq2">Square 2: 105</span> · <span class="ch-tri">Triangle: 15</span> · <span class="ch-noi">Noise: 12</span></div>
+        </a>
+        
+        <a href="games/Dragon_Spirit__The_New_Legend.html" class="game-card">
+            <div class="game-card-title">Dragon Spirit  The New Legend</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">5 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 2</span> · <span class="ch-sq2">Square 2: 2</span> · <span class="ch-tri">Triangle: 1</span></div>
+        </a>
+        
+        <a href="games/Dragon_Warrior.html" class="game-card">
+            <div class="game-card-title">Dragon Warrior</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Enix</span>
+                <span class="tag">1,268 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 115</span> · <span class="ch-sq2">Square 2: 85</span> · <span class="ch-tri">Triangle: 117</span></div>
+        </a>
+        
+        <a href="games/Dragon_Warrior_II.html" class="game-card">
+            <div class="game-card-title">Dragon Warrior II</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Enix</span>
+                <span class="tag">259 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 97</span> · <span class="ch-sq2">Square 2: 79</span> · <span class="ch-tri">Triangle: 83</span></div>
+        </a>
+        
+        <a href="games/Dragons_Lair.html" class="game-card">
+            <div class="game-card-title">Dragons Lair</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">24 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 9</span> · <span class="ch-sq2">Square 2: 5</span> · <span class="ch-tri">Triangle: 3</span> · <span class="ch-noi">Noise: 7</span></div>
+        </a>
+        
+        <a href="games/Duck_Tales.html" class="game-card">
+            <div class="game-card-title">Duck Tales</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">886 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 394</span> · <span class="ch-sq2">Square 2: 393</span> · <span class="ch-tri">Triangle: 99</span></div>
+        </a>
+        
+        <a href="games/DuckTales.html" class="game-card">
+            <div class="game-card-title">DuckTales</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">111 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 25</span> · <span class="ch-sq2">Square 2: 25</span> · <span class="ch-tri">Triangle: 32</span> · <span class="ch-noi">Noise: 29</span></div>
+        </a>
+        
+        <a href="games/DuckTales_2.html" class="game-card">
+            <div class="game-card-title">DuckTales 2</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">86 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 30</span> · <span class="ch-sq2">Square 2: 9</span> · <span class="ch-tri">Triangle: 21</span> · <span class="ch-noi">Noise: 26</span></div>
+        </a>
+        
+        <a href="games/Dungeon_Magic__Sword_of_the_Elements.html" class="game-card">
+            <div class="game-card-title">Dungeon Magic  Sword of the Elements</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">9 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 2</span> · <span class="ch-sq2">Square 2: 2</span> · <span class="ch-tri">Triangle: 5</span></div>
+        </a>
+        
+        <a href="games/Dusty_Diamonds_All_Star_Softball.html" class="game-card">
+            <div class="game-card-title">Dusty Diamonds All Star Softball</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">113 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 30</span> · <span class="ch-sq2">Square 2: 10</span> · <span class="ch-tri">Triangle: 26</span> · <span class="ch-noi">Noise: 47</span></div>
+        </a>
+        
+        <a href="games/Dynowarz__The_Destruction_of_Spondylus.html" class="game-card">
+            <div class="game-card-title">Dynowarz  The Destruction of Spondylus</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">441 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 18</span> · <span class="ch-sq2">Square 2: 9</span> · <span class="ch-tri">Triangle: 35</span> · <span class="ch-noi">Noise: 379</span></div>
+        </a>
+        
+        <a href="games/Earthbound.html" class="game-card">
+            <div class="game-card-title">Earthbound</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">16 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 11</span> · <span class="ch-tri">Triangle: 5</span></div>
+        </a>
+        
+        <a href="games/Eliminator_Boat_Duel.html" class="game-card">
+            <div class="game-card-title">Eliminator Boat Duel</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">46 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 4</span> · <span class="ch-sq2">Square 2: 5</span> · <span class="ch-tri">Triangle: 19</span> · <span class="ch-noi">Noise: 18</span></div>
+        </a>
+        
+        <a href="games/Elite.html" class="game-card">
+            <div class="game-card-title">Elite</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">112 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 8</span> · <span class="ch-sq2">Square 2: 15</span> · <span class="ch-tri">Triangle: 61</span> · <span class="ch-noi">Noise: 28</span></div>
+        </a>
+        
+        <a href="games/Excitebike.html" class="game-card">
+            <div class="game-card-title">Excitebike</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Nintendo</span>
+                <span class="tag">108 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 29</span> · <span class="ch-sq2">Square 2: 38</span> · <span class="ch-tri">Triangle: 41</span></div>
+        </a>
+        
+        <a href="games/Exploding_Fist.html" class="game-card">
+            <div class="game-card-title">Exploding Fist</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">144 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 46</span> · <span class="ch-sq2">Square 2: 18</span> · <span class="ch-tri">Triangle: 79</span> · <span class="ch-noi">Noise: 1</span></div>
+        </a>
+        
+        <a href="games/F_117A_Stealth_Fighter.html" class="game-card">
+            <div class="game-card-title">F 117A Stealth Fighter</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">45 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 4</span> · <span class="ch-sq2">Square 2: 4</span> · <span class="ch-tri">Triangle: 8</span> · <span class="ch-noi">Noise: 29</span></div>
+        </a>
+        
+        <a href="games/Faxanadu.html" class="game-card">
+            <div class="game-card-title">Faxanadu</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">40,528 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 311</span> · <span class="ch-sq2">Square 2: 669</span> · <span class="ch-tri">Triangle: 684</span></div>
+        </a>
+        
+        <a href="games/Felix_Cat.html" class="game-card">
+            <div class="game-card-title">Felix Cat</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">1,405 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 216</span> · <span class="ch-sq2">Square 2: 375</span> · <span class="ch-tri">Triangle: 371</span> · <span class="ch-noi">Noise: 443</span></div>
+        </a>
+        
+        <a href="games/Final_Fantasy.html" class="game-card">
+            <div class="game-card-title">Final Fantasy</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Square</span>
+                <span class="tag">14,602 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 534</span> · <span class="ch-sq2">Square 2: 531</span> · <span class="ch-tri">Triangle: 416</span></div>
+        </a>
+        
+        <a href="games/Final_Fantasy_II.html" class="game-card">
+            <div class="game-card-title">Final Fantasy II</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Square</span>
+                <span class="tag">721 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 361</span> · <span class="ch-sq2">Square 2: 360</span></div>
+        </a>
+        
+        <a href="games/Final_Fantasy_III.html" class="game-card">
+            <div class="game-card-title">Final Fantasy III</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Square</span>
+                <span class="tag">1,002 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 502</span> · <span class="ch-sq2">Square 2: 500</span></div>
+        </a>
+        
+        <a href="games/Fire_Ice.html" class="game-card">
+            <div class="game-card-title">Fire Ice</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">127 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 45</span> · <span class="ch-sq2">Square 2: 39</span> · <span class="ch-tri">Triangle: 13</span> · <span class="ch-noi">Noise: 30</span></div>
+        </a>
+        
+        <a href="games/Gargoyles_Quest_II.html" class="game-card">
+            <div class="game-card-title">Gargoyles Quest II</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">366 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 142</span> · <span class="ch-sq2">Square 2: 124</span> · <span class="ch-tri">Triangle: 100</span></div>
+        </a>
+        
+        <a href="games/Ghosts_n_Goblins.html" class="game-card">
+            <div class="game-card-title">Ghosts n Goblins</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">960 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 223</span> · <span class="ch-sq2">Square 2: 516</span> · <span class="ch-tri">Triangle: 211</span> · <span class="ch-noi">Noise: 10</span></div>
+        </a>
+        
+        <a href="games/Gradius.html" class="game-card">
+            <div class="game-card-title">Gradius</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Konami Maezawa</span>
+                <span class="tag">739 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 739</span></div>
+        </a>
+        
+        <a href="games/Guardian_Legend.html" class="game-card">
+            <div class="game-card-title">Guardian Legend</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">681 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 127</span> · <span class="ch-sq2">Square 2: 153</span> · <span class="ch-tri">Triangle: 289</span> · <span class="ch-noi">Noise: 112</span></div>
+        </a>
+        
+        <a href="games/Ice_Climber.html" class="game-card">
+            <div class="game-card-title">Ice Climber</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Nintendo</span>
+                <span class="tag">93 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 30</span> · <span class="ch-sq2">Square 2: 31</span> · <span class="ch-tri">Triangle: 32</span></div>
+        </a>
+        
+        <a href="games/Journey_to_Silius.html" class="game-card">
+            <div class="game-card-title">Journey to Silius</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Sunsoft</span>
+                <span class="tag">3,430 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 201</span> · <span class="ch-sq2">Square 2: 235</span> · <span class="ch-tri">Triangle: 2299</span> · <span class="ch-noi">Noise: 182</span></div>
+        </a>
+        
+        <a href="games/Kid_Icarus.html" class="game-card">
+            <div class="game-card-title">Kid Icarus</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Nintendo</span>
+                <span class="tag">13,692 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 325</span> · <span class="ch-sq2">Square 2: 513</span> · <span class="ch-tri">Triangle: 289</span> · <span class="ch-noi">Noise: 150</span></div>
+        </a>
+        
+        <a href="games/Kirbys_Adventure.html" class="game-card">
+            <div class="game-card-title">Kirbys Adventure</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Nintendo</span>
+                <span class="tag">8,853 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 567</span> · <span class="ch-sq2">Square 2: 654</span> · <span class="ch-tri">Triangle: 593</span> · <span class="ch-noi">Noise: 1143</span></div>
+        </a>
+        
+        <a href="games/Little_Nemo.html" class="game-card">
+            <div class="game-card-title">Little Nemo</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">1,044 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 153</span> · <span class="ch-sq2">Square 2: 249</span> · <span class="ch-tri">Triangle: 322</span> · <span class="ch-noi">Noise: 320</span></div>
+        </a>
+        
+        <a href="games/Maniac_Mansion.html" class="game-card">
+            <div class="game-card-title">Maniac Mansion</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Warhol</span>
+                <span class="tag">906 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 216</span> · <span class="ch-sq2">Square 2: 165</span> · <span class="ch-tri">Triangle: 19</span> · <span class="ch-noi">Noise: 506</span></div>
+        </a>
+        
+        <a href="games/Mega_Man_1.html" class="game-card">
+            <div class="game-card-title">Mega Man 1</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">1,350 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 576</span> · <span class="ch-sq2">Square 2: 576</span> · <span class="ch-tri">Triangle: 198</span></div>
+        </a>
+        
+        <a href="games/Mega_Man_2.html" class="game-card">
+            <div class="game-card-title">Mega Man 2</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">80,631 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 280</span> · <span class="ch-sq2">Square 2: 327</span> · <span class="ch-tri">Triangle: 450</span> · <span class="ch-noi">Noise: 782</span></div>
+        </a>
+        
+        <a href="games/Mega_Man_3.html" class="game-card">
+            <div class="game-card-title">Mega Man 3</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">1,421 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 331</span> · <span class="ch-sq2">Square 2: 225</span> · <span class="ch-tri">Triangle: 469</span> · <span class="ch-noi">Noise: 396</span></div>
+        </a>
+        
+        <a href="games/Mega_Man_4.html" class="game-card">
+            <div class="game-card-title">Mega Man 4</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">610 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 95</span> · <span class="ch-sq2">Square 2: 247</span> · <span class="ch-tri">Triangle: 130</span> · <span class="ch-noi">Noise: 138</span></div>
+        </a>
+        
+        <a href="games/Mega_Man_5.html" class="game-card">
+            <div class="game-card-title">Mega Man 5</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">1,746 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 164</span> · <span class="ch-sq2">Square 2: 587</span> · <span class="ch-tri">Triangle: 275</span> · <span class="ch-noi">Noise: 720</span></div>
+        </a>
+        
+        <a href="games/Mega_Man_6.html" class="game-card">
+            <div class="game-card-title">Mega Man 6</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">1,148 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 184</span> · <span class="ch-sq2">Square 2: 255</span> · <span class="ch-tri">Triangle: 297</span> · <span class="ch-noi">Noise: 412</span></div>
+        </a>
+        
+        <a href="games/Metal_Storm.html" class="game-card">
+            <div class="game-card-title">Metal Storm</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">147 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 22</span> · <span class="ch-sq2">Square 2: 68</span> · <span class="ch-noi">Noise: 57</span></div>
+        </a>
+        
+        <a href="games/Metroid.html" class="game-card">
+            <div class="game-card-title">Metroid</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Nintendo</span>
+                <span class="tag">257 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 60</span> · <span class="ch-sq2">Square 2: 126</span> · <span class="ch-tri">Triangle: 54</span> · <span class="ch-noi">Noise: 17</span></div>
+        </a>
+        
+        <a href="games/Mighty_Final_Fight.html" class="game-card">
+            <div class="game-card-title">Mighty Final Fight</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">1,116 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 152</span> · <span class="ch-sq2">Square 2: 355</span> · <span class="ch-tri">Triangle: 224</span> · <span class="ch-noi">Noise: 385</span></div>
+        </a>
+        
+        <a href="games/Ninja_Kid.html" class="game-card">
+            <div class="game-card-title">Ninja Kid</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">68 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 68</span></div>
+        </a>
+        
+        <a href="games/Over_Horizon.html" class="game-card">
+            <div class="game-card-title">Over Horizon</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">3,043 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 162</span> · <span class="ch-sq2">Square 2: 1113</span> · <span class="ch-tri">Triangle: 630</span> · <span class="ch-noi">Noise: 1138</span></div>
+        </a>
+        
+        <a href="games/RC_Pro-Am.html" class="game-card">
+            <div class="game-card-title">RC Pro-Am</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">170 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 94</span> · <span class="ch-sq2">Square 2: 39</span> · <span class="ch-tri">Triangle: 26</span> · <span class="ch-noi">Noise: 11</span></div>
+        </a>
+        
+        <a href="games/Rocketeer.html" class="game-card">
+            <div class="game-card-title">Rocketeer</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Warhol</span>
+                <span class="tag">285 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 55</span> · <span class="ch-sq2">Square 2: 59</span> · <span class="ch-tri">Triangle: 36</span> · <span class="ch-noi">Noise: 135</span></div>
+        </a>
+        
+        <a href="games/Rygar.html" class="game-card">
+            <div class="game-card-title">Rygar</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">242 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 147</span> · <span class="ch-sq2">Square 2: 51</span> · <span class="ch-tri">Triangle: 40</span> · <span class="ch-noi">Noise: 4</span></div>
+        </a>
+        
+        <a href="games/Shadow_of_Ninja.html" class="game-card">
+            <div class="game-card-title">Shadow of Ninja</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">2,022 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 357</span> · <span class="ch-sq2">Square 2: 184</span> · <span class="ch-tri">Triangle: 437</span> · <span class="ch-noi">Noise: 1044</span></div>
+        </a>
+        
+        <a href="games/Shatterhand.html" class="game-card">
+            <div class="game-card-title">Shatterhand</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">612 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 77</span> · <span class="ch-sq2">Square 2: 28</span> · <span class="ch-tri">Triangle: 105</span> · <span class="ch-noi">Noise: 402</span></div>
+        </a>
+        
+        <a href="games/Silver_Surfer.html" class="game-card">
+            <div class="game-card-title">Silver Surfer</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">1,934 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 571</span> · <span class="ch-sq2">Square 2: 620</span> · <span class="ch-noi">Noise: 743</span></div>
+        </a>
+        
+        <a href="games/Solar_Jetman.html" class="game-card">
+            <div class="game-card-title">Solar Jetman</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">57 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 2</span> · <span class="ch-sq2">Square 2: 2</span> · <span class="ch-tri">Triangle: 3</span> · <span class="ch-noi">Noise: 50</span></div>
+        </a>
+        
+        <a href="games/Solstice.html" class="game-card">
+            <div class="game-card-title">Solstice</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">1,794 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 610</span> · <span class="ch-sq2">Square 2: 623</span> · <span class="ch-noi">Noise: 561</span></div>
+        </a>
+        
+        <a href="games/Star_Tropics.html" class="game-card">
+            <div class="game-card-title">Star Tropics</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">17 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 4</span> · <span class="ch-sq2">Square 2: 4</span> · <span class="ch-tri">Triangle: 4</span> · <span class="ch-noi">Noise: 5</span></div>
+        </a>
+        
+        <a href="games/Strider.html" class="game-card">
+            <div class="game-card-title">Strider</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Capcom</span>
+                <span class="tag">2,178 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 249</span> · <span class="ch-sq2">Square 2: 342</span> · <span class="ch-tri">Triangle: 425</span> · <span class="ch-noi">Noise: 1162</span></div>
+        </a>
+        
+        <a href="games/Super_Mario_Bros_3.html" class="game-card">
+            <div class="game-card-title">Super Mario Bros 3</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">7,383 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 142</span> · <span class="ch-sq2">Square 2: 3711</span> · <span class="ch-tri">Triangle: 98</span> · <span class="ch-noi">Noise: 140</span></div>
+        </a>
+        
+        <a href="games/TMNT_II.html" class="game-card">
+            <div class="game-card-title">TMNT II</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">1,119 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 206</span> · <span class="ch-noi">Noise: 913</span></div>
+        </a>
+        
+        <a href="games/TMNT_III.html" class="game-card">
+            <div class="game-card-title">TMNT III</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">225 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 20</span> · <span class="ch-sq2">Square 2: 23</span> · <span class="ch-tri">Triangle: 87</span> · <span class="ch-noi">Noise: 95</span></div>
+        </a>
+        
+        <a href="games/Tetris.html" class="game-card">
+            <div class="game-card-title">Tetris</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Nintendo</span>
+                <span class="tag">109 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 109</span></div>
+        </a>
+        
+        <a href="games/Tiny_Toon.html" class="game-card">
+            <div class="game-card-title">Tiny Toon</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">1,236 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 82</span> · <span class="ch-sq2">Square 2: 68</span> · <span class="ch-tri">Triangle: 390</span> · <span class="ch-noi">Noise: 696</span></div>
+        </a>
+        
+        <a href="games/Zelda_II.html" class="game-card">
+            <div class="game-card-title">Zelda II</div>
+            <div class="game-card-meta">
+                <span class="tag tag-green">Unknown</span>
+                <span class="tag">25,027 notes</span>
+            </div>
+            <div class="game-card-notes"><span class="ch-sq1">Square 1: 210</span> · <span class="ch-sq2">Square 2: 121</span> · <span class="ch-tri">Triangle: 163</span> · <span class="ch-noi">Noise: 4</span></div>
+        </a>
+        
+</div>
+
+</div>
+<footer>NES Tone Database &mdash; Built with nes_rom_capture.py, extract_tones.py, and build_website.py</footer>
+</body>
+</html>
