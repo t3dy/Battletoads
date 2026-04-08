@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chessmaster The — NES Tone Database</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #d0d0d0; line-height: 1.7; }
+a { color: #00ccff; text-decoration: none; }
+a:hover { text-decoration: underline; color: #66ddff; }
+
+/* Navigation */
+.site-header { background: #0d0d14; border-bottom: 2px solid #1a1a2e; padding: 0 20px; position: sticky; top: 0; z-index: 100; }
+.site-header nav { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 0; }
+.site-title { color: #00ff88; font-size: 16px; font-weight: bold; padding: 14px 20px 14px 0; margin-right: 10px; border-right: 1px solid #222; white-space: nowrap; }
+.nav-link { padding: 14px 18px; color: #888; font-size: 14px; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.nav-link:hover { color: #fff; text-decoration: none; border-bottom-color: #444; }
+.nav-link.active { color: #00ff88; border-bottom-color: #00ff88; }
+
+/* Layout */
+.container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+h1 { color: #00ff88; font-size: 28px; margin-bottom: 8px; }
+h2 { color: #00ccff; font-size: 22px; margin: 35px 0 15px; border-bottom: 1px solid #1a1a2e; padding-bottom: 8px; }
+h3 { color: #e0e0e0; font-size: 17px; margin: 20px 0 10px; }
+h4 { color: #00ff88; font-size: 14px; margin: 15px 0 8px; }
+.subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
+p { margin-bottom: 12px; font-size: 15px; }
+
+/* Cards */
+.card { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+.card:hover { border-color: #333; }
+
+/* Stats */
+.stats { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; }
+.stat { background: #111; padding: 12px 18px; border-radius: 8px; border: 1px solid #1a1a2e; }
+.stat-num { color: #00ff88; font-size: 28px; font-weight: bold; line-height: 1; }
+.stat-label { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Search */
+.search-box { width: 100%; padding: 12px 16px; margin-bottom: 20px; background: #0d0d14; border: 1px solid #222; color: #fff; font-family: inherit; font-size: 14px; border-radius: 8px; }
+.search-box:focus { outline: none; border-color: #00ff88; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+th { text-align: left; padding: 10px 14px; background: #0d0d14; color: #00ff88; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #1a1a2e; }
+td { padding: 12px 14px; border-bottom: 1px solid #111; font-size: 14px; vertical-align: top; }
+tr:hover td { background: #0d0d14; }
+
+/* Two-column comparison */
+.comparison-table td:first-child { border-right: 1px solid #1a1a2e; width: 50%; }
+.comparison-table th:first-child { border-right: 1px solid #1a1a2e; }
+
+/* Code blocks */
+.code-block { background: #0d0d14; padding: 14px 18px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 13px; color: #ccc; border-left: 3px solid #00ff88; margin: 12px 0; overflow-x: auto; white-space: pre-wrap; }
+
+/* Expandable sections */
+details { margin: 10px 0; }
+details summary { cursor: pointer; font-size: 14px; color: #00ccff; padding: 8px 0; }
+details summary:hover { color: #66ddff; }
+details[open] summary { margin-bottom: 8px; }
+details > div, details > p { padding-left: 12px; border-left: 2px solid #1a1a2e; margin-left: 4px; }
+
+/* Tags */
+.tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; margin-right: 6px; background: #1a1a2e; color: #888; }
+.tag-green { background: #0d1f0d; color: #00ff88; }
+.tag-cyan { background: #0d1520; color: #00ccff; }
+
+/* Sparklines */
+.sparkline { background: #080812; border-radius: 4px; }
+
+/* Game cards grid */
+.game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.game-card { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; padding: 16px; display: block; color: inherit; transition: all 0.2s; }
+.game-card:hover { border-color: #00ff88; text-decoration: none; transform: translateY(-2px); }
+.game-card-title { color: #00ccff; font-size: 16px; font-weight: bold; margin-bottom: 6px; }
+.game-card-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.game-card-notes { color: #666; font-size: 12px; }
+
+/* Channel colors */
+.ch-sq1 { color: #ff6b6b; }
+.ch-sq2 { color: #ffa94d; }
+.ch-tri { color: #51cf66; }
+.ch-noi { color: #748ffc; }
+
+/* Instrument cards on game pages */
+.instrument { background: #111; border: 1px solid #1a1a2e; border-radius: 8px; margin-bottom: 24px; overflow: hidden; }
+.instrument-header { padding: 16px 20px; border-bottom: 1px solid #1a1a2e; display: flex; justify-content: space-between; align-items: center; }
+.instrument-body { padding: 20px; }
+.envelope-row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 15px; }
+.adsr-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.adsr-pill { background: #0d0d14; padding: 4px 10px; border-radius: 4px; font-size: 12px; }
+.duty-viz { font-family: monospace; font-size: 28px; letter-spacing: 3px; color: #00ccff; margin: 8px 0; }
+.harmonic-text { font-size: 14px; color: #bbb; line-height: 1.7; margin-top: 12px; }
+
+/* Waveform diagrams */
+.waveform-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+
+footer { max-width: 1100px; margin: 40px auto 20px; padding: 15px 20px; border-top: 1px solid #1a1a2e; color: #444; font-size: 11px; text-align: center; }
+</style>
+</head>
+<body>
+<header class="site-header"><nav>
+        <span class="site-title">NES Tone Database</span>
+        <a href="index.html" class="nav-link active">Games</a><a href="tones.html" class="nav-link">Tones</a><a href="how-it-works.html" class="nav-link">How It Works</a><a href="docs.html" class="nav-link">Documents</a>
+    </nav></header>
+<div class="container">
+
+<p style="color:#666;font-size:13px;margin-bottom:5px"><a href="index.html">NES Tone Database</a> &rsaquo; Games</p>
+<h1>Chessmaster The</h1>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+    <span class="tag tag-green">Unknown</span>
+    <span class="tag tag-cyan">1 channels active</span>
+    <span class="tag">23 notes captured</span>
+</div>
+
+<h2>Sound Architecture</h2>
+<div class="card">
+    <h4>Unknown Driver</h4>
+    <p>Driver not yet identified for this game.</p>
+    <details>
+        <summary>Technical encoding format</summary>
+        <div class="code-block">Standard NES APU data-driven player. Technical details pending analysis.</div>
+    </details>
+    <p style="font-style:italic;color:#888;margin-top:10px"><strong>Sonic signature:</strong> Varies.</p>
+</div>
+
+<h2>Instruments</h2>
+
+        <div class="instrument" style="border-left: 4px solid #ffa94d">
+            <div class="instrument-header" style="border-left: none">
+                <h3 class="ch-sq2">Square 2</h3>
+                <span class="tag">23 notes · 213ms avg</span>
+            </div>
+            <div class="instrument-body">
+
+                <div class="harmonic-text">
+                    
+        <p>In Chessmaster The, Square 2 uses 50% duty cycle consistently — warm, full, and round — a pure square wave with that classic NES lead character, like a low recorder. At moderate volume (peak 68/127), it plays sparse moderate phrases averaging 213ms per note.</p>
+        <p>The envelope is consistently sustained: sustained at near-constant volume — a smooth, organ-like tone where notes flow into each other.</p>
+        <p>Provides harmony / countermelody.</p>
+        
+                </div>
+
+                <div class="envelope-row">
+                    <div>
+                        <div class="waveform-label">Volume Envelope</div>
+                        <svg width="200" height="60" class="sparkline"><polyline points="0,4 7,4 14,4 21,4 28,4 34,4 41,4 48,4 55,4 62,4 69,4 76,4 83,4 90,4 97,4 103,4 110,4 117,4 124,4 131,4 138,4 145,4 152,4 159,4 166,4 172,4 179,4 186,4 193,4 200,4" fill="none" stroke="#ffa94d" stroke-width="2"/></svg>
+                        <div class="adsr-pills">
+                            <span class="adsr-pill">A: 0ms</span>
+                            <span class="adsr-pill">D: 0ms</span>
+                            <span class="adsr-pill">S: 100%</span>
+                            <span class="adsr-pill">R: 0ms</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="waveform-label">Envelope Shape: sustained</div>
+                        <p style="font-size:13px;color:#999">Consistent volume throughout the note with minimal decay.</p>
+                        <p style="font-size:13px;color:#777;margin-top:6px">Creates smooth, flowing melodies. Common in RPG town themes, love themes, and any passage that needs a lyrical quality. The constant volume makes the melody feel like a voice singing rather than an instrument plucking. Final Fantasy and Dragon Quest use this extensively.</p>
+                        <p style="font-size:12px;color:#00ff88;margin-top:6px"><strong>Synth tip:</strong> Set sustain to maximum. The NES achieves this by writing the same volume value every frame — in MIDI terms, CC11 stays constant throughout the note.</p>
+                    </div>
+                </div>
+
+                <details>
+                    <summary>NES Hardware vs Modern Synth — How to Recreate This Sound</summary>
+                    <div>
+            <table class="comparison-table">
+                <tr><th>NES Hardware (RP2A03)</th><th>Recreating in REAPER (ReapNES Console)</th></tr>
+                <tr>
+                    <td>True square wave — symmetrical, HIGH and LOW for equal time. Duty value 2 ($80 in register). The richest harmonic content of any NES duty cycle.</td>
+                    <td>CC12 = 64-95 in ReapNES. In any synth, this is the standard square wave. The foundation of chiptune sound. Most lead melody patches start here.
+            <p style="margin-top:10px"><strong>For Chessmaster The specifically:</strong>
+            Set attack to 0ms, decay to 0ms,
+            sustain to 100%.
+            The sustained envelope means CC11 stays near-constant — let the automation drive the volume, dont add ADSR shaping.</p></td>
+                </tr>
+            </table>
+            <div class="harmonic-text">
+                <h4>Harmonic Character — 50% Duty Cycle</h4>
+                <div class="duty-viz">▁▁▁▁████</div>
+                <p>Contains only odd harmonics (1st, 3rd, 5th, 7th...) falling off as 1/n. This gives the square wave its warm, hollow, woody quality — the richest pulse tone the NES can produce.</p>
+            </div>
+            </div>
+                </details>
+            </div>
+        </div>
+        
+
+</div>
+<footer>NES Tone Database &mdash; <a href="index.html">Back to Games</a></footer>
+</body>
+</html>
